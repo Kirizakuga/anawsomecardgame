@@ -1,0 +1,112 @@
+// [Working Title] — Card Battler
+// DBML representation of the card/hero/bot-archetype data model.
+//
+// IMPORTANT: This project has no real database (see data.md — card/hero/bot
+// data lives as Godot .tres Resource files, loaded by CardDatabase). This
+// DBML exists purely to document/visualize that shape (e.g. via dbdiagram.io)
+// — it is not something to implement literally in Godot.
+//
+// Sources: TDD.md §3.2 (CardResource + subclasses), TDD.md §3.5 (BotArchetype),
+// GDD.md §7 (deck building), data.md (id uniqueness, save format TBD).
+
+Enum rarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+Enum card_type {
+  CREATURE
+  SPELL
+  LANDSCAPE
+  HERO
+}
+
+// Base fields shared by every card, per TDD.md §3.2 CardResource.
+// Subclasses below are modeled as class-table-inheritance: one row per
+// subclass table, keyed on the same id as its base `cards` row.
+Table cards {
+  id varchar [pk, note: 'Must be globally unique — currently a manual/review responsibility (data.md), no enforced constraint yet.']
+  display_name varchar
+  essence_cost int
+  rarity rarity
+  art_path varchar [note: 'Texture2D reference']
+  card_type card_type [note: 'discriminator for which subclass table has the matching row']
+  floop_effect_id varchar [ref: > floop_effects.id, null, note: 'nullable — not every card floops']
+}
+
+Table creatures {
+  card_id varchar [pk, ref: - cards.id]
+  attack int
+  defense int
+  affinity varchar [ref: > affinities.name, note: 'ties to Hero class/affinity, GDD.md §7']
+}
+
+Table spells {
+  card_id varchar [pk, ref: - cards.id]
+  effect_ref varchar [note: 'effect script reference or effect-enum+params — exact representation still open, TDD.md §6']
+}
+
+Table landscapes {
+  card_id varchar [pk, ref: - cards.id]
+  buff_restriction_rules text [note: 'placement limits/replacement rules still open — GDD.md §11']
+  affected_affinity varchar [ref: > affinities.name]
+}
+
+Table heroes {
+  card_id varchar [pk, ref: - cards.id]
+  passive_trait text
+  ultimate_card_id varchar [ref: > cards.id, note: 'Hero resource directly references its unique Ultimate CardResource']
+  friend_name varchar [note: 'roster is friend-group-personal, GDD.md §1']
+  flavor_text text
+}
+
+Table floop_effects {
+  id varchar [pk]
+  description text
+  cost_type varchar [note: 'Essence or tempo, GDD.md §3']
+  cost_amount int
+}
+
+Table affinities {
+  name varchar [pk, note: 'determined by Hero class at deck-build time, GDD.md §7']
+}
+
+// TDD.md §3.5 — weight table per archetype, no ML, just weighted scoring.
+Table bot_archetypes {
+  id varchar [pk]
+  name varchar [note: 'Aggressive, Opportunist, Loyalist, Turtle — GDD.md §10']
+  aggression_weight float
+  pact_loyalty_weight float
+  betrayal_opportunism_weight float
+  // additional weighted features per GDD.md §10 scoring model, TBD as bots are tuned
+}
+
+// Deck persistence — format (ResourceSaver vs JSON) explicitly unresolved,
+// see TDD.md §6 and data.md ("don't pick one mid-task without checking M2-03").
+Table decks {
+  id varchar [pk]
+  owner varchar [note: 'player/profile identity — not yet modeled elsewhere in the docs']
+  hero_card_id varchar [ref: > cards.id]
+}
+
+Table deck_cards {
+  deck_id varchar [ref: > decks.id]
+  card_id varchar [ref: > cards.id]
+  copies int [note: 'max copies per card, default 3, GDD.md §7']
+
+  indexes {
+    (deck_id, card_id) [pk]
+  }
+}
+
+Table deck_landscapes {
+  deck_id varchar [ref: > decks.id]
+  card_id varchar [ref: > cards.id]
+  note_field varchar [note: 'separate ~5-8 card sub-deck, GDD.md §7']
+
+  indexes {
+    (deck_id, card_id) [pk]
+  }
+}

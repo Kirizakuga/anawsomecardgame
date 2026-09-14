@@ -1,0 +1,7 @@
+﻿# Normalize EOL for all files that Git considers text files.
+* text=auto eol=lf
+
+# Godot scene/resource files — treat as text for clean diffs
+*.tscn text diff
+*.tres text diff
+*.gd text diff
