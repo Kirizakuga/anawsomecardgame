@@ -35,7 +35,7 @@
 
 ### The Floop Mechanic (reinterpreted)
 - Originally: turning a building card sideways to flip it into play as a hologram.
-- Our version: **any card** has a front side (normal stats/effect) and can be **flooped** (flipped/turned) to activate a hidden secondary ability, at a cost (Essence or tempo).
+- Our version: a card may have a front side (normal stats/effect) and can be **flooped** (flipped/turned) to activate a hidden secondary ability, at a cost (Essence or tempo). Floop is optional per card; its data is represented by a nullable `FloopEffectResource`.
 - Keeps the tactile, signature "flip" hook from the original as an homage without directly copying it.
 
 ---
@@ -60,6 +60,7 @@ For 4–6 player matches, turns are **not** strictly sequential. Instead:
 - **2-player mode:** Classic facing lanes (Card Wars-style), each player has a row of lanes with creatures facing off directly.
 - **4–6 player mode ("Kingdoms in a circle"):** Each player has their own mini-board (**Kingdom**) with its own lanes and Life total, arranged in a circle/hex arena. When a creature attacks, the player chooses *which opponent's Kingdom* to target — not locked to a single facing opponent.
 
+- Each Kingdom has **3 lanes**, and each lane holds **1 Creature**.
 ---
 
 ## 6. Free-for-All Systems (4–6 Players)
@@ -129,11 +130,9 @@ Bots fill empty seats in 4–6 player matches (and are the sole opponents for no
 
 ## 11. Open Design Questions / To Do
 - [ ] Final Essence-per-turn curve (numbers/scaling)
-- [ ] Exact lane count per Kingdom, and how many creatures can occupy a lane
 - [ ] Full rules for Landscape placement (limits per board, replacement rules)
 - [ ] Hero roster: friend characters, passive traits, Ultimate cards (next step)
 - [ ] Tutorial/onboarding flow for new (non-friend-group) players, if ever made public
-- [ ] Godot technical architecture: card data as Resources, scene structure, decision-source interface implementation
 
 ---
 

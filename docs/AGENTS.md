@@ -17,5 +17,6 @@ These rules apply to anyone — human or AI — making changes in this repo. The
 13. Keep `ResolutionEngine`'s resolution order deterministic per `TDD.md` §3.6 (Landscapes → Spells → Creatures → Pact changes → Betrayals) — don't reorder it just to make a feature easier to implement.
 14. Before finishing, state plainly which files you created or changed and why, so the next contributor (human or AI) doesn't have to diff-hunt to find out.
 15. Prefer simple, readable GDScript over clever abstractions. Don't add plugins/addons, change project settings, or restructure the folders in `TDD.md` §2 unless the task explicitly calls for it.
+16. When implementation makes `README.md`, `architecture.md`, `data.md`, or `development.md` factually stale, update the affected companion doc in the same task and state that change in the handoff.
 
 If you're ever unsure whether something is in scope: ask, or flag it in `TASKS.md` §5 — don't guess and proceed.

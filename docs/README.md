@@ -27,7 +27,7 @@ Read `GDD.md` and `TDD.md` before touching code; read `AGENTS.md` before touchin
 
 ## Status
 
-This is a pre-Phase-0/early build. Nothing in `TASKS.md` is marked `Done` yet — see `TASKS.md` §2 for current status per task.
+Foundation setup (`M0-01`) is done. All later implementation tasks remain not started; see `TASKS.md` §2 for current status.
 
 ## Intentionally not yet implemented
 

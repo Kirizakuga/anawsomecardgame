@@ -155,7 +155,7 @@ Each `BotArchetype` Resource stores its own weight table (e.g. `aggression_weigh
 
 ### 3.6 Simultaneous Resolution Flow
 1. `TurnManager` enters Play/Floop phase → requests actions from all `DecisionSource`s in parallel (UI stays open for human; bots resolve instantly)
-2. Once all sources return `RoundActions`, `ResolutionEngine.resolve(all_actions)` runs deterministically (fixed order: e.g. Landscapes → Spells → Creatures → Pact changes → Betrayals) to avoid ambiguity
+2. Once all sources return `RoundActions`, `ResolutionEngine.resolve(all_actions)` runs deterministically in this fixed category order: Landscapes → Spells → Creatures → Pact changes → Betrayals. Tie-breaking within a category remains an open technical question.
 3. Results emitted as a signal (`resolution_finished(log: Array)`) — UI plays out animations/log from this data, it doesn't decide outcomes itself
 
 ---
@@ -223,6 +223,4 @@ Each `BotArchetype` Resource stores its own weight table (e.g. `aggression_weigh
 ---
 
 ## 6. Open Technical Questions
-- [ ] Exact deterministic resolution order for simultaneous actions (needs finalizing before Phase 4)
-- [ ] How Floop's "hidden secondary ability" is represented in `CardResource` — separate effect resource vs. script reference
-- [ ] Save system format for decks/progression (Godot's `ResourceSaver` vs. plain JSON for easier debugging)
+- [ ] Deterministic tie-breaking within each simultaneous-resolution category (for example, two Spells resolving in the same round) needs finalizing before Phase 4.
