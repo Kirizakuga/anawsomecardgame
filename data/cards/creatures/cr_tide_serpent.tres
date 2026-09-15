@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CreatureResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/creature_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "cr_tide_serpent"
+display_name = "Tide Serpent"
+essence_cost = 5
+rarity = 1
+attack = 3
+defense = 5
+affinity = "water"

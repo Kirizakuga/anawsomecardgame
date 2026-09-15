@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CreatureResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/creature_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "cr_goblin_scout"
+display_name = "Goblin Scout"
+essence_cost = 1
+rarity = 0
+attack = 1
+defense = 1
+affinity = "fire"

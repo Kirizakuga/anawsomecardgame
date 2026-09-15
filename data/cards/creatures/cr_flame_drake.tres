@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CreatureResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/creature_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "cr_flame_drake"
+display_name = "Flame Drake"
+essence_cost = 4
+rarity = 1
+attack = 4
+defense = 2
+affinity = "fire"

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CreatureResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/creature_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "cr_wind_sprite"
+display_name = "Wind Sprite"
+essence_cost = 2
+rarity = 0
+attack = 2
+defense = 1
+affinity = "air"

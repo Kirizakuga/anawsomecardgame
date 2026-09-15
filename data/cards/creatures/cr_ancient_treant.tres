@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CreatureResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/creature_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "cr_ancient_treant"
+display_name = "Ancient Treant"
+essence_cost = 7
+rarity = 2
+attack = 5
+defense = 6
+affinity = "earth"

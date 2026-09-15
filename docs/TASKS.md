@@ -63,7 +63,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Deliverables: `.tres` files in `data/cards/`.
 - Checkup: `CardDatabase` (once built in M1) can load and list all 10 without error.
 - Dependencies: M0-02.
-- Status: Not Started
+- Status: Done — agent, 2026-09-15
 
 **M0-04 — `KingdomState` plain object class**
 - Spec: Implement per `TDD.md` §3.3 — Life total, lanes array, active landscapes, hand, deck, Essence pool. Pure GDScript object (`RefCounted` or similar), no scene/Node dependency.

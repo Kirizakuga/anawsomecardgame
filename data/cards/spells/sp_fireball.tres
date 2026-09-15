@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SpellResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/spell_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "sp_fireball"
+display_name = "Fireball"
+essence_cost = 3
+rarity = 0
+effect_ref = "damage_3"
