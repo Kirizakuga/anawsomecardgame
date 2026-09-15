@@ -56,7 +56,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Deliverables: `.gd` scripts in `scripts/data/`.
 - Checkup: Can create a `.tres` instance of each subclass in the Godot editor Inspector without script errors. A `CreatureResource` correctly shows `attack`/`defense`/`affinity` fields in the Inspector.
 - Dependencies: M0-01.
-- Status: Not Started
+- Status: Done — agent, 2026-09-15
 
 **M0-03 — Placeholder card set (10 cards)**
 - Spec: Create 10 `.tres` card instances (mix of Creature/Spell/Landscape) using M0-02 classes, for use in early testing. Stats/costs can be arbitrary but internally consistent (e.g. cost roughly scales with power).
