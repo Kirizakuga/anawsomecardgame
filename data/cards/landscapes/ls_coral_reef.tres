@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="LandscapeResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/landscape_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "ls_coral_reef"
+display_name = "Coral Reef"
+essence_cost = 2
+rarity = 0
+affected_affinity = "water"
+buff_restriction_rules = ""
