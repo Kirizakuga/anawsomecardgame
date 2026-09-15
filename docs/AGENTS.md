@@ -18,5 +18,6 @@ These rules apply to anyone — human or AI — making changes in this repo. The
 14. Before finishing, state plainly which files you created or changed and why, so the next contributor (human or AI) doesn't have to diff-hunt to find out.
 15. Prefer simple, readable GDScript over clever abstractions. Don't add plugins/addons, change project settings, or restructure the folders in `TDD.md` §2 unless the task explicitly calls for it.
 16. When implementation makes `README.md`, `architecture.md`, `data.md`, or `development.md` factually stale, update the affected companion doc in the same task and state that change in the handoff.
+17. Before starting each task or module, identify work requiring a human or manual Godot-editor check. State it at the start of the task, or immediately after the agent's code work finishes if that is clearer. Include exact human steps and the acceptance condition; do not silently mark a task done when its required manual check has not been reported.
 
 If you're ever unsure whether something is in scope: ask, or flag it in `TASKS.md` §5 — don't guess and proceed.
