@@ -80,7 +80,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Spec: Autoload implementing Essence → Play/Floop → Battle → Cleanup sequencing per `TDD.md` §3.1 and `GDD.md` §4. Must emit signals on phase change (e.g. `phase_changed(new_phase)`).
 - Checkup: A test scene can subscribe to `phase_changed` and log all 4 phases occurring in order across 3 full turns.
 - Dependencies: M0-04.
-- Status: Not Started
+- Status: Done — agent, 2026-09-15
 
 **M1-02 — `CardView.tscn` + drag-to-play**
 - Spec: Visual card scene showing art, cost, stats. Supports drag-from-hand-to-lane interaction. Must support a "floop" flip animation trigger (visual only at this stage — logic comes in M1-05).
