@@ -63,7 +63,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Deliverables: `.tres` files in `data/cards/`.
 - Checkup: `CardDatabase` (once built in M1) can load and list all 10 without error.
 - Dependencies: M0-02.
-- Status: Done — agent, 2026-09-15
+- Status: Blocked — CardDatabase is required by this task's Checkup but has no implementation task; see §5. Generated-card loading passed interim verification on 2026-09-15.
 
 **M0-04 — `KingdomState` plain object class**
 - Spec: Implement per `TDD.md` §3.3 — Life total, lanes array, active landscapes, hand, deck, Essence pool. Pure GDScript object (`RefCounted` or similar), no scene/Node dependency.
@@ -303,6 +303,11 @@ M1-05, M4-04, M4-05 → M5-04
 ---
 
 ## 5. Open Questions Raised (append here as work proceeds)
+
+- [M0-02] — TDD §3.2 requires HeroResource.portrait: Texture2D while card_battler_schema.dbml omits a portrait field from heroes. Code follows TDD; decide whether to add portrait_path to DBML or intentionally document the omission. — raised by agent on 2026-09-15
+- [M0-02] — TDD §3.2 decides that CardResource references nullable FloopEffectResource but does not define that Resource's fields. Current code uses DBML fields: id, description, cost_type, cost_amount. Confirm this field shape in TDD or revise code before Floop logic starts. — raised by agent on 2026-09-15
+- [M0-03] — Task Checkup requires CardDatabase to load and list all 10 generated cards, but no task owns CardDatabase even though architecture.md and data.md require it as an autoload. Add an owning task before M0-03 can pass its final Checkup. — raised by agent on 2026-09-15
+- [M0-03] — Four pre-existing sample .tres files under data/cards have no IDs; three declare CreatureResource while residing in heroes, spells, or landscapes folders. They violate data.md uniqueness rules and may affect future CardDatabase loading. Decide whether to delete, repair, or explicitly exclude them; do not change them without owner approval. — raised by agent on 2026-09-15
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
 
