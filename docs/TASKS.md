@@ -70,7 +70,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Deliverables: `scripts/core/kingdom_state.gd`.
 - Checkup: Can instantiate `KingdomState`, add/remove a card from hand, modify Life, in a standalone test script with no scene tree running.
 - Dependencies: M0-02.
-- Status: Not Started
+- Status: Done — agent, 2026-09-15
 
 ---
 
