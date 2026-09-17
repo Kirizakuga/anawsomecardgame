@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/lane.gd" id="1_lane"]
+
+[node name="Lane" type="PanelContainer"]
+custom_minimum_size = Vector2(110, 150)
+offset_right = 110.0
+offset_bottom = 150.0
+script = ExtResource("1_lane")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 2

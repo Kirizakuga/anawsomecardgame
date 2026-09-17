@@ -1,0 +1,66 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/match/CardView.tscn" id="1_cview"]
+
+[sub_resource type="GDScript" id="GDScript_preview"]
+script/source = "extends Control
+
+@onready var card_view: CardView = /CardView
+@onready var status_label: Label = 
+
+func _ready() -> void:
+	card_view.floop_triggered.connect(_on_floop)
+	card_view.card_clicked.connect(_on_clicked)
+	_update_status()
+
+func _on_floop(_cv: CardView) -> void:
+	_update_status()
+
+func _on_clicked(_cv: CardView) -> void:
+	status_label.text = \"Card clicked! Flooped: %s\" % str(card_view.is_flooped)
+
+func _update_status() -> void:
+	status_label.text = \"Card: %s | Flooped: %s (Click 'Floop' or drag card)\" % [
+		card_view.card_data.display_name if card_view.card_data else \"None\",
+		str(card_view.is_flooped)
+	]
+"
+
+[node name="CardPreview" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_preview")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.12, 0.15, 1)
+
+[node name="StatusLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 20.0
+offset_bottom = 50.0
+grow_horizontal = 2
+text = "Card Preview"
+horizontal_alignment = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CardView" parent="CenterContainer" instance=ExtResource("1_cview")]
+layout_mode = 2
