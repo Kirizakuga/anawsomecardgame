@@ -18,6 +18,11 @@
 
 This project doesn't yet have an automated test runner — each task in `TASKS.md` defines its own **Checkup** (a manual or scripted verification step, e.g. "a test scene subscribes to `phase_changed` and logs all 4 phases in order"). Build and run that checkup before marking a task `Done`. If the team later adopts an automated GDScript test framework, document the convention here — don't introduce one silently mid-task.
 
+Available verification test scenes:
+- `scenes/main/CardDatabaseCheck.tscn` (M0-03: CardDatabase loading and lookups)
+- `scenes/match/CardViewCheck.tscn` (M1-02: CardView rendering, stats, floop, and drag/snapback)
+- `scenes/match/KingdomCheck.tscn` (M1-03: KingdomView life, lanes, essence deduction, and drop validation)
+
 ## Before submitting changes
 
 - Confirm the relevant task's Checkup criteria pass (`TASKS.md`).
