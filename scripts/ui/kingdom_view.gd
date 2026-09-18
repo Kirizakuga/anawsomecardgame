@@ -1,6 +1,8 @@
 class_name KingdomView
 extends VBoxContainer
 
+signal card_play_requested(card: CardResource, lane_index: int)
+
 @export var is_human: bool = false
 
 @onready var life_label: Label = $Header/LifeLabel
@@ -24,6 +26,7 @@ func _init_lanes() -> void:
 	for i in range(3):
 		var lane: LaneView = lane_scene.instantiate()
 		lane.lane_index = i
+		lane.kingdom_view = self
 		lane.card_dropped_in_lane.connect(_on_card_dropped_in_lane)
 		lanes_container.add_child(lane)
 		lane_views.append(lane)
@@ -57,10 +60,12 @@ func update_view() -> void:
 
 func _on_card_dropped_in_lane(card_view: CardView, lane_index: int) -> void:
 	if kingdom_state and card_view and card_view.card_data:
-		# Update core KingdomState: move card from hand to lane
+		# ponytail: direct state mutation for M1-03 checkup; route through HumanDecisionSource and RoundActions in M1-06
 		var card: CardResource = card_view.card_data
+		kingdom_state.essence = maxi(0, kingdom_state.essence - card.essence_cost)
 		kingdom_state.hand.erase(card)
 		if kingdom_state.lanes[lane_index].is_empty():
 			kingdom_state.lanes[lane_index].append(card)
 		else:
 			kingdom_state.lanes[lane_index][0] = card
+		card_play_requested.emit(card, lane_index)
