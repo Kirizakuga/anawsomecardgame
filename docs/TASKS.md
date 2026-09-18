@@ -307,6 +307,8 @@ M1-05, M4-04, M4-05 → M5-04
 - [M0-02] — TDD §3.2 requires HeroResource.portrait: Texture2D while card_battler_schema.dbml omits a portrait field from heroes. Code follows TDD; decide whether to add portrait_path to DBML or intentionally document the omission. — raised by agent on 2026-09-15
 - [M0-02] — TDD §3.2 decides that CardResource references nullable FloopEffectResource but does not define that Resource's fields. Current code uses DBML fields: id, description, cost_type, cost_amount. Confirm this field shape in TDD or revise code before Floop logic starts. — raised by agent on 2026-09-15
 - [M0-03] — Resolved on 2026-09-17: implemented CardDatabase autoload (scripts/autoload/card_database.gd), registered in project.godot, verified with CardDatabaseCheck.tscn.
+- [M1-02] — Resolved on 2026-09-18: CardView drag-to-play with dim preview, NOTIFICATION_DRAG_END snapback restore, essence sufficiency check in LaneView, verified with CardViewCheck.tscn.
+- [M1-03] — Resolved on 2026-09-18: KingdomView lane reflection and Life display verified with KingdomCheck.tscn. Note: direct KingdomState mutation in KingdomView is temporary for M1-03 checkup; will route through HumanDecisionSource and RoundActions in M1-06.
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
 
