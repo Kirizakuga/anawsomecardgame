@@ -63,7 +63,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Deliverables: `.tres` files in `data/cards/`.
 - Checkup: `CardDatabase` (once built in M1) can load and list all 10 without error.
 - Dependencies: M0-02.
-- Status: Blocked — CardDatabase is required by this task's Checkup but has no implementation task; see §5. Generated-card loading passed interim verification on 2026-09-15.
+- Status: Done — agent, 2026-09-17
 
 **M0-04 — `KingdomState` plain object class**
 - Spec: Implement per `TDD.md` §3.3 — Life total, lanes array, active landscapes, hand, deck, Essence pool. Pure GDScript object (`RefCounted` or similar), no scene/Node dependency.
@@ -86,13 +86,13 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Spec: Visual card scene showing art, cost, stats. Supports drag-from-hand-to-lane interaction. Must support a "floop" flip animation trigger (visual only at this stage — logic comes in M1-05).
 - Checkup: Dragging a card from hand to a valid lane visually moves it and removes it from hand. Invalid drop (e.g. insufficient Essence) snaps back.
 - Dependencies: M0-02, M0-03.
-- Status: Not Started
+- Status: Done — agent, 2026-09-17
 
 **M1-03 — `Kingdom.tscn` (lanes + life display)**
 - Spec: View over a single `KingdomState`. Renders lanes (per `GDD.md` §5, 2-player facing-lanes layout), Life total, and hosts `Hand.tscn` for the human player's Kingdom only.
 - Checkup: Given a `KingdomState` with 2 creatures in lanes and Life = 15, the scene visually reflects both without manual wiring per-instance.
 - Dependencies: M0-04, M1-02.
-- Status: Not Started
+- Status: Done — agent, 2026-09-17
 
 **M1-04 — Combat resolution (creature-vs-creature, direct damage)**
 - Spec: Implement combat math for 2-player facing lanes: creature vs opposing creature in same lane, and unblocked lanes dealing damage to enemy Kingdom Life directly. Lives in `scripts/core/`.
@@ -306,7 +306,7 @@ M1-05, M4-04, M4-05 → M5-04
 
 - [M0-02] — TDD §3.2 requires HeroResource.portrait: Texture2D while card_battler_schema.dbml omits a portrait field from heroes. Code follows TDD; decide whether to add portrait_path to DBML or intentionally document the omission. — raised by agent on 2026-09-15
 - [M0-02] — TDD §3.2 decides that CardResource references nullable FloopEffectResource but does not define that Resource's fields. Current code uses DBML fields: id, description, cost_type, cost_amount. Confirm this field shape in TDD or revise code before Floop logic starts. — raised by agent on 2026-09-15
-- [M0-03] — Task Checkup requires CardDatabase to load and list all 10 generated cards, but no task owns CardDatabase even though architecture.md and data.md require it as an autoload. Add an owning task before M0-03 can pass its final Checkup. — raised by agent on 2026-09-15
+- [M0-03] — Resolved on 2026-09-17: implemented CardDatabase autoload (scripts/autoload/card_database.gd), registered in project.godot, verified with CardDatabaseCheck.tscn.
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
 

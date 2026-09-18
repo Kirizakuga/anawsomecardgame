@@ -15,6 +15,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
+CardDatabase="*res://scripts/autoload/card_database.gd"
 
 GameManager="*res://scripts/autoload/game_manager.gd"
 TurnManager="*res://scripts/autoload/turn_manager.gd"
