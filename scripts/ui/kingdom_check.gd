@@ -47,6 +47,13 @@ func _ready() -> void:
 	var empty_lane: LaneView = kingdom_view.lane_views[2]
 	var occupied_lane: LaneView = kingdom_view.lane_views[0]
 
+	# Insufficient essence rejects drop (M1-02 criteria)
+	state.essence = 0
+	assert(empty_lane._can_drop_data(Vector2.ZERO, {"type": "card", "card_data": goblin}) == false, "Insufficient essence must reject drop")
+
+	# Grant essence
+	state.essence = 3
+
 	# Occupied lane rejects drop
 	assert(occupied_lane._can_drop_data(Vector2.ZERO, {"type": "card", "card_data": goblin}) == false)
 	# Empty lane accepts creature drop
@@ -65,6 +72,7 @@ func _ready() -> void:
 	assert(kingdom_view.hand_view.get_child_count() == 0, "Hand should now be empty")
 	assert(state.hand.is_empty(), "KingdomState.hand should be empty")
 	assert(state.lanes[2].size() == 1 and state.lanes[2][0] == goblin, "KingdomState.lanes[2] should have goblin")
+	assert(state.essence == 2, "Essence should be deducted after playing card")
 
 	print("KingdomCheck: PASS")
 	get_tree().quit()

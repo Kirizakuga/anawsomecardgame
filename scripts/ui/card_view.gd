@@ -41,6 +41,8 @@ func update_view() -> void:
 	visible = true
 
 	if not card_data:
+		if art_rect:
+			art_rect.texture = null
 		if name_label:
 			name_label.text = "Card Name"
 		if cost_label:
@@ -60,8 +62,8 @@ func update_view() -> void:
 		name_label.text = card_data.display_name
 	if cost_label:
 		cost_label.text = str(card_data.essence_cost)
-	if art_rect and card_data.art:
-		art_rect.texture = card_data.art
+	if art_rect:
+		art_rect.texture = card_data.art if card_data.art else null
 
 	if card_data is CreatureResource:
 		var creature := card_data as CreatureResource
@@ -105,4 +107,10 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	var preview := Label.new()
 	preview.text = card_data.display_name if card_data else "Card"
 	set_drag_preview(preview)
+	# ponytail: simple alpha dimming and restore for snapback; upgrade with bounce Tween in M5-04 juice pass
+	modulate.a = 0.5
 	return {"type": "card", "card_data": card_data, "source_view": self}
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_DRAG_END:
+		modulate.a = 1.0

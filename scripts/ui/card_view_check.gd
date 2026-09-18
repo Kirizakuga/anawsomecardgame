@@ -23,6 +23,14 @@ func _ready() -> void:
 	assert(drag_data["type"] == "card")
 	assert(drag_data["card_data"] == creature)
 	assert(drag_data["source_view"] == card_view)
+	assert(card_view.modulate.a == 0.5, "Card should dim during drag")
+	card_view._notification(Control.NOTIFICATION_DRAG_END)
+	assert(card_view.modulate.a == 1.0, "Card should snap back full opacity on drag end")
+
+	# Test null card data clears texture
+	card_view.card_data = null
+	assert(card_view.art_rect.texture == null, "Texture should clear when card_data is null")
+	card_view.card_data = creature
 
 	# Test floop visual toggle
 	assert(card_view.is_flooped == false)
