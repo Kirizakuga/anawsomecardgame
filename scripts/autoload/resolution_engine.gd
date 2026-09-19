@@ -16,7 +16,7 @@ func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 		var p0: KingdomState = context.kingdoms[0]
 		var p1: KingdomState = context.kingdoms[1]
 		# For 2-player, both players attack each other
-		# ponytail: sequential attack pass for 2p; p0 attacks p1, then p1 attacks p0 until M4 targeting/simultaneous resolution
+		# DECIDED BY PLANNER: sequential both-attack for 2p (p0 first-mover advantage); revisit at M4 simultaneous resolution
 		var p0_combat: Array[Dictionary] = CombatResolver.resolve_combat(p0, p1)
 		resolution_log.append_array(p0_combat)
 		var p1_combat: Array[Dictionary] = CombatResolver.resolve_combat(p1, p0)

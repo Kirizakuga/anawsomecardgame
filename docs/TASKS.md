@@ -310,6 +310,7 @@ M1-05, M4-04, M4-05 → M5-04
 - [M1-02] — Resolved on 2026-09-18: CardView drag-to-play with dim preview, NOTIFICATION_DRAG_END snapback restore, essence sufficiency check in LaneView, verified with CardViewCheck.tscn.
 - [M1-03] — Resolved on 2026-09-18: KingdomView lane reflection and Life display verified with KingdomCheck.tscn. Note: direct KingdomState mutation in KingdomView is temporary for M1-03 checkup; will route through HumanDecisionSource and RoundActions in M1-06.
 - [M1-04] — Resolved on 2026-09-19: CombatResolver in scripts/core/ (Decision C: damage reduction net_damage = max(0, ATK - DEF), blocked destroys blocker without retaliation or life overflow, unblocked damages Kingdom Life = ATK); wired into ResolutionEngine.resolve() creature step; verified with CombatCheck.tscn.
+- [M1-04] — DECIDED BY PLANNER (review later): In 2-player, both players' creatures attack during the same Battle phase resolve() call (p0 then p1, sequential). TurnManager has no active-player concept. This creates a first-mover advantage (p0 can destroy p1's blocker before p1's return attack). Acceptable for 2p MVP; revisit when M4 simultaneous resolution arrives.
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
 
