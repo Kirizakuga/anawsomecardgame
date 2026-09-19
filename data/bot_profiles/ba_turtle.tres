@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BotArchetypeResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/bot_archetype_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "ba_turtle"
+archetype_name = "Turtle"
+description = "Defensive, builds board state, avoids conflict until late game."
+aggression_weight = 0.4
+defense_weight = 3.0
+pact_loyalty_weight = 1.2
+betrayal_opportunism_weight = 0.3
+floop_preference_weight = 2.0

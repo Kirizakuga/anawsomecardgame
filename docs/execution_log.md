@@ -557,6 +557,54 @@ DeckSaveLoadCheck: PASS
 1. Visual inspection of `DeckBuilder.tscn`: Confirm Save Deck and Load Deck buttons are visually distinct, properly styled, and positioned logically in the bottom controls row.
 2. Persistence check: Save a deck, close the Godot editor, relaunch, open `DeckBuilder.tscn`, click Load Deck, confirm the full deck, hero, and counts reload accurately.
 
+## M3-01 — BotArchetype Resource + weight tables
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/data/bot_archetype_resource.gd` — MODIFIED: Extended BotArchetypeResource with `id: String` and `description: String` alongside existing archetype name and weight fields (`aggression_weight`, `defense_weight`, `pact_loyalty_weight`, `betrayal_opportunism_weight`, `floop_preference_weight`).
+- `data/bot_profiles/ba_aggressive.tres` — NEW: Aggressive archetype resource (aggression: 3.0, defense: 0.5, pact loyalty: 0.1, betrayal: 1.5, floop: 1.0).
+- `data/bot_profiles/ba_opportunist.tres` — NEW: Opportunist archetype resource (aggression: 1.8, defense: 1.0, pact loyalty: 0.5, betrayal: 3.0, floop: 1.5).
+- `data/bot_profiles/ba_loyalist.tres` — NEW: Loyalist archetype resource (aggression: 1.0, defense: 1.5, pact loyalty: 3.0, betrayal: 0.1, floop: 1.0).
+- `data/bot_profiles/ba_turtle.tres` — NEW: Turtle archetype resource (aggression: 0.4, defense: 3.0, pact loyalty: 1.2, betrayal: 0.3, floop: 2.0).
+- `scenes/match/BotArchetypeCheck.tscn` — NEW: Headless checkup scene.
+- `scripts/ui/bot_archetype_check.gd` — NEW: Automated verification script testing profile loading, valid metadata, non-negative weights, and archetype differentiations.
+- `docs/development.md` — MODIFIED: Registered BotArchetypeCheck.tscn under verification scene list.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: BotArchetypeResource configured with id, archetype_name, description, and weight fields (aggression_weight, defense_weight, pact_loyalty_weight, betrayal_opportunism_weight, floop_preference_weight). 4 archetypes created under data/bot_profiles/ reflecting GDD §10: ba_aggressive (aggression 3.0, defense 0.5, pact 0.1, betrayal 1.5, floop 1.0), ba_opportunist (aggression 1.8, defense 1.0, pact 0.5, betrayal 3.0, floop 1.5), ba_loyalist (aggression 1.0, defense 1.5, pact 3.0, betrayal 0.1, floop 1.0), and ba_turtle (aggression 0.4, defense 3.0, pact 1.2, betrayal 0.3, floop 2.0). Verified with BotArchetypeCheck.tscn.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: Aggressive profile loads as BotArchetypeResource
+[CHECK] PASS: Opportunist profile loads as BotArchetypeResource
+[CHECK] PASS: Loyalist profile loads as BotArchetypeResource
+[CHECK] PASS: Turtle profile loads as BotArchetypeResource
+[CHECK] PASS: Aggressive metadata populated
+[CHECK] PASS: Opportunist metadata populated
+[CHECK] PASS: Loyalist metadata populated
+[CHECK] PASS: Turtle metadata populated
+[CHECK] PASS: Aggressive weights are all non-negative
+[CHECK] PASS: Opportunist weights are all non-negative
+[CHECK] PASS: Loyalist weights are all non-negative
+[CHECK] PASS: Turtle weights are all non-negative
+[CHECK] PASS: Aggressive has highest aggression_weight across all archetypes
+[CHECK] PASS: Aggressive has lowest pact_loyalty_weight across all archetypes
+[CHECK] PASS: Opportunist has highest betrayal_opportunism_weight across all archetypes
+[CHECK] PASS: Opportunist has lower pact_loyalty_weight than Loyalist and Turtle
+[CHECK] PASS: Loyalist has highest pact_loyalty_weight across all archetypes
+[CHECK] PASS: Loyalist has lowest betrayal_opportunism_weight across all archetypes
+[CHECK] PASS: Turtle has highest defense_weight across all archetypes
+[CHECK] PASS: Turtle has lowest aggression_weight across all archetypes
+[CHECK] SUMMARY: 20 passed, 0 failed, 0 manual
+BotArchetypeCheck: PASS
+```
+
+**Failure detection verified:** Inverted check condition by temporarily setting `aggression_weight` to -1.0, produced `[CHECK] FAIL: Aggressive weights are all non-negative`, exit code 1, `BotArchetypeCheck: FAIL`. Reverted to clean pass.
+
+**Pending human verification:**
+None (pure data resource and weight table verification; no visual UI elements in M3-01).
+
+
 
 
 

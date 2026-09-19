@@ -1,7 +1,9 @@
 ﻿class_name BotArchetypeResource
 extends Resource
 
+@export var id: String = ""
 @export var archetype_name: String = ""
+@export var description: String = ""
 @export var aggression_weight: float = 1.0
 @export var defense_weight: float = 1.0
 @export var pact_loyalty_weight: float = 1.0
