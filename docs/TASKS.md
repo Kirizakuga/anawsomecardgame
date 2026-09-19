@@ -132,7 +132,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Spec: UI listing available `HeroResource`s with portrait, name, passive trait description. Selecting one filters the card pool by affinity per `GDD.md` §7.
 - Checkup: Selecting each of the placeholder Heroes correctly filters to only affinity-matching cards from `CardDatabase`.
 - Dependencies: M0-02, M0-03 (or expanded card set).
-- Status: Not Started
+- Status: Done — agent, 2026-09-20
 
 **M2-02 — Deck assembly UI**
 - Spec: Grid of eligible cards, add/remove to a 30-card deck list, enforce max-copies-per-card limit (default 3) and separate Landscape sub-deck (5–8) per `GDD.md` §7.
@@ -315,6 +315,7 @@ M1-05, M4-04, M4-05 → M5-04
 - [M1-06] — Resolved on 2026-09-19: HumanDecisionSource implemented per TDD §3.4; KingdomView routes card drops and floop triggers through HumanDecisionSource.decision_source while preserving local visual state for standalone views; verified with HumanDecisionCheck.tscn.
 - [M1-07] — DECIDED BY PLANNER (review later): DummyAIDecisionSource in scripts/ai/dummy_ai_decision_source.gd randomly plays affordable creature cards into empty lanes and queues affordable floops. ResolutionEngine.resolve() applies submitted cards_to_play and cards_to_floop before creature combat pass. Verified with DummyAICheck.tscn.
 - [M1-08] — DECIDED BY PLANNER (review later): GameManager handles match-end lifecycle via signal match_ended(winner_id), is_match_over, and winner. check_win_condition() eliminates kingdoms with life <= 0, declares single survivor as winner, resolves turn limit by unique highest life total (or -1 on tie/simultaneous elimination), and guards against double emissions. ResolutionEngine checks win condition after lethal floop damage and creature attacks. Verified with WinConditionCheck.tscn.
+- [M2-01] — DECIDED BY PLANNER (review later): Placeholder heroes created under data/cards/heroes/ (hr_ignis, hr_terras, hr_aquos) with starting_life=25 and elemental affinities. CardDatabase loads heroes into separate heroes dictionary to preserve get_all_cards() card count. SpellResource extended with affinity export; CardDatabase.get_eligible_cards_for_hero() filters cards matching the hero's affinity or with neutral/empty affinity across creatures, spells, and landscapes. HeroSelect UI populates hero entries, binds select buttons, and emits hero_selected(hero, eligible_cards). Verified with HeroSelectCheck.tscn.
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
 

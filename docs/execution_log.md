@@ -244,4 +244,109 @@ WinConditionCheck: PASS
 
 **[CHECK] MANUAL:** None — all criteria scriptable.
 
+## M2-01 — Hero selection screen
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `data/cards/heroes/hr_ignis.tres` — NEW: Fire placeholder hero (starting_life 25, affinity fire, passive trait Pyromancy)
+- `data/cards/heroes/hr_terras.tres` — NEW: Earth placeholder hero (starting_life 25, affinity earth, passive trait Granite Stance / Stone Skin)
+- `data/cards/heroes/hr_aquos.tres` — NEW: Water placeholder hero (starting_life 25, affinity water, passive trait Tidal Flow)
+- `scripts/data/spell_resource.gd` — MODIFIED: Added exported `affinity: String = ""` to support affinity-aligned spells per GDD.md §7
+- `data/cards/spells/sp_fireball.tres` — MODIFIED: Assigned affinity "fire"
+- `data/cards/spells/sp_healing_rain.tres` — MODIFIED: Assigned affinity "water"
+- `scripts/autoload/card_database.gd` — MODIFIED: Added `heroes` dictionary, scan logic for `HeroResource`, hero lookup methods (`get_hero`, `has_hero`, `get_all_heroes`), and affinity card filtering (`get_cards_by_affinity`, `get_eligible_cards_for_hero`, `is_card_eligible_for_affinity`)
+- `scripts/ui/hero_select.gd` — NEW: HeroSelect UI script handling hero cards creation, portrait/name/affinity/trait rendering, selection buttons, and `hero_selected` signal emission with eligible cards
+- `scripts/ui/hero_select.gd.uid` — NEW: Godot UID for hero_select.gd
+- `scenes/deckbuilder/HeroSelect.tscn` — NEW: UI scene containing title, hero card container, and details panel
+- `scripts/ui/hero_select_check.gd` — NEW: Headless check runner verifying hero loading, affinity card filtering, UI structure, button selection, and signal emission
+- `scripts/ui/hero_select_check.gd.uid` — NEW: Godot UID for hero_select_check.gd
+- `scenes/deckbuilder/HeroSelectCheck.tscn` — NEW: Headless verification scene
+- `docs/development.md` — MODIFIED: Added HeroSelectCheck.tscn to verification scene list
+- `docs/data.md` — MODIFIED: Documented HeroResource in CardDatabase and SpellResource affinity export
+- `docs/TASKS.md` — MODIFIED: Added M2-01 DECIDED BY PLANNER entry in §5
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: Placeholder heroes created under data/cards/heroes/ (hr_ignis, hr_terras, hr_aquos) with starting_life=25 and elemental affinities. CardDatabase loads heroes into separate heroes dictionary to preserve get_all_cards() card count. SpellResource extended with affinity export; CardDatabase.get_eligible_cards_for_hero() filters cards matching the hero's affinity or with neutral/empty affinity across creatures, spells, and landscapes. HeroSelect UI populates hero entries, binds select buttons, and emits hero_selected(hero, eligible_cards). Recorded in TASKS.md §5.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: hr_ignis loaded from CardDatabase
+[CHECK] PASS: Ignis display_name is correct
+[CHECK] PASS: Ignis affinity is 'fire'
+[CHECK] PASS: Ignis starting_life is 25
+[CHECK] PASS: Ignis has passive_trait
+[CHECK] PASS: hr_terras loaded from CardDatabase
+[CHECK] PASS: Terras display_name is correct
+[CHECK] PASS: Terras affinity is 'earth'
+[CHECK] PASS: Terras starting_life is 25
+[CHECK] PASS: Terras has passive_trait
+[CHECK] PASS: hr_aquos loaded from CardDatabase
+[CHECK] PASS: Aquos display_name is correct
+[CHECK] PASS: Aquos affinity is 'water'
+[CHECK] PASS: Aquos starting_life is 25
+[CHECK] PASS: Aquos has passive_trait
+[CHECK] PASS: CardDatabase loads at least 3 placeholder heroes (got 3)
+[CHECK] PASS: Fire hero eligible cards include Flame Drake
+[CHECK] PASS: Fire hero eligible cards include Goblin Scout
+[CHECK] PASS: Fire hero eligible cards include Fireball
+[CHECK] PASS: Fire hero eligible cards include Volcanic Ridge
+[CHECK] PASS: Fire hero excludes Earth creature Ancient Treant
+[CHECK] PASS: Fire hero excludes Earth creature Stone Golem
+[CHECK] PASS: Fire hero excludes Water creature Tide Serpent
+[CHECK] PASS: Fire hero excludes Water spell Healing Rain
+[CHECK] PASS: Fire hero excludes Water landscape Coral Reef
+[CHECK] PASS: Fire hero excludes Air creature Wind Sprite
+[CHECK] PASS: Earth hero eligible cards include Ancient Treant
+[CHECK] PASS: Earth hero eligible cards include Stone Golem
+[CHECK] PASS: Earth hero excludes Fire creature Flame Drake
+[CHECK] PASS: Earth hero excludes Fire spell Fireball
+[CHECK] PASS: Earth hero excludes Water creature Tide Serpent
+[CHECK] PASS: Earth hero excludes Water spell Healing Rain
+[CHECK] PASS: Earth hero excludes Air creature Wind Sprite
+[CHECK] PASS: Water hero eligible cards include Tide Serpent
+[CHECK] PASS: Water hero eligible cards include Healing Rain
+[CHECK] PASS: Water hero eligible cards include Coral Reef
+[CHECK] PASS: Water hero excludes Fire creature Flame Drake
+[CHECK] PASS: Water hero excludes Fire spell Fireball
+[CHECK] PASS: Water hero excludes Earth creature Ancient Treant
+[CHECK] PASS: Neutral creature eligible for Fire
+[CHECK] PASS: Neutral creature eligible for Earth
+[CHECK] PASS: Neutral creature eligible for Water
+[CHECK] PASS: HeroSelect.tscn loaded successfully
+[CHECK] PASS: HeroSelect instantiated successfully
+[CHECK] PASS: HeroContainer found in HeroSelect
+[CHECK] PASS: HeroContainer populated with at least 3 hero cards (got 3)
+[CHECK] PASS: Hero card has PortraitRect
+[CHECK] PASS: Hero card has NameLabel
+[CHECK] PASS: Hero card has AffinityLabel
+[CHECK] PASS: Hero card has TraitLabel
+[CHECK] PASS: Hero card has SelectButton
+[CHECK] PASS: hero_selected signal emitted exactly once on select_hero
+[CHECK] PASS: Emitted hero is Ignis
+[CHECK] PASS: hero_select.selected_hero is Ignis
+[CHECK] PASS: Emitted cards count matches CardDatabase eligible count
+[CHECK] PASS: Details name label updated with Ignis
+[CHECK] PASS: HeroCard_hr_terras exists in container
+[CHECK] PASS: SelectButton exists on Terras card
+[CHECK] PASS: hero_selected signal emitted on button press
+[CHECK] PASS: Emitted hero after button press is Terras
+[CHECK] PASS: hero_select.selected_hero updated to Terras
+[CHECK] PASS: Details name label updated with Terras
+[CHECK] PASS: hero_selected signal emitted on select_hero_by_id
+[CHECK] PASS: hero_select.selected_hero is Aquos
+[CHECK] MANUAL: Hero portrait TextureRect layout, scaling, and placeholder artwork
+[CHECK] MANUAL: HeroCard responsive spacing and visual styling on 16:9 viewport
+[CHECK] MANUAL: HeroSelect details panel text legibility and font styling
+[CHECK] SUMMARY: 64 passed, 0 failed, 3 manual
+HeroSelectCheck: PASS
+```
+
+**Failure detection verified:** Inverted check condition (`ignis == null`), produced `[CHECK] FAIL: hr_ignis loaded from CardDatabase (TEMPORARY FORCED FAILURE)`, exit code 1, `HeroSelectCheck: FAIL`. Reverted to clean pass.
+
+**Pending human verification:**
+1. Visual inspection of `HeroSelect.tscn`: Open scene in Godot editor, run scene (`F6`), verify hero cards align horizontally with adequate spacing on 16:9 window.
+2. Verify portrait placeholder / text wrapping: Confirm passive trait labels wrap neatly inside cards without clipping or overflow.
+3. Verify button highlight / selection feedback: Confirm clicking select button on each card updates details panel text smoothly.
+
+
 

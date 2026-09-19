@@ -9,3 +9,4 @@ display_name = "Healing Rain"
 essence_cost = 2
 rarity = 0
 effect_ref = "heal_2"
+affinity = "water"

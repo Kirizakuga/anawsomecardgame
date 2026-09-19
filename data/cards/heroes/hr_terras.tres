@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HeroResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "hr_terras"
+display_name = "Terras"
+affinity = "earth"
+passive_trait = "Stone Skin: Friendly creatures gain +1 Defense."
+starting_life = 25
+friend_name = "Rocky"
+flavor_text = "Solid as a mountain, twice as stubborn."

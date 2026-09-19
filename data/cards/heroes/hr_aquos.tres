@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HeroResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "hr_aquos"
+display_name = "Aquos"
+affinity = "water"
+passive_trait = "Tidal Flow: Floop restores 1 Life."
+starting_life = 25
+friend_name = "Marina"
+flavor_text = "Calm on the surface, tempest underneath."

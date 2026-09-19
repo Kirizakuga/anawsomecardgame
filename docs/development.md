@@ -27,6 +27,7 @@ Available verification test scenes:
 - `scenes/match/HumanDecisionCheck.tscn` (M1-06: HumanDecisionSource action queueing, submit signal, and KingdomView routing)
 - `scenes/match/DummyAICheck.tscn` (M1-07: DummyAIDecisionSource random legal actions and full simulated match resolution)
 - `scenes/match/WinConditionCheck.tscn` (M1-08: Win condition check, life <= 0, match-end state, and turn limit)
+- `scenes/deckbuilder/HeroSelectCheck.tscn` (M2-01: Hero selection UI, HeroResource loading, and affinity-based card filtering)
 
 ## Before submitting changes
 
