@@ -182,7 +182,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Spec: Instantiate 4–6 `Kingdom.tscn` instances arranged per `GDD.md` §5 ("Kingdoms in a circle"). Layout must scale cleanly for 4, 5, and 6 players.
 - Checkup: Visual test with 4, then 6, dummy Kingdoms shows no overlap/clipping at target resolution.
 - Dependencies: M1-03.
-- Status: Not Started
+- Status: Done — agent, 2026-09-20
 
 **M4-02 — Simultaneous action submission (all `DecisionSource`s)**
 - Spec: `TurnManager`/`ResolutionEngine` must collect `RoundActions` from all N players' `DecisionSource`s before resolving, per `TDD.md` §3.6. Human UI must clearly show "waiting for others" state.
@@ -321,6 +321,7 @@ M1-05, M4-04, M4-05 → M5-04
 - [M3-01] — DECIDED BY PLANNER (review later): BotArchetypeResource configured with id, archetype_name, description, and weight fields (aggression_weight, defense_weight, pact_loyalty_weight, betrayal_opportunism_weight, floop_preference_weight). 4 archetypes created under data/bot_profiles/ reflecting GDD §10: ba_aggressive (aggression 3.0, defense 0.5, pact 0.1, betrayal 1.5, floop 1.0), ba_opportunist (aggression 1.8, defense 1.0, pact 0.5, betrayal 3.0, floop 1.5), ba_loyalist (aggression 1.0, defense 1.5, pact 3.0, betrayal 0.1, floop 1.0), and ba_turtle (aggression 0.4, defense 3.0, pact 1.2, betrayal 0.3, floop 2.0). Verified with BotArchetypeCheck.tscn.
 - [M3-02] — DECIDED BY PLANNER (review later): BotAI.decide() scores creature placements and floop activations using TDD §3.5 weighted sum formula: ATK weighted by aggression_weight, DEF weighted by defense_weight, threat context (unblocked lane adds ATK * aggression_weight; blocked lane adds DEF * defense_weight), and floops scaled by floop_preference_weight and effect type. A small noise variance (default 0.05) adds unpredictability while keeping decisions deterministic with noise=0.0. Actions iteratively chosen greedily within kingdom.essence budget. Verified with BotAIScoringCheck.tscn.
 - [M3-03] — DECIDED BY PLANNER (review later): BotDecisionSource wraps BotAI in scripts/ai/bot_decision_source.gd, conforming strictly to DecisionSource. Emits actions_ready synchronously upon request_actions(kingdom, context). Drop-in replacement for DummyAIDecisionSource in 2-player match requires zero changes to ResolutionEngine or TurnManager (AGENTS rule 4). Verified with BotDecisionSourceCheck.tscn across all 4 archetypes with full match termination.
+- [M4-01] — DECIDED BY PLANNER (review later): Tunable layout parameters stored in BoardLayoutConfigResource under scripts/data/board_layout_config.gd and data/board/default_board_layout.tres per Standing Decision A (radius_x: 420.0, radius_y: 195.0, center_offset: (0, -45), bot_scale: (0.55, 0.55), human_scale: (0.72, 0.72), target_viewport_size: (1152, 648)). MatchBoard places local human kingdom at bottom center with hand view enabled, distributing opponent bot kingdoms along upper arc with hand views hidden. Bounding boxes fit target viewport without clipping or overlap across 4, 5, and 6 player setups. Verified with MatchBoardCheck.tscn.
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
 

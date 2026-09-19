@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BoardLayoutConfigResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/board_layout_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+radius_x = 420.0
+radius_y = 195.0
+center_offset = Vector2(0, -45)
+bot_scale = Vector2(0.55, 0.55)
+human_scale = Vector2(0.72, 0.72)
+target_viewport_size = Vector2(1152, 648)
+arc_start_degrees = 165.0
+arc_end_degrees = 15.0
+human_bottom_margin = 8.0

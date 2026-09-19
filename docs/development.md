@@ -33,6 +33,7 @@ Available verification test scenes:
 - `scenes/match/BotArchetypeCheck.tscn` (M3-01: BotArchetypeResource loading, archetype profiles, and weight differentiation)
 - `scenes/match/BotAIScoringCheck.tscn` (M3-02: Bot AI candidate generation, weighted-sum scoring, and archetype differentiation)
 - `scenes/match/BotDecisionSourceCheck.tscn` (M3-03: BotDecisionSource DecisionSource interface conformance, 2p match swapping parity, and archetype compatibility)
+- `scenes/match/MatchBoardCheck.tscn` (M4-01: MatchBoard circular N-Kingdom layout for 4-6 players, scaling, bounds, and no-overlap verification)
 
 ## Before submitting changes
 

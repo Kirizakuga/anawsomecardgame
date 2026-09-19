@@ -696,6 +696,72 @@ BotAIScoringCheck: PASS
 **Pending human verification:**
 None (pure AI heuristic scoring logic and decision resolution; no visual UI elements in M3-02).
 
+## M4-01 — MatchBoard circular N-Kingdom layout
+**Date:** 2026-09-20
+**Model:** Executioner=sonnet
+**Files changed:**
+- `scripts/data/board_layout_config.gd` — NEW: Resource defining tunable layout parameters (`radius_x`, `radius_y`, `center_offset`, `bot_scale`, `human_scale`, `target_viewport_size`, `arc_start_degrees`, `arc_end_degrees`, `human_bottom_margin`).
+- `data/board/default_board_layout.tres` — NEW: Default BoardLayoutConfigResource configuration calibrated for 1152x648 viewport.
+- `scripts/ui/match_board.gd` — NEW: MatchBoard Control script implementing circular/elliptical N-kingdom layout for 4, 5, and 6 players with human at bottom center and opponents distributed along the top arc. Provides helper methods: `setup_board`, `get_kingdom_view`, `get_all_kingdom_views`, `clear_board`, and `get_kingdom_rect`.
+- `scenes/match/MatchBoard.tscn` — NEW: MatchBoard UI scene root Control node at 1152x648 resolution with default layout configuration bound.
+- `scripts/ui/match_board_check.gd` — NEW: Automated headless check script verifying config loading, bounds containment, non-overlapping bounding boxes for 4, 5, and 6 players, hand visibility, helper methods, custom human ID seating, and negative test argument.
+- `scenes/match/MatchBoardCheck.tscn` — NEW: Headless checkup scene.
+- `docs/development.md` — MODIFIED: Registered MatchBoardCheck.tscn under verification test scene list.
+- `docs/execution_log.md` — MODIFIED: Logged M4-01 implementation, verification output, and manual check instructions.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: Store tunable layout parameters in `BoardLayoutConfigResource` under `scripts/data/board_layout_config.gd` and create default resource `data/board/default_board_layout.tres`. Include radius_x, radius_y, center_offset, bot_scale, human_scale, target_viewport_size.
+- `MatchBoard` in `scripts/ui/match_board.gd` and `scenes/match/MatchBoard.tscn` extends `Control`, instantiating `scenes/match/Kingdom.tscn` for each player.
+- Player `human_player_id` (default 0) placed at bottom center with human_scale (and hand visible via `bind_state(state, true)`), while opponent kingdoms are placed along the circular/elliptical arc with bot_scale (and hand hidden via `bind_state(state, false)`).
+- Helper methods provided: `setup_board`, `get_kingdom_view`, `get_all_kingdom_views`, `clear_board`, `get_kingdom_rect`.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: BoardLayoutConfigResource instantiates
+[CHECK] PASS: BoardLayoutConfigResource has valid radius_x
+[CHECK] PASS: BoardLayoutConfigResource has valid radius_y
+[CHECK] PASS: BoardLayoutConfigResource has valid bot_scale
+[CHECK] PASS: BoardLayoutConfigResource has valid human_scale
+[CHECK] PASS: BoardLayoutConfigResource target_viewport_size is 1152x648
+[CHECK] PASS: default_board_layout.tres exists on disk
+[CHECK] PASS: default_board_layout.tres loads as BoardLayoutConfigResource
+[CHECK] PASS: MatchBoard.tscn loaded
+[CHECK] PASS: Player count 4: instantiated 4 KingdomViews
+[CHECK] PASS: Player count 4: human player (0) hand is visible
+[CHECK] PASS: Player count 4: all bot players (1..3) have hand hidden
+[CHECK] PASS: Player count 4: all kingdoms fit inside viewport [0, 0, 1152, 648] without clipping
+[CHECK] PASS: Player count 4: no two kingdoms have overlapping Rect2 bounding boxes
+[CHECK] PASS: Player count 5: instantiated 5 KingdomViews
+[CHECK] PASS: Player count 5: human player (0) hand is visible
+[CHECK] PASS: Player count 5: all bot players (1..4) have hand hidden
+[CHECK] PASS: Player count 5: all kingdoms fit inside viewport [0, 0, 1152, 648] without clipping
+[CHECK] PASS: Player count 5: no two kingdoms have overlapping Rect2 bounding boxes
+[CHECK] PASS: Player count 6: instantiated 6 KingdomViews
+[CHECK] PASS: Player count 6: human player (0) hand is visible
+[CHECK] PASS: Player count 6: all bot players (1..5) have hand hidden
+[CHECK] PASS: Player count 6: all kingdoms fit inside viewport [0, 0, 1152, 648] without clipping
+[CHECK] PASS: Player count 6: no two kingdoms have overlapping Rect2 bounding boxes
+[CHECK] PASS: get_kingdom_view returns valid KingdomView for existing player
+[CHECK] PASS: get_kingdom_view returns null for non-existing player
+[CHECK] PASS: get_all_kingdom_views returns all 4 views
+[CHECK] PASS: get_kingdom_rect returns positive size rect for player 0
+[CHECK] PASS: get_kingdom_rect returns empty Rect2 for missing player
+[CHECK] PASS: clear_board empties kingdom views
+[CHECK] PASS: get_kingdom_view returns null after clear_board
+[CHECK] PASS: Custom human_player_id 2 has visible hand
+[CHECK] PASS: Custom human_player_id: other players (0, 1, 3, 4) have hand hidden
+[CHECK] PASS: Custom human_player_id: all kingdoms fit inside viewport [0, 0, 1152, 648]
+[CHECK] PASS: Custom human_player_id: no two kingdoms overlap
+[CHECK] MANUAL: Visual inspection of 4, 5, and 6 player circular board arrangements in editor/play mode
+[CHECK] SUMMARY: 35 passed, 0 failed, 1 manual
+MatchBoardCheck: PASS
+```
+
+**Failure detection verified:** Executed `godot --headless --path "D:/Games/anawsomecardgame" scenes/match/MatchBoardCheck.tscn -- --negative-test`, producing `[CHECK] FAIL: Simulated intentional failure for negative testing verification`, exit code 1, `MatchBoardCheck: FAIL`. Clean run verified exiting with code 0.
+
+**Pending human verification:**
+1. Visual inspection of `MatchBoard.tscn`: Open scene in editor or run in play mode with 4, 5, and 6 kingdoms to confirm aesthetic spacing, symmetry, and readability of life totals and lane cards at 1152x648 target resolution.
+
 
 
 
