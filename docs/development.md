@@ -32,6 +32,7 @@ Available verification test scenes:
 - `scenes/deckbuilder/DeckSaveLoadCheck.tscn` (M2-03: Deck save/load to JSON, disk persistence, corruption handling, and CardDatabase resolution)
 - `scenes/match/BotArchetypeCheck.tscn` (M3-01: BotArchetypeResource loading, archetype profiles, and weight differentiation)
 - `scenes/match/BotAIScoringCheck.tscn` (M3-02: Bot AI candidate generation, weighted-sum scoring, and archetype differentiation)
+- `scenes/match/BotDecisionSourceCheck.tscn` (M3-03: BotDecisionSource DecisionSource interface conformance, 2p match swapping parity, and archetype compatibility)
 
 ## Before submitting changes
 

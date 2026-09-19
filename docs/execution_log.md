@@ -604,7 +604,60 @@ BotArchetypeCheck: PASS
 **Pending human verification:**
 None (pure data resource and weight table verification; no visual UI elements in M3-01).
 
-## M3-02 — BotAI.decide() scoring implementation
+## M3-03 — BotDecisionSource conforming to DecisionSource interface
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/ai/bot_decision_source.gd` — MODIFIED: Extended DecisionSource, wrapping BotAI.decide() to synchronously emit actions_ready(actions) upon request_actions(kingdom, context).
+- `scenes/match/BotDecisionSourceCheck.tscn` — NEW: Headless checkup scene.
+- `scripts/ui/bot_decision_source_check.gd` — NEW: Automated verification script testing interface parity, seamless substitution for DummyAIDecisionSource with zero changes to ResolutionEngine/TurnManager, legal action execution across all 4 archetypes, and full match progression to clean termination.
+- `docs/development.md` — MODIFIED: Registered BotDecisionSourceCheck.tscn under verification scene list.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: BotDecisionSource wraps BotAI in scripts/ai/bot_decision_source.gd, conforming strictly to DecisionSource. Emits actions_ready synchronously upon request_actions(kingdom, context). Drop-in replacement for DummyAIDecisionSource in 2-player match requires zero changes to ResolutionEngine or TurnManager (AGENTS rule 4). Verified with BotDecisionSourceCheck.tscn across all 4 archetypes with full match termination.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: BotDecisionSource inherits from DecisionSource
+[CHECK] PASS: BotDecisionSource implements request_actions()
+[CHECK] PASS: BotDecisionSource has actions_ready signal
+[CHECK] PASS: ba_aggressive archetype loaded
+[CHECK] PASS: BotDecisionSource initializes bot_ai
+[CHECK] PASS: BotDecisionSource sets bot_ai archetype
+[CHECK] PASS: BotDecisionSource sets bot_ai noise_variance
+[CHECK] PASS: Test card cr_flame_drake loaded
+[CHECK] PASS: request_actions emits actions_ready
+[CHECK] PASS: Emitted actions matches kingdom player_id
+[CHECK] PASS: Emitted actions contains selected card play
+[CHECK] PASS: ResolutionEngine.resolve() handles DummyAIDecisionSource actions
+[CHECK] PASS: ResolutionEngine.resolve() handles BotDecisionSource actions with zero engine changes
+[CHECK] PASS: BotDecisionSource card successfully resolved into lane
+[CHECK] PASS: Archetype loaded: ba_aggressive.tres
+[CHECK] PASS: BotDecisionSource bound to ba_aggressive
+[CHECK] PASS: Archetype ba_aggressive: all requested actions strictly legal across 3 turns
+[CHECK] PASS: Archetype loaded: ba_opportunist.tres
+[CHECK] PASS: BotDecisionSource bound to ba_opportunist
+[CHECK] PASS: Archetype ba_opportunist: all requested actions strictly legal across 3 turns
+[CHECK] PASS: Archetype loaded: ba_loyalist.tres
+[CHECK] PASS: BotDecisionSource bound to ba_loyalist
+[CHECK] PASS: Archetype ba_loyalist: all requested actions strictly legal across 3 turns
+[CHECK] PASS: Archetype loaded: ba_turtle.tres
+[CHECK] PASS: BotDecisionSource bound to ba_turtle
+[CHECK] PASS: Archetype ba_turtle: all requested actions strictly legal across 3 turns
+[CHECK] PASS: Match executed turns (total: 5)
+[CHECK] PASS: Match terminated cleanly (is_match_over is true)
+[CHECK] PASS: GameManager.match_ended signal emitted on termination
+[CHECK] PASS: Valid winner ID declared (0)
+[CHECK] PASS: Signal winner (0) matches GameManager.winner (0)
+[CHECK] SUMMARY: 31 passed, 0 failed, 0 manual
+BotDecisionSourceCheck: PASS
+```
+
+**Failure detection verified:** Injected `--negative-test` argument simulating intentional failure `[CHECK] FAIL: Simulated intentional failure for negative testing verification`, produced exit code 1, `BotDecisionSourceCheck: FAIL`. Reverted to clean pass.
+
+**Pending human verification:**
+None (pure DecisionSource wrapper and match simulation; no visual UI elements in M3-03).
+
 **Date:** 2026-09-20
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
