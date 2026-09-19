@@ -137,3 +137,44 @@ HumanDecisionCheck: PASS
 **Failure detection verified:** Inverted player_id expectation (`player_id == 999`), produced `[CHECK] FAIL`, exit code 1, "HumanDecisionCheck: FAIL". Reverted to clean pass.
 
 **[CHECK] MANUAL:** None — all criteria scriptable.
+
+## M1-07 — Dummy AI opponent (random legal move)
+**Date:** 2026-09-19
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/ai/dummy_ai_decision_source.gd` — NEW: DummyAIDecisionSource extending DecisionSource, picks random affordable creature plays into empty lanes and affordable floops. Pure RefCounted, zero Node dependencies.
+- `scripts/autoload/resolution_engine.gd` — MODIFIED: Applies submitted cards_to_play and cards_to_floop from RoundActions before creature combat.
+- `scenes/match/DummyAICheck.tscn` — NEW: Headless check scene.
+- `scripts/autoload/dummy_ai_check.gd` — NEW: Headless test runner testing move legality, 0-essence, full-lane limits, and 3 full matches to completion.
+- `docs/development.md` — MODIFIED: Added DummyAICheck.tscn to verification scene list.
+- `docs/TASKS.md` — MODIFIED: M1-07 status → Done, §5 DECIDED BY PLANNER entry added.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: DummyAIDecisionSource in scripts/ai/dummy_ai_decision_source.gd randomly plays affordable creature cards into empty lanes and queues affordable floops. ResolutionEngine.resolve() applies submitted cards_to_play and cards_to_floop before creature combat pass. Recorded in TASKS.md §5.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: Unit test cards loaded
+[CHECK] PASS: DummyAI emits actions_ready
+[CHECK] PASS: Emitted actions has correct player_id
+[CHECK] PASS: Total cost of played cards (5) does not exceed starting essence (5)
+[CHECK] PASS: Played cards assigned to unique, valid lanes (0..2)
+[CHECK] PASS: DummyAI makes no plays when essence is 0 and card is unaffordable
+[CHECK] PASS: DummyAI makes no plays when all lanes are full
+[CHECK] PASS: Match 1 completed cleanly without crash or infinite loop
+[CHECK] PASS: Match 1: all Dummy AI moves were strictly legal
+[CHECK] PASS: Match 1: life totals and elimination state remained valid
+[CHECK] PASS: Match 2 completed cleanly without crash or infinite loop
+[CHECK] PASS: Match 2: all Dummy AI moves were strictly legal
+[CHECK] PASS: Match 2: life totals and elimination state remained valid
+[CHECK] PASS: Match 3 completed cleanly without crash or infinite loop
+[CHECK] PASS: Match 3: all Dummy AI moves were strictly legal
+[CHECK] PASS: Match 3: life totals and elimination state remained valid
+[CHECK] SUMMARY: 16 passed, 0 failed, 0 manual
+DummyAICheck: PASS
+```
+
+**Failure detection verified:** Inverted player_id check condition (`emitted_actions.player_id == 999`), produced `[CHECK] FAIL`, exit code 1, "DummyAICheck: FAIL". Reverted to clean pass.
+
+**[CHECK] MANUAL:** None — all criteria scriptable.
+

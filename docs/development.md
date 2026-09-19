@@ -25,6 +25,7 @@ Available verification test scenes:
 - `scenes/match/CombatCheck.tscn` (M1-04: Combat resolution, creature-vs-creature, and unblocked direct damage)
 - `scenes/match/FloopCheck.tscn` (M1-05: Floop interaction logic, secondary effects, and cost deduction)
 - `scenes/match/HumanDecisionCheck.tscn` (M1-06: HumanDecisionSource action queueing, submit signal, and KingdomView routing)
+- `scenes/match/DummyAICheck.tscn` (M1-07: DummyAIDecisionSource random legal actions and full simulated match resolution)
 
 ## Before submitting changes
 
