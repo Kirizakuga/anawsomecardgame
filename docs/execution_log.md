@@ -348,5 +348,123 @@ HeroSelectCheck: PASS
 2. Verify portrait placeholder / text wrapping: Confirm passive trait labels wrap neatly inside cards without clipping or overflow.
 3. Verify button highlight / selection feedback: Confirm clicking select button on each card updates details panel text smoothly.
 
+## M2-02 — Deck assembly UI
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/core/deck_build_state.gd` — NEW: Pure RefCounted deck state model with zero Node dependencies; tracks hero, main deck (max 30 cards, max 3 copies per card ID), and separate landscape sub-deck (5–8 cards); handles affinity restrictions, addition/removal, and validation.
+- `scripts/core/deck_build_state.gd.uid` — NEW: Godot UID for deck_build_state.gd.
+- `scripts/ui/deck_builder.gd` — NEW: DeckBuilder UI controller managing hero display/selection, eligible card grid generation with count tracking and add buttons, main deck list with copy counts and +/- controls, landscape deck list with +/- controls, clear deck action, and validation display.
+- `scripts/ui/deck_builder.gd.uid` — NEW: Godot UID for deck_builder.gd.
+- `scenes/deckbuilder/DeckBuilder.tscn` — NEW: Deck builder UI scene containing hero top bar with dropdown, eligible card scrollable grid, main deck and landscape sub-deck panels, and deck action controls.
+- `scripts/ui/deck_builder_check.gd` — NEW: Verification runner verifying main deck limits, copy limits, separate landscape sub-deck limits, addition/removal, validation logic, and UI bindings.
+- `scripts/ui/deck_builder_check.gd.uid` — NEW: Godot UID for deck_builder_check.gd.
+- `scenes/deckbuilder/DeckBuilderCheck.tscn` — NEW: Headless checkup scene.
+- `docs/development.md` — MODIFIED: Added DeckBuilderCheck.tscn to verification scene list.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: Pure RefCounted DeckBuildState in scripts/core/deck_build_state.gd (zero Node dependencies). Main deck size max 30, copy limit max 3 per card ID. Landscape sub-deck separate (5-8 cards). Landscape additions route exclusively to landscape deck. Affinity-matching enforced per hero affinity or neutral. Validation requires exactly 30 main cards, 5-8 landscapes, and no copy/affinity violations.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: Hero Ignis loaded for state tests
+[CHECK] PASS: DeckBuildState initialized with hero
+[CHECK] PASS: Main deck initialized empty
+[CHECK] PASS: Landscape deck initialized empty
+[CHECK] PASS: cr_flame_drake loaded from CardDatabase
+[CHECK] PASS: 1st copy of cr_flame_drake added successfully
+[CHECK] PASS: Main deck count is 1 after 1st add
+[CHECK] PASS: Card copy count is 1
+[CHECK] PASS: Main deck copy count is 1
+[CHECK] PASS: 2nd and 3rd copies of cr_flame_drake added successfully
+[CHECK] PASS: Main deck size is 3 after adding 3 copies
+[CHECK] PASS: Card copy count is 3
+[CHECK] PASS: can_add_card returns false for 4th copy
+[CHECK] PASS: Error code is max_copies_reached
+[CHECK] PASS: Adding 4th copy of card is rejected
+[CHECK] PASS: Main deck size remains 3 after rejected 4th copy
+[CHECK] PASS: Copy count remains 3 after rejected 4th copy
+[CHECK] PASS: Main deck reached max limit of exactly 30 cards (got 30)
+[CHECK] PASS: can_add_card returns false when main deck has 30 cards
+[CHECK] PASS: Error code is main_deck_full
+[CHECK] PASS: Attempting to add 31st card to main deck is rejected
+[CHECK] PASS: Main deck size remains 30 after rejected 31st card
+[CHECK] PASS: remove_card_by_id removed one copy of cr_flame_drake
+[CHECK] PASS: Main deck size decremented to 29
+[CHECK] PASS: cr_flame_drake count decremented to 2
+[CHECK] PASS: Added card into freed slot (back to 30 cards)
+[CHECK] PASS: Main deck size is back to 30
+[CHECK] PASS: State has 30 main-deck cards
+[CHECK] PASS: ls_volcanic_ridge loaded from CardDatabase
+[CHECK] PASS: ls_volcanic_ridge is LandscapeResource
+[CHECK] PASS: can_add_card returns true for Landscape even when main deck is full (30/30)
+[CHECK] PASS: Landscape card added successfully
+[CHECK] PASS: Main deck size remains 30 after landscape added (not incremented)
+[CHECK] PASS: Landscape sub-deck size incremented to 1
+[CHECK] PASS: Landscape sub-deck copy count is 1
+[CHECK] PASS: Landscape sub-deck has 3 copies of volcanic ridge
+[CHECK] PASS: 4th copy of landscape card is rejected
+[CHECK] PASS: Landscape sub-deck has 6 cards
+[CHECK] PASS: Landscape sub-deck reached maximum of 8 cards
+[CHECK] PASS: can_add_card returns false when landscape sub-deck has 8 cards
+[CHECK] PASS: Error code is landscape_deck_full
+[CHECK] PASS: Attempting to add 9th landscape card is rejected
+[CHECK] PASS: Landscape sub-deck size remains 8
+[CHECK] PASS: remove_card_by_id removed one landscape card
+[CHECK] PASS: Landscape sub-deck size decremented to 7
+[CHECK] PASS: Main deck size unchanged at 30 when removing landscape
+[CHECK] PASS: Empty deck is invalid
+[CHECK] PASS: Validation lists main deck and landscape deck errors on empty deck
+[CHECK] PASS: Main deck filled to 30 cards
+[CHECK] PASS: Deck with 30 main cards and 0 landscape cards is invalid
+[CHECK] PASS: Landscape deck has 4 cards
+[CHECK] PASS: Deck with 4 landscape cards is invalid (minimum is 5)
+[CHECK] PASS: Landscape deck has 5 cards
+[CHECK] PASS: Deck with 30 main cards and 5 landscape cards is VALID
+[CHECK] PASS: Validation error list is empty when valid
+[CHECK] PASS: Landscape deck has 8 cards
+[CHECK] PASS: Deck with 30 main cards and 8 landscape cards is VALID
+[CHECK] PASS: Cannot add water card to fire hero deck
+[CHECK] PASS: Error code is affinity_mismatch
+[CHECK] PASS: DeckBuilder scene instantiated
+[CHECK] PASS: DeckBuilder selected Ignis
+[CHECK] PASS: HeroNameLabel displays Ignis
+[CHECK] PASS: Card grid populated with 4 eligible cards (got 4)
+[CHECK] PASS: Initial main deck count label is 'Main Deck: 0 / 30'
+[CHECK] PASS: Initial landscape count label is 'Landscape Deck: 0 / 8 (min 5)'
+[CHECK] PASS: Added cr_flame_drake via DeckBuilder API
+[CHECK] PASS: Deck state main deck size is 1
+[CHECK] PASS: Main deck count label updated to 'Main Deck: 1 / 30'
+[CHECK] PASS: Main deck list has 1 entry row
+[CHECK] PASS: Added ls_volcanic_ridge via DeckBuilder API
+[CHECK] PASS: Deck state landscape deck size is 1
+[CHECK] PASS: Landscape count label updated to 'Landscape Deck: 1 / 8 (min 5)'
+[CHECK] PASS: Landscape deck list has 1 entry row
+[CHECK] PASS: Removed cr_flame_drake via DeckBuilder API
+[CHECK] PASS: Deck state main deck is now empty
+[CHECK] PASS: Main deck count label updated back to 'Main Deck: 0 / 30'
+[CHECK] PASS: Main deck list has 0 entry rows
+[CHECK] PASS: Removed ls_volcanic_ridge via DeckBuilder API
+[CHECK] PASS: Deck state landscape deck is now empty
+[CHECK] PASS: Landscape count label updated back to 'Landscape Deck: 0 / 8 (min 5)'
+[CHECK] PASS: Landscape deck list has 0 entry rows
+[CHECK] PASS: Main deck has 1 card before clear
+[CHECK] PASS: Landscape deck has 1 card before clear
+[CHECK] PASS: Main deck empty after clear_deck()
+[CHECK] PASS: Landscape deck empty after clear_deck()
+[CHECK] MANUAL: Card grid responsive layout, column wrapping, and card display item visual presentation
+[CHECK] MANUAL: Scroll behavior for eligible card pool and deck list panels
+[CHECK] MANUAL: Button hover and disabled visual cues when limits (30 main, 8 landscape, 3 copies) are reached
+[CHECK] SUMMARY: 85 passed, 0 failed, 3 manual
+DeckBuilderCheck: PASS
+```
+
+**Failure detection verified:** Inverted check condition (`state.main_deck.size() == 999`), produced `[CHECK] FAIL: Main deck count is 1 after 1st add`, exit code 1, `DeckBuilderCheck: FAIL`. Reverted to clean pass.
+
+**Pending human verification:**
+1. Visual inspection of `DeckBuilder.tscn`: Open in editor, run scene (`F6`), verify responsive 3-column eligible card grid and right-side deck lists layout on 16:9 window.
+2. Interaction feel: Click `+` on cards in pool to add to main deck and landscape deck, click `-` and `+` on deck list rows to adjust counts, check disabled buttons when limits are reached.
+3. Hero switching: Change hero in top dropdown, verify grid updates to hero's eligible card pool.
+
 
 
