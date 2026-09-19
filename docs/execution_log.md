@@ -178,3 +178,70 @@ DummyAICheck: PASS
 
 **[CHECK] MANUAL:** None — all criteria scriptable.
 
+## M1-08 — Win condition check
+**Date:** 2026-09-19
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/autoload/game_manager.gd` — MODIFIED: Added match_ended signal, is_match_over, winner, reset_match, end_match, and updated check_win_condition to handle Life <= 0 elimination, turn limit resolution by highest life, tie handling, and double-emission guard.
+- `scripts/autoload/resolution_engine.gd` — MODIFIED: Checks win conditions after floop and combat steps, stops further combat when match ends.
+- `scenes/match/WinConditionCheck.tscn` — NEW: Headless check scene.
+- `scripts/autoload/win_condition_check.gd` — NEW: Headless test runner testing combat lethal damage, floop lethal damage, turn-limit highest-life/tie, no double-trigger on subsequent calls/damage, active non-terminal state, and direct elimination.
+- `docs/development.md` — MODIFIED: Added WinConditionCheck.tscn to verification scene list.
+- `docs/TASKS.md` — MODIFIED: M1-08 status → Done, §5 DECIDED BY PLANNER entry added.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: GameManager handles match-end lifecycle via signal match_ended(winner_id), is_match_over, and winner. check_win_condition() eliminates kingdoms with life <= 0, declares single survivor as winner, resolves turn limit by unique highest life total (or -1 on tie/simultaneous elimination), and guards against double emissions. ResolutionEngine checks win condition after lethal floop damage and creature attacks. Recorded in TASKS.md §5.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: Test 1 - Combat damage reduced opponent life to <= 0 (life: -5)
+[CHECK] PASS: Test 1 - Opponent is_eliminated marked true after lethal combat damage
+[CHECK] PASS: Test 1 - GameManager.is_match_over is true
+[CHECK] PASS: Test 1 - GameManager.winner declared player 0
+[CHECK] PASS: Test 1 - match_ended signal emitted exactly once (count: 1)
+[CHECK] PASS: Test 1 - match_ended signal emitted winner_id 0
+[CHECK] PASS: Test 2 - cr_flame_drake loaded with floop effect
+[CHECK] PASS: Test 2 - Floop direct damage reduced opponent life to <= 0 (life: 0)
+[CHECK] PASS: Test 2 - Opponent is_eliminated marked true after lethal floop damage
+[CHECK] PASS: Test 2 - GameManager.is_match_over is true
+[CHECK] PASS: Test 2 - GameManager.winner declared player 0
+[CHECK] PASS: Test 2 - match_ended signal emitted exactly once (count: 1)
+[CHECK] PASS: Test 2 - match_ended signal emitted winner_id 0
+[CHECK] PASS: Test 3 - Turn limit reached declared player 0 as winner by highest life (20 > 14)
+[CHECK] PASS: Test 3 - GameManager.is_match_over is true
+[CHECK] PASS: Test 3 - GameManager.winner is 0
+[CHECK] PASS: Test 3 - match_ended signal emitted exactly once (count: 1)
+[CHECK] PASS: Test 3 - match_ended signal emitted winner_id 0
+[CHECK] PASS: Test 3 - Tie in life totals at turn limit resolves to draw (-1)
+[CHECK] PASS: Test 3 - Tie ends match (is_match_over is true)
+[CHECK] PASS: Test 3 - match_ended emitted once on tie (count: 1)
+[CHECK] PASS: Test 3 - match_ended emitted -1 on tie
+[CHECK] PASS: Test 4 - Initial check_win_condition ended match with winner 0
+[CHECK] PASS: Test 4 - First trigger emitted match_ended exactly once
+[CHECK] PASS: Test 4 - Subsequent check_win_condition calls return winner 0
+[CHECK] PASS: Test 4 - Subsequent check_win_condition calls did NOT re-emit match_ended
+[CHECK] PASS: Test 4 - GameManager.end_match(1) after match over did NOT re-emit match_ended
+[CHECK] PASS: Test 4 - Winner was NOT overwritten by end_match call
+[CHECK] PASS: Test 4 - ResolutionEngine.resolve() after match over did NOT re-emit match_ended
+[CHECK] PASS: Test 4 - Winner remains 0 after subsequent combat resolution
+[CHECK] PASS: Test 5 - check_win_condition returns -1 when both players alive and turn limit not reached
+[CHECK] PASS: Test 5 - GameManager.is_match_over is false
+[CHECK] PASS: Test 5 - GameManager.winner is -1
+[CHECK] PASS: Test 5 - match_ended was NOT emitted (count: 0)
+[CHECK] PASS: Test 5 - Neither player is marked eliminated
+[CHECK] PASS: Test 6 - Before check_win_condition, p0.is_eliminated is false
+[CHECK] PASS: Test 6 - check_win_condition marked p0.is_eliminated true
+[CHECK] PASS: Test 6 - check_win_condition declared survivor player 1 as winner
+[CHECK] PASS: Test 6 - GameManager.is_match_over is true
+[CHECK] PASS: Test 6 - GameManager.winner is 1
+[CHECK] PASS: Test 6 - match_ended emitted exactly once for direct elimination
+[CHECK] PASS: Test 6 - match_ended emitted winner 1
+[CHECK] SUMMARY: 42 passed, 0 failed, 0 manual
+WinConditionCheck: PASS
+```
+
+**Failure detection verified:** Inverted check condition (`p1.life > 0`), produced `[CHECK] FAIL`, exit code 1, "WinConditionCheck: FAIL". Reverted to clean pass.
+
+**[CHECK] MANUAL:** None — all criteria scriptable.
+
+

@@ -35,6 +35,16 @@ func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 			var opponent_id: int = 1 if action.player_id == 0 else 0
 			var opponent: KingdomState = context.get_kingdom(opponent_id)
 			FloopResolver.resolve_floop(card, kingdom, opponent)
+			if GameManager and opponent and (opponent.life <= 0 or opponent.is_eliminated):
+				GameManager.check_win_condition(context)
+				if GameManager.is_match_over:
+					break
+		if GameManager and GameManager.is_match_over:
+			break
+
+	if GameManager and GameManager.is_match_over:
+		resolution_finished.emit(resolution_log)
+		return resolution_log
 
 	# 3. Creatures
 	if context and context.kingdoms.size() >= 2:
@@ -44,8 +54,14 @@ func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 		# DECIDED BY PLANNER: sequential both-attack for 2p (p0 first-mover advantage); revisit at M4 simultaneous resolution
 		var p0_combat: Array[Dictionary] = CombatResolver.resolve_combat(p0, p1)
 		resolution_log.append_array(p0_combat)
-		var p1_combat: Array[Dictionary] = CombatResolver.resolve_combat(p1, p0)
-		resolution_log.append_array(p1_combat)
+		if GameManager:
+			GameManager.check_win_condition(context)
+
+		if not (GameManager and GameManager.is_match_over) and not p1.is_eliminated:
+			var p1_combat: Array[Dictionary] = CombatResolver.resolve_combat(p1, p0)
+			resolution_log.append_array(p1_combat)
+			if GameManager:
+				GameManager.check_win_condition(context)
 
 	# 4. Pact changes
 	# ponytail: stub — pact resolution deferred to M4

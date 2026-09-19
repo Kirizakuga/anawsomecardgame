@@ -122,7 +122,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Spec: Detect Life ≤ 0, end match, declare winner. Per `GDD.md` §6 (2-player subset — full FFA win conditions are M4).
 - Checkup: Reducing a `KingdomState`'s Life to 0 or below during a test triggers match-end state correctly, exactly once (no double-trigger).
 - Dependencies: M1-04.
-- Status: Not Started
+- Status: Done — agent, 2026-09-19
 
 ---
 
@@ -314,6 +314,7 @@ M1-05, M4-04, M4-05 → M5-04
 - [M1-05] — DECIDED BY PLANNER (review later): FloopEffectResource extended with effect_type and effect_value. FloopResolver implemented in scripts/core/floop_resolver.gd handling draw_card, heal_life, direct_damage, and buff_attack at defined essence cost. Assigned 3 initial floop effects to cr_goblin_scout (draw 1, cost 1), cr_stone_golem (heal 2, cost 1), cr_flame_drake (direct damage 2, cost 2). UI guards floop interaction when floop_effect is null.
 - [M1-06] — Resolved on 2026-09-19: HumanDecisionSource implemented per TDD §3.4; KingdomView routes card drops and floop triggers through HumanDecisionSource.decision_source while preserving local visual state for standalone views; verified with HumanDecisionCheck.tscn.
 - [M1-07] — DECIDED BY PLANNER (review later): DummyAIDecisionSource in scripts/ai/dummy_ai_decision_source.gd randomly plays affordable creature cards into empty lanes and queues affordable floops. ResolutionEngine.resolve() applies submitted cards_to_play and cards_to_floop before creature combat pass. Verified with DummyAICheck.tscn.
+- [M1-08] — DECIDED BY PLANNER (review later): GameManager handles match-end lifecycle via signal match_ended(winner_id), is_match_over, and winner. check_win_condition() eliminates kingdoms with life <= 0, declares single survivor as winner, resolves turn limit by unique highest life total (or -1 on tie/simultaneous elimination), and guards against double emissions. ResolutionEngine checks win condition after lethal floop damage and creature attacks. Verified with WinConditionCheck.tscn.
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
 
