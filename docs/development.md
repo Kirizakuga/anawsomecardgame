@@ -24,6 +24,7 @@ Available verification test scenes:
 - `scenes/match/KingdomCheck.tscn` (M1-03: KingdomView life, lanes, essence deduction, and drop validation)
 - `scenes/match/CombatCheck.tscn` (M1-04: Combat resolution, creature-vs-creature, and unblocked direct damage)
 - `scenes/match/FloopCheck.tscn` (M1-05: Floop interaction logic, secondary effects, and cost deduction)
+- `scenes/match/HumanDecisionCheck.tscn` (M1-06: HumanDecisionSource action queueing, submit signal, and KingdomView routing)
 
 ## Before submitting changes
 

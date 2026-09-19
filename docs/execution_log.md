@@ -85,3 +85,55 @@ FloopCheck: PASS
 **Failure detection verified:** Inverted check condition, produced `[CHECK] FAIL`, exit code 1, "FloopCheck: FAIL". Reverted to clean pass.
 
 **[CHECK] MANUAL:** None — all criteria scriptable.
+
+## M1-06 — HumanDecisionSource
+**Date:** 2026-09-19
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/core/human_decision_source.gd` — MODIFIED: Implemented action queueing methods (queue_card_play, queue_floop, queue_landscape, queue_attack_target, queue_pact_proposal, queue_betrayal), clear_actions, and submit signal emission. Pure RefCounted, zero Node dependencies.
+- `scripts/ui/kingdom_view.gd` — MODIFIED: Added decision_source hook, wired lane card drop to queue_card_play, wired card floop_triggered to queue_floop.
+- `scripts/ui/lane.gd` — MODIFIED: Wired current_card_view floop listener to KingdomView on occupant set.
+- `scenes/match/HumanDecisionCheck.tscn` — NEW: Headless check scene.
+- `scripts/ui/human_decision_check.gd` — NEW: Headless check script covering action initialization, queues, clearing, submit, and UI drop/floop integration.
+- `docs/development.md` — MODIFIED: Added HumanDecisionCheck.tscn to verification scene list.
+- `docs/TASKS.md` — MODIFIED: M1-06 status → Done, §5 entry added.
+
+**Planner decisions applied:**
+- Standardized RoundActions dictionary schemas for cards_to_play (`{"card": CardResource, "lane": int}`) and attack_targets (`{"attacker_lane": int, "target_player_id": int, "target_lane": int}`).
+- M1-03 carry-forward resolved: KingdomView routes actions through HumanDecisionSource.decision_source while keeping local view updates for standalone test compatibility.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: Case a: request_actions properly initializes pending_actions
+[CHECK] PASS: Case a: pending_actions.player_id matches kingdom.player_id (42)
+[CHECK] PASS: Test cards loaded from CardDatabase
+[CHECK] PASS: Case b: cards_to_play has 1 entry
+[CHECK] PASS: Case b: cards_to_play recorded correct card and lane
+[CHECK] PASS: Case c: queue_floop recorded card
+[CHECK] PASS: queue_landscape recorded landscape
+[CHECK] PASS: Case d: queue_attack_target recorded 1 entry
+[CHECK] PASS: Case d: attack_targets schema matches
+[CHECK] PASS: queue_pact_proposal recorded entry
+[CHECK] PASS: pact_proposals schema matches
+[CHECK] PASS: queue_betrayal recorded betrayal_target
+[CHECK] PASS: clear_actions cleared cards_to_play
+[CHECK] PASS: clear_actions cleared cards_to_floop
+[CHECK] PASS: clear_actions reset betrayal_target to -1
+[CHECK] PASS: Case e: submit() emitted actions_ready signal
+[CHECK] PASS: Case e: emitted actions matches pending_actions
+[CHECK] PASS: Case e: emitted actions has correct player_id (7)
+[CHECK] PASS: Case e: emitted actions has queued card play
+[CHECK] PASS: Case e: emitted actions has queued floop
+[CHECK] PASS: UI drop: hand contains CardView
+[CHECK] PASS: Case f: dropping card into lane queues card play in HumanDecisionSource
+[CHECK] PASS: Case f: queued entry contains correct card and lane index 1
+[CHECK] PASS: UI floop: lane 0 contains CardView
+[CHECK] PASS: Case g: triggering floop on lane CardView queues floop in HumanDecisionSource
+[CHECK] PASS: Case g: queued floop card is goblin
+[CHECK] SUMMARY: 26 passed, 0 failed, 0 manual
+HumanDecisionCheck: PASS
+```
+
+**Failure detection verified:** Inverted player_id expectation (`player_id == 999`), produced `[CHECK] FAIL`, exit code 1, "HumanDecisionCheck: FAIL". Reverted to clean pass.
+
+**[CHECK] MANUAL:** None — all criteria scriptable.

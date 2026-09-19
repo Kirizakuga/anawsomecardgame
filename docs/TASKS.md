@@ -110,7 +110,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Spec: Implement per `TDD.md` §3.4. Must package UI selections (cards played, floops, targets) into a `RoundActions` object matching what `ResolutionEngine` expects (even if `ResolutionEngine` itself is simplified for 2p at this stage).
 - Checkup: Manually playing a full turn through the UI produces a `RoundActions` object with correct contents (verify via debug print).
 - Dependencies: M1-02, M1-03.
-- Status: Not Started
+- Status: Done — agent, 2026-09-19
 
 **M1-07 — Dummy AI opponent (random legal move)**
 - Spec: Temporary stand-in for `BotDecisionSource` (real archetype AI is M3) — picks a random legal action each phase. Exists only so 2-player games are playable end-to-end before real AI exists.
@@ -312,6 +312,7 @@ M1-05, M4-04, M4-05 → M5-04
 - [M1-04] — Resolved on 2026-09-19: CombatResolver in scripts/core/ (Decision C: damage reduction net_damage = max(0, ATK - DEF), blocked destroys blocker without retaliation or life overflow, unblocked damages Kingdom Life = ATK); wired into ResolutionEngine.resolve() creature step; verified with CombatCheck.tscn.
 - [M1-04] — DECIDED BY PLANNER (review later): In 2-player, both players' creatures attack during the same Battle phase resolve() call (p0 then p1, sequential). TurnManager has no active-player concept. This creates a first-mover advantage (p0 can destroy p1's blocker before p1's return attack). Acceptable for 2p MVP; revisit when M4 simultaneous resolution arrives.
 - [M1-05] — DECIDED BY PLANNER (review later): FloopEffectResource extended with effect_type and effect_value. FloopResolver implemented in scripts/core/floop_resolver.gd handling draw_card, heal_life, direct_damage, and buff_attack at defined essence cost. Assigned 3 initial floop effects to cr_goblin_scout (draw 1, cost 1), cr_stone_golem (heal 2, cost 1), cr_flame_drake (direct damage 2, cost 2). UI guards floop interaction when floop_effect is null.
+- [M1-06] — Resolved on 2026-09-19: HumanDecisionSource implemented per TDD §3.4; KingdomView routes card drops and floop triggers through HumanDecisionSource.decision_source while preserving local visual state for standalone views; verified with HumanDecisionCheck.tscn.
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
 
