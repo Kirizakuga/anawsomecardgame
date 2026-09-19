@@ -4,6 +4,8 @@ extends Control
 signal deck_modified(deck_state: DeckBuildState)
 signal hero_selected(hero: HeroResource)
 signal validation_changed(is_valid: bool)
+signal deck_saved(result: Dictionary)
+signal deck_loaded(result: Dictionary)
 
 @export var hero_name_label_path: NodePath = "MainLayout/TopBar/HeroInfo/HeroNameLabel"
 @export var hero_affinity_label_path: NodePath = "MainLayout/TopBar/HeroInfo/HeroAffinityLabel"
@@ -19,6 +21,8 @@ signal validation_changed(is_valid: bool)
 @export var card_grid_path: NodePath = "MainLayout/BodyLayout/LeftPanel/ScrollContainer/CardGrid"
 @export var validation_label_path: NodePath = "MainLayout/TopBar/DeckStatus/ValidationLabel"
 @export var done_button_path: NodePath = "MainLayout/TopBar/DeckStatus/DoneButton"
+@export var save_button_path: NodePath = "MainLayout/BodyLayout/RightPanel/BottomControls/SaveButton"
+@export var load_button_path: NodePath = "MainLayout/BodyLayout/RightPanel/BottomControls/LoadButton"
 @export var clear_button_path: NodePath = "MainLayout/BodyLayout/RightPanel/BottomControls/ClearButton"
 
 var deck_state: DeckBuildState
@@ -39,6 +43,8 @@ var available_heroes: Array[HeroResource] = []
 @onready var card_grid: Container = get_node_or_null(card_grid_path) as Container
 @onready var validation_label: Label = get_node_or_null(validation_label_path) as Label
 @onready var done_button: Button = get_node_or_null(done_button_path) as Button
+@onready var save_button: Button = get_node_or_null(save_button_path) as Button
+@onready var load_button: Button = get_node_or_null(load_button_path) as Button
 @onready var clear_button: Button = get_node_or_null(clear_button_path) as Button
 
 func _ready() -> void:
@@ -80,11 +86,21 @@ func _bind_ui_nodes() -> void:
 		validation_label = get_node_or_null(validation_label_path) as Label
 	if not done_button:
 		done_button = get_node_or_null(done_button_path) as Button
+	if not save_button:
+		save_button = get_node_or_null(save_button_path) as Button
+	if not load_button:
+		load_button = get_node_or_null(load_button_path) as Button
 	if not clear_button:
 		clear_button = get_node_or_null(clear_button_path) as Button
 
 	if clear_button and not clear_button.pressed.is_connected(clear_deck):
 		clear_button.pressed.connect(clear_deck)
+	if save_button and not save_button.pressed.is_connected(save_deck):
+		save_button.pressed.connect(save_deck)
+	if load_button and not load_button.pressed.is_connected(load_deck):
+		load_button.pressed.connect(load_deck)
+	if done_button and not done_button.pressed.is_connected(save_deck):
+		done_button.pressed.connect(save_deck)
 
 func _setup_hero_selector() -> void:
 	available_heroes = CardDatabase.get_all_heroes()
@@ -104,13 +120,15 @@ func _on_hero_option_selected(index: int) -> void:
 		select_hero(available_heroes[index])
 
 func select_hero(hero: HeroResource) -> void:
+	if hero == null:
+		return
 	if not deck_state:
 		deck_state = DeckBuildState.new()
 	deck_state.set_hero(hero, true)
 
 	if hero_option_button:
 		for i in range(available_heroes.size()):
-			if available_heroes[i].id == hero.id:
+			if available_heroes[i] != null and available_heroes[i].id == hero.id:
 				hero_option_button.select(i)
 				break
 
@@ -120,6 +138,27 @@ func select_hero(hero: HeroResource) -> void:
 func set_filter(filter_name: String) -> void:
 	current_filter = filter_name.to_lower()
 	_populate_card_grid()
+
+func save_deck(path: String = DeckSaveManager.DEFAULT_SAVE_PATH) -> Dictionary:
+	if not deck_state:
+		return {"success": false, "error": "No deck state"}
+	var res := DeckSaveManager.save_deck_to_file(deck_state, path)
+	deck_saved.emit(res)
+	return res
+
+func load_deck(path: String = DeckSaveManager.DEFAULT_SAVE_PATH) -> Dictionary:
+	if not deck_state:
+		deck_state = DeckBuildState.new()
+	var res := DeckSaveManager.load_deck_from_file(deck_state, path)
+	if res.get("success", false):
+		if hero_option_button and deck_state.hero:
+			for i in range(available_heroes.size()):
+				if available_heroes[i] != null and available_heroes[i].id == deck_state.hero.id:
+					hero_option_button.select(i)
+					break
+		refresh_ui()
+	deck_loaded.emit(res)
+	return res
 
 func clear_deck() -> void:
 	if deck_state:

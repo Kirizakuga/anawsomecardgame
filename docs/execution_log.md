@@ -466,5 +466,97 @@ DeckBuilderCheck: PASS
 2. Interaction feel: Click `+` on cards in pool to add to main deck and landscape deck, click `-` and `+` on deck list rows to adjust counts, check disabled buttons when limits are reached.
 3. Hero switching: Change hero in top dropdown, verify grid updates to hero's eligible card pool.
 
+## M2-03 — Deck save/load
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/core/deck_build_state.gd` — MODIFIED: Added serialization methods `to_dict()`, `to_json()`, `load_from_dict()`, and `load_from_json()` to serialize/deserialize Hero and Card IDs with CardDatabase resolution, handling missing/corrupted data cleanly without Node dependencies.
+- `scripts/core/deck_save_manager.gd` — NEW: Static helper class extending RefCounted for saving/loading DeckBuildState to/from JSON files (`user://saved_deck.json` default) via FileAccess.
+- `scripts/core/deck_save_manager.gd.uid` — NEW: Godot UID for deck_save_manager.gd.
+- `scenes/deckbuilder/DeckBuilder.tscn` — MODIFIED: Added Save Deck and Load Deck buttons into bottom controls bar.
+- `scripts/ui/deck_builder.gd` — MODIFIED: Added `save_deck()` and `load_deck()` API methods wired to Save and Load buttons, emitting `deck_saved` and `deck_loaded` signals and refreshing UI.
+- `scenes/deckbuilder/DeckSaveLoadCheck.tscn` — NEW: Headless checkup scene.
+- `scripts/ui/deck_save_load_check.gd` — NEW: Verification runner testing serialization schema, disk I/O, corrupted JSON, missing files, unknown card/hero IDs, and DeckBuilder UI integration.
+- `docs/development.md` — MODIFIED: Registered DeckSaveLoadCheck.tscn under verification scene list.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: Single local profile uses user://saved_deck.json. Schema persists version, hero_id, main_deck (array of card IDs), and landscape_deck (array of card IDs) as JSON. Cards and Hero are resolved dynamically through CardDatabase on load; missing/unknown IDs are skipped gracefully and reported. DeckSaveManager provides static file I/O using FileAccess. DeckBuilder UI wires Save and Load buttons to user profile storage with automatic UI re-binding.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: Hero Ignis loaded from CardDatabase
+[CHECK] PASS: Flame drake loaded
+[CHECK] PASS: Volcanic ridge loaded
+[CHECK] PASS: Dictionary contains version: 1
+[CHECK] PASS: Dictionary hero_id is hr_ignis
+[CHECK] PASS: Dictionary main_deck contains 2 card IDs
+[CHECK] PASS: Dictionary main_deck IDs match added cards
+[CHECK] PASS: Dictionary landscape_deck contains 1 card ID
+[CHECK] PASS: Dictionary landscape_deck ID matches volcanic ridge
+[CHECK] PASS: Serialized JSON string is valid JSON object structure
+[CHECK] PASS: JSON string parsed back into Dictionary
+[CHECK] PASS: Parsed JSON has correct hero_id
+[CHECK] PASS: Parsed JSON has correct main_deck size
+[CHECK] PASS: Parsed JSON has correct landscape_deck size
+[CHECK] PASS: Original main deck has 30 cards
+[CHECK] PASS: Original landscape deck has 5 cards
+[CHECK] PASS: Original deck is VALID per DeckBuildState rules
+[CHECK] PASS: DeckSaveManager saved deck to file successfully
+[CHECK] PASS: Save file exists on disk
+[CHECK] PASS: DeckSaveManager loaded deck from file successfully
+[CHECK] PASS: No missing card IDs reported
+[CHECK] PASS: Loaded deck hero is hr_ignis
+[CHECK] PASS: Loaded main deck size is 30
+[CHECK] PASS: Loaded landscape deck size is 5
+[CHECK] PASS: Loaded card 0 copy count is 3
+[CHECK] PASS: Loaded card 1 copy count is 3
+[CHECK] PASS: Loaded landscape 0 count is 2
+[CHECK] PASS: Loaded landscape 2 count is 1
+[CHECK] PASS: Loaded deck is VALID identically to original
+[CHECK] PASS: Loading nonexistent file returns success: false
+[CHECK] PASS: Missing file returns descriptive error
+[CHECK] PASS: Loading corrupted JSON returns success: false
+[CHECK] PASS: Corrupted JSON returns descriptive error
+[CHECK] PASS: load_from_dict succeeds even with unknown cards
+[CHECK] PASS: Unknown hero ID is reported in missing_ids
+[CHECK] PASS: Unknown main card ID is reported in missing_ids
+[CHECK] PASS: Unknown landscape card ID is reported in missing_ids
+[CHECK] PASS: Known card (cr_flame_drake) loaded while unknown skipped
+[CHECK] PASS: Known landscape (ls_volcanic_ridge) loaded while unknown skipped
+[CHECK] PASS: Hero is null when unknown hero ID was passed
+[CHECK] PASS: DeckBuilder instantiated for save/load UI check
+[CHECK] PASS: Hero Aquos loaded from CardDatabase
+[CHECK] PASS: DeckBuilder hero set to Aquos
+[CHECK] PASS: cr_tide_serpent loaded
+[CHECK] PASS: ls_coral_reef loaded
+[CHECK] PASS: DeckBuilder main deck has 2 cards
+[CHECK] PASS: DeckBuilder landscape deck has 1 card
+[CHECK] PASS: deck_builder.save_deck() succeeded
+[CHECK] PASS: Save file created by DeckBuilder
+[CHECK] PASS: Deck cleared in UI
+[CHECK] PASS: Landscape deck cleared in UI
+[CHECK] PASS: Main deck count label refreshed to 0
+[CHECK] PASS: Temporarily changed hero to Ignis
+[CHECK] PASS: deck_builder.load_deck() succeeded
+[CHECK] PASS: Hero restored to Aquos upon deck load
+[CHECK] PASS: Main deck restored with 2 cards
+[CHECK] PASS: Landscape deck restored with 1 card
+[CHECK] PASS: Main deck count label updated to 2 / 30
+[CHECK] PASS: Landscape count label updated to 1 / 8
+[CHECK] PASS: Save button node exists in DeckBuilder
+[CHECK] PASS: Load button node exists in DeckBuilder
+[CHECK] MANUAL: Save and Load button styling, placement, and visual feedback in DeckBuilder UI
+[CHECK] MANUAL: Saved deck file location in user profile directory across app restart
+[CHECK] SUMMARY: 61 passed, 0 failed, 2 manual
+DeckSaveLoadCheck: PASS
+```
+
+**Failure detection verified:** Injected forced failure `[CHECK] FAIL: NEGATIVE TEST INTENTIONAL FAILURE (will revert)`, produced exit code 1, `DeckSaveLoadCheck: FAIL`. Reverted to clean pass.
+
+**Pending human verification:**
+1. Visual inspection of `DeckBuilder.tscn`: Confirm Save Deck and Load Deck buttons are visually distinct, properly styled, and positioned logically in the bottom controls row.
+2. Persistence check: Save a deck, close the Godot editor, relaunch, open `DeckBuilder.tscn`, click Load Deck, confirm the full deck, hero, and counts reload accurately.
+
+
 
 

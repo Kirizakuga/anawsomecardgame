@@ -29,6 +29,7 @@ Available verification test scenes:
 - `scenes/match/WinConditionCheck.tscn` (M1-08: Win condition check, life <= 0, match-end state, and turn limit)
 - `scenes/deckbuilder/HeroSelectCheck.tscn` (M2-01: Hero selection UI, HeroResource loading, and affinity-based card filtering)
 - `scenes/deckbuilder/DeckBuilderCheck.tscn` (M2-02: Deck assembly UI, 30 main cards limit, max 3 copies, and separate 5-8 landscape deck)
+- `scenes/deckbuilder/DeckSaveLoadCheck.tscn` (M2-03: Deck save/load to JSON, disk persistence, corruption handling, and CardDatabase resolution)
 
 ## Before submitting changes
 

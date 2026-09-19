@@ -198,3 +198,76 @@ func get_validation_errors() -> Array[String]:
 
 func is_valid() -> bool:
 	return get_validation_errors().is_empty()
+
+func to_dict() -> Dictionary:
+	var main_ids: Array[String] = []
+	for card in main_deck:
+		if card:
+			main_ids.append(card.id)
+
+	var landscape_ids: Array[String] = []
+	for card in landscape_deck:
+		if card:
+			landscape_ids.append(card.id)
+
+	return {
+		"version": 1,
+		"hero_id": hero.id if hero else "",
+		"main_deck": main_ids,
+		"landscape_deck": landscape_ids
+	}
+
+func to_json(indent: String = "\t") -> String:
+	return JSON.stringify(to_dict(), indent)
+
+func load_from_dict(data: Dictionary) -> Dictionary:
+	var missing_cards: Array[String] = []
+	var hero_id: String = str(data.get("hero_id", ""))
+	var loaded_hero: HeroResource = null
+
+	if hero_id != "":
+		loaded_hero = CardDatabase.get_hero(hero_id)
+		if loaded_hero == null:
+			missing_cards.append(hero_id)
+
+	clear()
+	set_hero(loaded_hero)
+
+	var raw_main = data.get("main_deck", [])
+	if raw_main is Array:
+		for raw_id in raw_main:
+			var cid: String = str(raw_id)
+			var card := CardDatabase.get_card(cid)
+			if card:
+				main_deck.append(card)
+			else:
+				missing_cards.append(cid)
+
+	var raw_landscape = data.get("landscape_deck", [])
+	if raw_landscape is Array:
+		for raw_id in raw_landscape:
+			var cid: String = str(raw_id)
+			var card := CardDatabase.get_card(cid)
+			if card:
+				landscape_deck.append(card)
+			else:
+				missing_cards.append(cid)
+
+	deck_changed.emit()
+
+	return {
+		"success": true,
+		"missing_ids": missing_cards
+	}
+
+func load_from_json(json_text: String) -> Dictionary:
+	var parsed = JSON.parse_string(json_text)
+	if parsed == null or not (parsed is Dictionary):
+		return {
+			"success": false,
+			"error": "Invalid or corrupted JSON.",
+			"missing_ids": []
+		}
+	var res := load_from_dict(parsed)
+	res["error"] = ""
+	return res

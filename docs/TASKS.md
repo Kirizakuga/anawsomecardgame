@@ -144,7 +144,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Spec: Persist a built deck (Hero + card list + landscape list) to disk as JSON and reload it for the single local profile. Save IDs and primitive values; resolve card data through `CardDatabase` when loading.
 - Checkup: Save a deck, restart the game/scene, load it back with identical contents.
 - Dependencies: M2-02.
-- Status: Not Started
+- Status: Done — agent, 2026-09-20
 
 ---
 
@@ -317,7 +317,8 @@ M1-05, M4-04, M4-05 → M5-04
 - [M1-08] — DECIDED BY PLANNER (review later): GameManager handles match-end lifecycle via signal match_ended(winner_id), is_match_over, and winner. check_win_condition() eliminates kingdoms with life <= 0, declares single survivor as winner, resolves turn limit by unique highest life total (or -1 on tie/simultaneous elimination), and guards against double emissions. ResolutionEngine checks win condition after lethal floop damage and creature attacks. Verified with WinConditionCheck.tscn.
 - [M2-01] — DECIDED BY PLANNER (review later): Placeholder heroes created under data/cards/heroes/ (hr_ignis, hr_terras, hr_aquos) with starting_life=25 and elemental affinities. CardDatabase loads heroes into separate heroes dictionary to preserve get_all_cards() card count. SpellResource extended with affinity export; CardDatabase.get_eligible_cards_for_hero() filters cards matching the hero's affinity or with neutral/empty affinity across creatures, spells, and landscapes. HeroSelect UI populates hero entries, binds select buttons, and emits hero_selected(hero, eligible_cards). Verified with HeroSelectCheck.tscn.
 - [M2-02] — DECIDED BY PLANNER (review later): Pure RefCounted DeckBuildState in scripts/core/deck_build_state.gd (zero Node dependencies). Main deck size max 30, copy limit max 3 per card ID. Landscape sub-deck separate (5-8 cards). Landscape additions route exclusively to landscape deck. Affinity-matching enforced per hero affinity or neutral. Validation requires exactly 30 main cards, 5-8 landscapes, and no copy/affinity violations. DeckBuilder UI provides responsive eligible card pool grid and deck lists with add/remove actions. Verified with DeckBuilderCheck.tscn.
+- [M2-03] — DECIDED BY PLANNER (review later): Single local profile uses user://saved_deck.json. Schema persists version, hero_id, main_deck (array of card IDs), and landscape_deck (array of card IDs) as JSON. Cards and Hero are resolved dynamically through CardDatabase on load; missing/unknown IDs are skipped gracefully and reported. DeckSaveManager provides static file I/O using FileAccess. DeckBuilder UI wires Save and Load buttons to user profile storage with automatic UI re-binding. Verified with DeckSaveLoadCheck.tscn.
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
 
-- `[M2-03]` — `card_battler_schema.dbml` models a `decks.owner` field ("player/profile identity"), but no player/profile/account concept exists anywhere in `GDD.md` or `TDD.md`. Deck save/load (M2-03) will need to know what a deck belongs to. Needs a design decision: single local profile only for now, or multiple named profiles on one device? — raised by agent on 2026-09-14
+- `[M2-03]` — Resolved on 2026-09-20: Single local profile using `user://saved_deck.json` per standing decision A. Multi-deck slots deferred until profile UI.
