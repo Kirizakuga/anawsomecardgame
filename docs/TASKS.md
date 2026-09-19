@@ -160,7 +160,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Spec: Given a `KingdomState`, `MatchContext`, and `BotArchetype`, generate candidate actions and score via the weighted-sum formula in `TDD.md` §3.5, return the highest-scoring `RoundActions` (with minor randomness to avoid total predictability).
 - Checkup: Given a fixed board state, an Aggressive archetype and a Turtle archetype produce visibly different chosen actions in test logs.
 - Dependencies: M3-01, M0-04.
-- Status: Not Started
+- Status: Done — agent, 2026-09-20
 
 **M3-03 — `BotDecisionSource`**
 - Spec: Wraps `BotAI.decide()` to conform to the `DecisionSource` interface from `TDD.md` §3.4, replacing the M1-07 dummy AI.
@@ -319,6 +319,7 @@ M1-05, M4-04, M4-05 → M5-04
 - [M2-02] — DECIDED BY PLANNER (review later): Pure RefCounted DeckBuildState in scripts/core/deck_build_state.gd (zero Node dependencies). Main deck size max 30, copy limit max 3 per card ID. Landscape sub-deck separate (5-8 cards). Landscape additions route exclusively to landscape deck. Affinity-matching enforced per hero affinity or neutral. Validation requires exactly 30 main cards, 5-8 landscapes, and no copy/affinity violations. DeckBuilder UI provides responsive eligible card pool grid and deck lists with add/remove actions. Verified with DeckBuilderCheck.tscn.
 - [M2-03] — DECIDED BY PLANNER (review later): Single local profile uses user://saved_deck.json. Schema persists version, hero_id, main_deck (array of card IDs), and landscape_deck (array of card IDs) as JSON. Cards and Hero are resolved dynamically through CardDatabase on load; missing/unknown IDs are skipped gracefully and reported. DeckSaveManager provides static file I/O using FileAccess. DeckBuilder UI wires Save and Load buttons to user profile storage with automatic UI re-binding. Verified with DeckSaveLoadCheck.tscn.
 - [M3-01] — DECIDED BY PLANNER (review later): BotArchetypeResource configured with id, archetype_name, description, and weight fields (aggression_weight, defense_weight, pact_loyalty_weight, betrayal_opportunism_weight, floop_preference_weight). 4 archetypes created under data/bot_profiles/ reflecting GDD §10: ba_aggressive (aggression 3.0, defense 0.5, pact 0.1, betrayal 1.5, floop 1.0), ba_opportunist (aggression 1.8, defense 1.0, pact 0.5, betrayal 3.0, floop 1.5), ba_loyalist (aggression 1.0, defense 1.5, pact 3.0, betrayal 0.1, floop 1.0), and ba_turtle (aggression 0.4, defense 3.0, pact 1.2, betrayal 0.3, floop 2.0). Verified with BotArchetypeCheck.tscn.
+- [M3-02] — DECIDED BY PLANNER (review later): BotAI.decide() scores creature placements and floop activations using TDD §3.5 weighted sum formula: ATK weighted by aggression_weight, DEF weighted by defense_weight, threat context (unblocked lane adds ATK * aggression_weight; blocked lane adds DEF * defense_weight), and floops scaled by floop_preference_weight and effect type. A small noise variance (default 0.05) adds unpredictability while keeping decisions deterministic with noise=0.0. Actions iteratively chosen greedily within kingdom.essence budget. Verified with BotAIScoringCheck.tscn.
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
 

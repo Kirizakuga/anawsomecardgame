@@ -31,6 +31,7 @@ Available verification test scenes:
 - `scenes/deckbuilder/DeckBuilderCheck.tscn` (M2-02: Deck assembly UI, 30 main cards limit, max 3 copies, and separate 5-8 landscape deck)
 - `scenes/deckbuilder/DeckSaveLoadCheck.tscn` (M2-03: Deck save/load to JSON, disk persistence, corruption handling, and CardDatabase resolution)
 - `scenes/match/BotArchetypeCheck.tscn` (M3-01: BotArchetypeResource loading, archetype profiles, and weight differentiation)
+- `scenes/match/BotAIScoringCheck.tscn` (M3-02: Bot AI candidate generation, weighted-sum scoring, and archetype differentiation)
 
 ## Before submitting changes
 

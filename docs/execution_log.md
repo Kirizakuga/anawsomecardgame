@@ -604,6 +604,46 @@ BotArchetypeCheck: PASS
 **Pending human verification:**
 None (pure data resource and weight table verification; no visual UI elements in M3-01).
 
+## M3-02 — BotAI.decide() scoring implementation
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/ai/bot_ai.gd` — MODIFIED: Implemented candidate action evaluation and weighted-sum scoring per TDD §3.5 (`score_card_placement`, `score_floop`, `decide`). Evaluates ATK and DEF against archetype weights, threat context (unblocked opposing lane vs blocked opposing lane), floop preferences, and essence budget constraints with controllable noise variance.
+- `scenes/match/BotAIScoringCheck.tscn` — NEW: Headless checkup scene.
+- `scripts/ui/bot_ai_scoring_check.gd` — NEW: Automated verification runner testing creature selection, lane choice differentiation, floop evaluation, essence/lane occupancy constraints, null archetype fallback, and noise perturbation.
+- `docs/development.md` — MODIFIED: Registered BotAIScoringCheck.tscn under verification scene list.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: BotAI.decide() scores creature placements and floop activations using TDD §3.5 weighted sum formula: ATK weighted by aggression_weight, DEF weighted by defense_weight, threat context (unblocked lane adds ATK * aggression_weight; blocked lane adds DEF * defense_weight), and floops scaled by floop_preference_weight and effect type. A small noise variance (default 0.05) adds unpredictability while keeping decisions deterministic with noise=0.0. Actions iteratively chosen greedily within kingdom.essence budget. Verified with BotAIScoringCheck.tscn.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: Test 1: Aggressive and Turtle profiles loaded
+[CHECK] PASS: Test 1: Aggressive archetype picks Flame Drake (4/1) over Stone Golem (1/5)
+[CHECK] PASS: Test 1: Turtle archetype picks Stone Golem (1/5) over Flame Drake (4/1)
+[CHECK] PASS: Test 2: Aggressive bot places creature in empty opposing lane 0 for direct damage
+[CHECK] PASS: Test 2: Turtle bot places creature in blocked opposing lane 1 to defend/absorb
+[CHECK] PASS: Test 3a: Affordable floop is selected into cards_to_floop
+[CHECK] PASS: Test 3b: Unaffordable floop is rejected when essence is 0
+[CHECK] PASS: Test 3c: Aggressive bot prioritizes direct damage floop over heal floop
+[CHECK] PASS: Test 3c: Turtle bot prioritizes heal floop over direct damage floop
+[CHECK] PASS: Test 4a: Bot respects essence budget (plays 1 card of cost 2 with 3 essence)
+[CHECK] PASS: Test 4b: Bot never places card into already-occupied lane 0
+[CHECK] PASS: Test 4c: Bot plays multiple affordable cards without exceeding budget or double-occupying lanes
+[CHECK] PASS: Test 5: Bot operates with default weights (1.0) when archetype is null
+[CHECK] PASS: Test 6a: Under noise_variance=0.0, repeated scores are strictly equal
+[CHECK] PASS: Test 6b: Noise perturbation stays bounded by noise_variance
+[CHECK] PASS: Test 6c: Under noise_variance=0.05, non-deterministic perturbation is active
+[CHECK] SUMMARY: 35 passed, 0 failed, 0 manual
+BotAIScoringCheck: PASS
+```
+
+**Failure detection verified:** Injected forced failure `[CHECK] FAIL: Deliberate failure for negative test demonstration`, produced exit code 1, `BotAIScoringCheck: FAIL`. Reverted to clean pass.
+
+**Pending human verification:**
+None (pure AI heuristic scoring logic and decision resolution; no visual UI elements in M3-02).
+
+
 
 
 
