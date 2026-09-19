@@ -98,7 +98,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Spec: Implement combat math for 2-player facing lanes: creature vs opposing creature in same lane, and unblocked lanes dealing damage to enemy Kingdom Life directly. Lives in `scripts/core/`.
 - Checkup: Unit-style test scene: two `KingdomState`s with known creature stats produce the exact expected Life totals and creature survival/death after one Battle phase.
 - Dependencies: M1-01, M0-04.
-- Status: Not Started
+- Status: Done — agent, 2026-09-19
 
 **M1-05 — Floop interaction logic**
 - Spec: Implement flipping a card (in hand or in play, per `GDD.md` §3) to trigger its secondary effect at defined Essence/tempo cost. At minimum, wire this for 2–3 of the M0-03 placeholder cards.
@@ -309,6 +309,7 @@ M1-05, M4-04, M4-05 → M5-04
 - [M0-03] — Resolved on 2026-09-17: implemented CardDatabase autoload (scripts/autoload/card_database.gd), registered in project.godot, verified with CardDatabaseCheck.tscn.
 - [M1-02] — Resolved on 2026-09-18: CardView drag-to-play with dim preview, NOTIFICATION_DRAG_END snapback restore, essence sufficiency check in LaneView, verified with CardViewCheck.tscn.
 - [M1-03] — Resolved on 2026-09-18: KingdomView lane reflection and Life display verified with KingdomCheck.tscn. Note: direct KingdomState mutation in KingdomView is temporary for M1-03 checkup; will route through HumanDecisionSource and RoundActions in M1-06.
+- [M1-04] — Resolved on 2026-09-19: CombatResolver in scripts/core/ (Decision C: damage reduction net_damage = max(0, ATK - DEF), blocked destroys blocker without retaliation or life overflow, unblocked damages Kingdom Life = ATK); wired into ResolutionEngine.resolve() creature step; verified with CombatCheck.tscn.
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
 

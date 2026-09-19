@@ -22,6 +22,7 @@ Available verification test scenes:
 - `scenes/main/CardDatabaseCheck.tscn` (M0-03: CardDatabase loading and lookups)
 - `scenes/match/CardViewCheck.tscn` (M1-02: CardView rendering, stats, floop, and drag/snapback)
 - `scenes/match/KingdomCheck.tscn` (M1-03: KingdomView life, lanes, essence deduction, and drop validation)
+- `scenes/match/CombatCheck.tscn` (M1-04: Combat resolution, creature-vs-creature, and unblocked direct damage)
 
 ## Before submitting changes
 
