@@ -10,7 +10,7 @@ These rules apply to anyone — human or AI — making changes in this repo. The
 6. Don't invent new mechanics, fields, or systems that aren't in `GDD.md`/`TDD.md`. If a task seems to need one, stop and add it to `TASKS.md` §5 (Open Questions Raised) instead of deciding unilaterally. Exception: in an orchestrated run, the Planner may pick a simple default for a
    documented gap; it must record it in §5 as `DECIDED BY PLANNER (review later)`.
 7. Definition of Done = the task's Checkup/Acceptance Criteria in `TASKS.md`, not "it runs" or "it compiles."
-8. When you finish or get stuck on a task, update its `Status` inline in `TASKS.md` (`Not Started` → `In Progress` / `Blocked — [reason]` / `Done — [agent/person], [date]`).
+8. When you finish or get stuck on a task, update its `Status` inline in `TASKS.md` (`Not Started` → `In Progress` / `Blocked — [reason]` / `Done — [agent/person], [date]`). In an orchestrated run, the Planner updates Status.
 9. Naming: `snake_case` for files/variables, `PascalCase` for class/scene names, matching existing conventions in `TDD.md` §2–3.
 10. Only touch files inside the scope of the task you're doing. If a dependency task isn't done yet, say so in your task's status rather than stubbing around it silently — or finish the dependency first if it's trivial.
 11. Don't delete, rename, or overwrite existing `.tres` cards, scenes, or another in-progress task's files without being explicitly asked to. If something looks wrong or stale, flag it — don't "fix" it silently.
@@ -25,6 +25,6 @@ These rules apply to anyone — human or AI — making changes in this repo. The
     acceptance condition. The task may be marked Done before that check happens, but the
     pending item must be logged, and an agent must never claim a manual check passed
     when it did not run it.
-    18. In each execution_log.md entry, record the model name you are running as. If it is not
+18. In each execution_log.md entry, record the model name you are running as. If it is not
     the primary model, mark the entry "REVIEWED BY FALLBACK MODEL".
 If you're ever unsure whether something is in scope: ask, or flag it in `TASKS.md` §5 — don't guess and proceed.

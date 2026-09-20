@@ -20,6 +20,7 @@ This project doesn't yet have an automated test runner — each task in `TASKS.m
 
 Available verification test scenes:
 - `scenes/main/CardDatabaseCheck.tscn` (M0-03: CardDatabase loading and lookups)
+- `scenes/main/TurnManagerCheck.tscn` (M1-01: TurnManager phase sequencing, signals, and turn lifecycle)
 - `scenes/match/CardViewCheck.tscn` (M1-02: CardView rendering, stats, floop, and drag/snapback)
 - `scenes/match/KingdomCheck.tscn` (M1-03: KingdomView life, lanes, essence deduction, and drop validation)
 - `scenes/match/CombatCheck.tscn` (M1-04: Combat resolution, creature-vs-creature, and unblocked direct damage)
@@ -35,6 +36,22 @@ Available verification test scenes:
 - `scenes/match/BotDecisionSourceCheck.tscn` (M3-03: BotDecisionSource DecisionSource interface conformance, 2p match swapping parity, and archetype compatibility)
 - `scenes/match/MatchBoardCheck.tscn` (M4-01: MatchBoard circular N-Kingdom layout for 4-6 players, scaling, bounds, and no-overlap verification)
 - `scenes/match/SimultaneousSubmissionCheck.tscn` (M4-02: Simultaneous action collection from all DecisionSources, TurnManager coordination, waiting UI overlay, and resolution gating)
+
+### Running checks headless
+
+Run a single check:
+```bash
+godot --headless --path . scenes/<area>/<Name>Check.tscn
+```
+
+Run all checks from command line (bash):
+```bash
+for scene in scenes/*/*Check.tscn; do
+  echo "Running $scene..."
+  godot --headless --path . "$scene" || exit 1
+done
+```
+Each check scene exits with code 0 on clean pass and code 1 on failure. Supporting `-- --negative-test` verifies failure detection by demonstrating exit code 1.
 
 ## Before submitting changes
 

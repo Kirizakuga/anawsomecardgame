@@ -17,7 +17,7 @@ If you are an AI picking up work on this project, follow these rules:
    - Never have `ResolutionEngine` or game logic branch on "is this a bot or human" — always go through `DecisionSource`.
 4. **Don't invent new systems not in GDD.md/TDD.md.** If a task seems to need a new mechanic or data field not covered by those docs, stop and flag it under "Open Questions Raised" (§5) rather than deciding unilaterally.
 5. **Definition of Done = Acceptance Criteria, not "it runs."** Each task lists specific checks. All must pass before marking a task complete.
-6. **Update task status inline** in this doc when you finish a task: change `Status: Not Started` → `Status: Done (by [agent/person], [date])`. If blocked, use `Status: Blocked — [reason]`.
+6. **Update task status inline** in this doc when you work on or finish a task: change `Status: Not Started` → `Status: Done — [agent/person], [date]`. If starting, use `Status: In Progress — [agent/person], started [date]`. If blocked, use `Status: Blocked — [reason]` (matching §4 Status Legend). In orchestrated runs, the Planner updates Status.
 7. **Naming conventions:** `snake_case` for files/variables, `PascalCase` for class/scene names, matching existing Godot conventions already used in `TDD.md` §2–3.
 8. **If a dependency task isn't done yet**, don't stub around it silently — note it in your task's status and either wait or complete the dependency first if trivial.
 9. **No networking work** unless explicitly working on an M6 task — earlier phases assume local-only (human + bots).
@@ -102,7 +102,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 
 **M1-05 — Floop interaction logic**
 - Spec: Implement flipping a card (in hand or in play, per `GDD.md` §3) to trigger its secondary effect at defined Essence/tempo cost. At minimum, wire this for 2–3 of the M0-03 placeholder cards.
-- Checkup: Flooping a test card produces its documented secondary effect and correctly deducts cost; flooding a card with no floop effect is a no-op/disabled in UI.
+- Checkup: Flooping a test card produces its documented secondary effect and correctly deducts cost; flooping a card with no floop effect is a no-op/disabled in UI.
 - Dependencies: M1-02, M0-03.
 - Status: Done — agent, 2026-09-19
 
@@ -194,7 +194,7 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Spec: Fixed resolution order (Landscapes → Spells → Creatures → Pact changes → Betrayals per `TDD.md` §3.6). Implement diminishing damage for 3+ simultaneous attackers on one Kingdom per `GDD.md` §6.
 - Checkup: Test case with 3 bots attacking one Kingdom in the same round produces documented reduced damage on the 2nd/3rd attacker, matching the specified formula (finalize exact numbers if not yet set — flag as open question if so).
 - Dependencies: M4-02, M1-04.
-- Status: Not Started
+- Status: In Progress — agent, started 2026-09-20
 
 **M4-04 — `PactManager` (propose/accept)**
 - Spec: UI + logic for proposing/accepting Pacts per `GDD.md` §6. Active Pacts block attacks between members and allow 1 Essence/creature-lend per turn.
@@ -304,8 +304,8 @@ M1-05, M4-04, M4-05 → M5-04
 
 ## 5. Open Questions Raised (append here as work proceeds)
 
-- [M0-02] — TDD §3.2 requires HeroResource.portrait: Texture2D while card_battler_schema.dbml omits a portrait field from heroes. Code follows TDD; decide whether to add portrait_path to DBML or intentionally document the omission. — raised by agent on 2026-09-15
-- [M0-02] — TDD §3.2 decides that CardResource references nullable FloopEffectResource but does not define that Resource's fields. Current code uses DBML fields: id, description, cost_type, cost_amount. Confirm this field shape in TDD or revise code before Floop logic starts. — raised by agent on 2026-09-15
+- [M0-02] — Resolved on 2026-09-18 (M2-01 / DOC-01): HeroResource implements portrait: Texture2D; card_battler_schema.dbml updated in DOC-01 with portrait_path to align with Godot Resource.
+- [M0-02] — Resolved on 2026-09-19 (M1-05 / DOC-01): FloopEffectResource fields confirmed and extended with effect_type and effect_value in scripts/data/floop_effect_resource.gd; card_battler_schema.dbml and TDD §3.2 updated in DOC-01.
 - [M0-03] — Resolved on 2026-09-17: implemented CardDatabase autoload (scripts/autoload/card_database.gd), registered in project.godot, verified with CardDatabaseCheck.tscn.
 - [M1-02] — Resolved on 2026-09-18: CardView drag-to-play with dim preview, NOTIFICATION_DRAG_END snapback restore, essence sufficiency check in LaneView, verified with CardViewCheck.tscn.
 - [M1-03] — Resolved on 2026-09-18: KingdomView lane reflection and Life display verified with KingdomCheck.tscn. Note: direct KingdomState mutation in KingdomView is temporary for M1-03 checkup; will route through HumanDecisionSource and RoundActions in M1-06.
@@ -318,12 +318,12 @@ M1-05, M4-04, M4-05 → M5-04
 - [M2-01] — DECIDED BY PLANNER (review later): Placeholder heroes created under data/cards/heroes/ (hr_ignis, hr_terras, hr_aquos) with starting_life=25 and elemental affinities. CardDatabase loads heroes into separate heroes dictionary to preserve get_all_cards() card count. SpellResource extended with affinity export; CardDatabase.get_eligible_cards_for_hero() filters cards matching the hero's affinity or with neutral/empty affinity across creatures, spells, and landscapes. HeroSelect UI populates hero entries, binds select buttons, and emits hero_selected(hero, eligible_cards). Verified with HeroSelectCheck.tscn.
 - [M2-02] — DECIDED BY PLANNER (review later): Pure RefCounted DeckBuildState in scripts/core/deck_build_state.gd (zero Node dependencies). Main deck size max 30, copy limit max 3 per card ID. Landscape sub-deck separate (5-8 cards). Landscape additions route exclusively to landscape deck. Affinity-matching enforced per hero affinity or neutral. Validation requires exactly 30 main cards, 5-8 landscapes, and no copy/affinity violations. DeckBuilder UI provides responsive eligible card pool grid and deck lists with add/remove actions. Verified with DeckBuilderCheck.tscn.
 - [M2-03] — DECIDED BY PLANNER (review later): Single local profile uses user://saved_deck.json. Schema persists version, hero_id, main_deck (array of card IDs), and landscape_deck (array of card IDs) as JSON. Cards and Hero are resolved dynamically through CardDatabase on load; missing/unknown IDs are skipped gracefully and reported. DeckSaveManager provides static file I/O using FileAccess. DeckBuilder UI wires Save and Load buttons to user profile storage with automatic UI re-binding. Verified with DeckSaveLoadCheck.tscn.
+- [M2-03] — Resolved on 2026-09-20: Single local profile using `user://saved_deck.json` per standing decision A. Multi-deck slots deferred until profile UI.
 - [M3-01] — DECIDED BY PLANNER (review later): BotArchetypeResource configured with id, archetype_name, description, and weight fields (aggression_weight, defense_weight, pact_loyalty_weight, betrayal_opportunism_weight, floop_preference_weight). 4 archetypes created under data/bot_profiles/ reflecting GDD §10: ba_aggressive (aggression 3.0, defense 0.5, pact 0.1, betrayal 1.5, floop 1.0), ba_opportunist (aggression 1.8, defense 1.0, pact 0.5, betrayal 3.0, floop 1.5), ba_loyalist (aggression 1.0, defense 1.5, pact 3.0, betrayal 0.1, floop 1.0), and ba_turtle (aggression 0.4, defense 3.0, pact 1.2, betrayal 0.3, floop 2.0). Verified with BotArchetypeCheck.tscn.
 - [M3-02] — DECIDED BY PLANNER (review later): BotAI.decide() scores creature placements and floop activations using TDD §3.5 weighted sum formula: ATK weighted by aggression_weight, DEF weighted by defense_weight, threat context (unblocked lane adds ATK * aggression_weight; blocked lane adds DEF * defense_weight), and floops scaled by floop_preference_weight and effect type. A small noise variance (default 0.05) adds unpredictability while keeping decisions deterministic with noise=0.0. Actions iteratively chosen greedily within kingdom.essence budget. Verified with BotAIScoringCheck.tscn.
 - [M3-03] — DECIDED BY PLANNER (review later): BotDecisionSource wraps BotAI in scripts/ai/bot_decision_source.gd, conforming strictly to DecisionSource. Emits actions_ready synchronously upon request_actions(kingdom, context). Drop-in replacement for DummyAIDecisionSource in 2-player match requires zero changes to ResolutionEngine or TurnManager (AGENTS rule 4). Verified with BotDecisionSourceCheck.tscn across all 4 archetypes with full match termination.
 - [M4-01] — DECIDED BY PLANNER (review later): Tunable layout parameters stored in BoardLayoutConfigResource under scripts/data/board_layout_config.gd and data/board/default_board_layout.tres per Standing Decision A (radius_x: 420.0, radius_y: 195.0, center_offset: (0, -45), bot_scale: (0.55, 0.55), human_scale: (0.72, 0.72), target_viewport_size: (1152, 648)). MatchBoard places local human kingdom at bottom center with hand view enabled, distributing opponent bot kingdoms along upper arc with hand views hidden. Bounding boxes fit target viewport without clipping or overlap across 4, 5, and 6 player setups. Verified with MatchBoardCheck.tscn.
 - [M4-02] — DECIDED BY PLANNER (review later): TurnManager coordinates simultaneous action collection via start_action_collection(context, sources). It requests actions across all active kingdoms in parallel, tracks pending player IDs, and emits action_received(player_id, actions), waiting_status_changed(is_waiting, pending_ids), and all_actions_collected(actions). MatchBoard displays centered WaitingOverlay with "Waiting for other players..." whenever the local human has submitted while other players are pending, hiding upon all_actions_collected. Resolution does not proceed until all N RoundActions arrive. Verified with SimultaneousSubmissionCheck.tscn.
+- [M4-03] — CODE DISCREPANCY FOR REVIEW: scripts/autoload/resolution_engine.gd line 35 hardcodes 2-player floop targeting: var opponent_id: int = 1 if action.player_id == 0 else 0. In 4–6 player FFA (M4), a floop affecting an opponent cannot assume a binary opponent ID. Recommend updating FloopResolver / RoundActions to accept explicit target player_id in M4-03.
 
 *(This section exists so any contributor, human or AI, has a designated place to flag ambiguity in GDD.md/TDD.md instead of guessing. Format: `[Task ID] — [Question] — raised by [agent/person] on [date]`)*
-
-- `[M2-03]` — Resolved on 2026-09-20: Single local profile using `user://saved_deck.json` per standing decision A. Multi-deck slots deferred until profile UI.
