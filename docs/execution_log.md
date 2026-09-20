@@ -10,6 +10,7 @@
 - Multiplayer combat animations and resolution log presentation in MatchBoard (M4-03)
 - PactProposalPopup.tscn: UI styling, layout in 4-6p MatchBoard, and button click feedback (M4-04)
 - Betrayal visual feedback and animation cues in MatchBoard (M4-05)
+- Comeback Essence bonus visual banner/cue in MatchBoard HUD (M4-06)
 - Playtest 2-player vs each bot archetype individually for balance and feel (M3-04)
 
 ## M1-04 — Combat resolution (creature-vs-creature, direct damage)
@@ -1099,3 +1100,69 @@ BetrayalCheck: PASS
 
 **Pending human verification:**
 1. Visual inspection of `MatchBoard.tscn`: Confirm visual feedback (e.g. broken pact animation, attack animation with betrayal bonus indicator, and essence gain VFX) when a player commits a betrayal move in 4-6 player match flow.
+
+## M4-06 — Comeback Essence bonus
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/data/comeback_config_resource.gd` — NEW: Resource defining `bonus_essence: int = 1` and `tie_mode: TieMode = TieMode.ALL_TIED` for tunable comeback mechanics.
+- `data/combat/default_comeback_config.tres` — NEW: Default ComebackConfigResource instance under data/combat/.
+- `scripts/autoload/turn_manager.gd` — MODIFIED: Implemented `apply_comeback_bonus(context)` evaluating lowest Life among active kingdoms during Phase.ESSENCE, awarding bonus Essence, and emitting `comeback_bonus_awarded`. If all active players share identical Life, zero bonus is awarded; on tie under `ALL_TIED`, each tied player receives +1 essence without duplicate bonuses.
+- `scenes/match/ComebackCheck.tscn` — NEW: Headless checkup scene.
+- `scripts/ui/comeback_check.gd` — NEW: Checkup runner verifying config loading, uneven Life totals, ties under all tie modes, equal Life totals, eliminated player exclusion, dynamic round adaptation, and negative test.
+- `docs/data.md` — MODIFIED: Documented ComebackConfigResource and default_comeback_config.tres.
+- `docs/development.md` — MODIFIED: Registered ComebackCheck.tscn in test scene list.
+- `docs/TASKS.md` — MODIFIED: M4-06 status -> Done, added §5 DECIDED BY PLANNER entry.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: ComebackConfigResource stored under data/combat/default_comeback_config.tres (bonus_essence=1, tie_mode=ALL_TIED) per Standing Decision A. TurnManager.apply_comeback_bonus(context) evaluates lowest Life among active kingdoms; if all players share identical Life (e.g. game start 25-25-25-25), zero bonus is awarded; on tie under ALL_TIED, each tied player receives +1 essence without duplicate bonuses. Verified with ComebackCheck.tscn.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: ComebackConfig: default_comeback_config.tres exists
+[CHECK] PASS: ComebackConfig: loaded config successfully
+[CHECK] PASS: ComebackConfig: default bonus_essence is 1
+[CHECK] PASS: ComebackConfig: default tie_mode is ALL_TIED
+[CHECK] PASS: Uneven Life: only P2 is recipient
+[CHECK] PASS: Uneven Life: bonus amount is 1
+[CHECK] PASS: Uneven Life: min_life is 15
+[CHECK] PASS: Uneven Life: P0 gets 0 bonus essence
+[CHECK] PASS: Uneven Life: P1 gets 0 bonus essence
+[CHECK] PASS: Uneven Life: P2 receives +1 essence
+[CHECK] PASS: Uneven Life: comeback_bonus_awarded signal emitted
+[CHECK] PASS: Uneven Life: signal recipients matches [2]
+[CHECK] PASS: Uneven Life: signal amount is 1
+[CHECK] PASS: Tied Last (ALL_TIED): both P1 and P2 in recipient_ids
+[CHECK] PASS: Tied Last (ALL_TIED): P0 essence unchanged at 2
+[CHECK] PASS: Tied Last (ALL_TIED): P1 received exactly +1 essence (not duplicate +2)
+[CHECK] PASS: Tied Last (ALL_TIED): P2 received exactly +1 essence (not duplicate +2)
+[CHECK] PASS: Tied Last (LOWEST_ID): only lowest ID P1 is recipient
+[CHECK] PASS: Tied Last (LOWEST_ID): P0 essence 0
+[CHECK] PASS: Tied Last (LOWEST_ID): P1 essence +1
+[CHECK] PASS: Tied Last (LOWEST_ID): P2 essence 0
+[CHECK] PASS: Tied Last (NONE): recipient_ids is empty
+[CHECK] PASS: Tied Last (NONE): no player essence incremented
+[CHECK] PASS: Equal Life: recipient_ids is empty
+[CHECK] PASS: Equal Life: bonus_essence is 0
+[CHECK] PASS: Equal Life: no player received bonus essence
+[CHECK] PASS: Eliminated: P2 (0 life / eliminated) excluded, lowest active is P1
+[CHECK] PASS: Eliminated: active lowest P1 received +1 essence
+[CHECK] PASS: Eliminated: eliminated P2 received 0 essence
+[CHECK] PASS: Round 1: P1 lowest, receives bonus
+[CHECK] PASS: Round 1: P1 essence is 1
+[CHECK] PASS: Round 1: P0 essence is 0
+[CHECK] PASS: Round 2: P0 lowest after damage swing, receives bonus
+[CHECK] PASS: Round 2: P0 essence is 1
+[CHECK] PASS: Round 2: P1 essence remains 1
+[CHECK] PASS: Single player: recipient_ids is empty
+[CHECK] PASS: Single player: P0 essence remains 0
+[CHECK] MANUAL: Comeback Essence bonus visual banner/cue in MatchBoard HUD
+[CHECK] SUMMARY: 37 passed, 0 failed, 1 manual
+ComebackCheck: PASS
+```
+
+**Failure detection verified:** Executed `godot --headless --path . scenes/match/ComebackCheck.tscn -- --negative-test`, producing `[CHECK] FAIL: Simulated intentional failure for negative testing verification`, exit code 1, `ComebackCheck: FAIL`. Clean run exited with code 0.
+
+**Pending human verification:**
+1. Visual inspection of `MatchBoard.tscn`: Confirm visual banner or HUD notification appears during Phase.ESSENCE indicating when the comeback Essence bonus is awarded to the lowest-Life player(s).
+

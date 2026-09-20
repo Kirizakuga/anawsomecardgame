@@ -7,6 +7,9 @@ signal turn_ended(turn_number: int)
 signal action_received(player_id: int, actions: RoundActions)
 signal waiting_status_changed(is_waiting: bool, pending_player_ids: Array[int])
 signal all_actions_collected(actions: Array[RoundActions])
+signal comeback_bonus_awarded(recipient_ids: Array[int], bonus_essence: int)
+
+const ComebackConfigResource = preload("res://scripts/data/comeback_config_resource.gd")
 
 enum Phase { ESSENCE, PLAY, BATTLE, CLEANUP }
 
@@ -18,6 +21,18 @@ var collected_actions: Dictionary = {} # player_id -> RoundActions
 var is_collecting_actions: bool = false
 var _active_context: MatchContext = null
 var _connected_sources: Dictionary = {} # player_id -> DecisionSource
+var comeback_config: ComebackConfigResource = null
+
+func _ready() -> void:
+	_ensure_comeback_config()
+
+func _ensure_comeback_config() -> void:
+	if comeback_config == null:
+		var config_path := "res://data/combat/default_comeback_config.tres"
+		if ResourceLoader.exists(config_path):
+			comeback_config = load(config_path)
+		else:
+			comeback_config = ComebackConfigResource.new()
 
 func start_turn() -> void:
 	current_turn += 1
@@ -104,3 +119,75 @@ func cancel_action_collection() -> void:
 	collected_actions.clear()
 	_connected_sources.clear()
 	_active_context = null
+
+func apply_comeback_bonus(context: MatchContext) -> Dictionary:
+	# ponytail: manual bonus invocation — integrate into automated phase loop in M4-08
+	_ensure_comeback_config()
+	var result: Dictionary = {
+		"recipient_ids": [] as Array[int],
+		"bonus_essence": 0,
+		"min_life": -1
+	}
+	if context == null:
+		return result
+
+	var active_kingdoms: Array[KingdomState] = []
+	for k in context.get_active_kingdoms():
+		if k.life > 0:
+			active_kingdoms.append(k)
+
+	if active_kingdoms.size() < 2:
+		return result
+
+	var min_life: int = active_kingdoms[0].life
+	for k in active_kingdoms:
+		if k.life < min_life:
+			min_life = k.life
+	result["min_life"] = min_life
+
+	var all_same_life: bool = true
+	for k in active_kingdoms:
+		if k.life != min_life:
+			all_same_life = false
+			break
+
+	if all_same_life:
+		return result
+
+	var lowest_kingdoms: Array[KingdomState] = []
+	for k in active_kingdoms:
+		if k.life == min_life:
+			lowest_kingdoms.append(k)
+
+	var bonus: int = comeback_config.bonus_essence if comeback_config != null else 1
+	var recipients: Array[int] = []
+	var tie_mode = comeback_config.tie_mode if comeback_config != null else ComebackConfigResource.TieMode.ALL_TIED
+
+	if lowest_kingdoms.size() == 1:
+		recipients.append(lowest_kingdoms[0].player_id)
+	else:
+		match tie_mode:
+			ComebackConfigResource.TieMode.ALL_TIED:
+				for k in lowest_kingdoms:
+					recipients.append(k.player_id)
+			ComebackConfigResource.TieMode.LOWEST_ID:
+				var min_id: int = lowest_kingdoms[0].player_id
+				for k in lowest_kingdoms:
+					if k.player_id < min_id:
+						min_id = k.player_id
+				recipients.append(min_id)
+			ComebackConfigResource.TieMode.NONE:
+				pass
+
+	for pid in recipients:
+		var k := context.get_kingdom(pid)
+		if k != null:
+			k.essence += bonus
+
+	if not recipients.is_empty():
+		result["recipient_ids"] = recipients
+		result["bonus_essence"] = bonus
+		comeback_bonus_awarded.emit(recipients, bonus)
+
+	return result
+
