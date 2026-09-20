@@ -12,6 +12,8 @@ func can_target_for_attack(target_player_id: int) -> bool:
 	var my_id: int = pending_actions.player_id if pending_actions != null else -1
 	if my_id >= 0 and my_id == target_player_id:
 		return false
+	if pending_actions != null and pending_actions.betrayal_target == target_player_id:
+		return true
 	if target_validator.is_valid():
 		return target_validator.call(my_id, target_player_id)
 	return true

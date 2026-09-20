@@ -38,6 +38,7 @@ Available verification test scenes:
 - `scenes/match/SimultaneousSubmissionCheck.tscn` (M4-02: Simultaneous action collection from all DecisionSources, TurnManager coordination, waiting UI overlay, and resolution gating)
 - `scenes/match/ResolutionEngineCheck.tscn` (M4-03: ResolutionEngine deterministic multi-player resolution, 5-stage order, floop routing, and anti-pile-on reduction)
 - `scenes/match/PactCheck.tscn` (M4-04: PactManager propose/accept/break, bilateral ally attack blocking in UI and ResolutionEngine, 1 essence/turn lend, and PactProposalPopup)
+- `scenes/match/BetrayalCheck.tscn` (M4-05: Betrayal bonus upon same-turn pact break + attack, attack damage burst, essence burst, and HumanDecisionSource ally attack targeting unlock)
 
 ### Running checks headless
 

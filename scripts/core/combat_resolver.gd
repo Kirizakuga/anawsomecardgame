@@ -21,7 +21,7 @@ static func resolve_lane(attacker: KingdomState, defender: KingdomState, lane_id
 
 
 ## Resolves a single attack from an attacker lane against a defender lane with an optional damage multiplier.
-static func resolve_attack(attacker: KingdomState, defender: KingdomState, attacker_lane_idx: int, target_lane_idx: int = -1, damage_multiplier: float = 1.0) -> Dictionary:
+static func resolve_attack(attacker: KingdomState, defender: KingdomState, attacker_lane_idx: int, target_lane_idx: int = -1, damage_multiplier: float = 1.0, bonus_attack: int = 0) -> Dictionary:
 	if target_lane_idx < 0:
 		target_lane_idx = attacker_lane_idx
 
@@ -49,6 +49,7 @@ static func resolve_attack(attacker: KingdomState, defender: KingdomState, attac
 			"blocker_destroyed": false,
 			"multiplier": damage_multiplier,
 			"effective_attack": 0,
+			"bonus_attack": 0,
 		}
 
 	if defender == null or defender.is_eliminated:
@@ -66,9 +67,10 @@ static func resolve_attack(attacker: KingdomState, defender: KingdomState, attac
 			"blocker_destroyed": false,
 			"multiplier": damage_multiplier,
 			"effective_attack": 0,
+			"bonus_attack": bonus_attack,
 		}
 
-	var base_attack: int = attacker_creature.attack
+	var base_attack: int = attacker_creature.attack + bonus_attack
 	var effective_attack: int = maxi(0, int(round(float(base_attack) * damage_multiplier)))
 
 	if defender_creature != null:
@@ -95,6 +97,7 @@ static func resolve_attack(attacker: KingdomState, defender: KingdomState, attac
 				"blocker_destroyed": true,
 				"multiplier": damage_multiplier,
 				"effective_attack": effective_attack,
+				"bonus_attack": bonus_attack,
 			}
 		else:
 			return {
@@ -111,6 +114,7 @@ static func resolve_attack(attacker: KingdomState, defender: KingdomState, attac
 				"blocker_destroyed": false,
 				"multiplier": damage_multiplier,
 				"effective_attack": effective_attack,
+				"bonus_attack": bonus_attack,
 			}
 	else:
 		# Unblocked: direct damage to Kingdom Life = effective_attack
@@ -133,4 +137,5 @@ static func resolve_attack(attacker: KingdomState, defender: KingdomState, attac
 			"blocker_destroyed": false,
 			"multiplier": damage_multiplier,
 			"effective_attack": effective_attack,
+			"bonus_attack": bonus_attack,
 		}

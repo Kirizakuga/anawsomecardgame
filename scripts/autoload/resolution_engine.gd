@@ -2,10 +2,14 @@ extends Node
 
 signal resolution_finished(log: Array)
 
+const BetrayalConfigResource = preload("res://scripts/data/betrayal_config_resource.gd")
+
 var pile_on_config: PileOnConfigResource = null
+var betrayal_config: BetrayalConfigResource = null
 
 func _ready() -> void:
 	_ensure_pile_on_config()
+	_ensure_betrayal_config()
 
 func _ensure_pile_on_config() -> void:
 	if pile_on_config == null:
@@ -15,9 +19,19 @@ func _ensure_pile_on_config() -> void:
 		else:
 			pile_on_config = PileOnConfigResource.new()
 
+func _ensure_betrayal_config() -> void:
+	if betrayal_config == null:
+		var config_path := "res://data/pact/default_betrayal_config.tres"
+		if ResourceLoader.exists(config_path):
+			betrayal_config = load(config_path)
+		else:
+			betrayal_config = BetrayalConfigResource.new()
+
 func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 	_ensure_pile_on_config()
+	_ensure_betrayal_config()
 	var resolution_log: Array = []
+	var betrayed_targets_attacked: Dictionary = {}
 
 	# Map actions by player_id and sort by player_id ascending for deterministic order
 	var sorted_actions: Array[RoundActions] = []
@@ -160,7 +174,10 @@ func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 			if def_id < 0:
 				continue
 			if PactManager != null and PactManager.has_pact(att.attacker_id, def_id):
-				continue
+				var attacker_act: RoundActions = action_by_player.get(att.attacker_id)
+				var is_betrayal: bool = (attacker_act != null and attacker_act.betrayal_target == def_id)
+				if not is_betrayal:
+					continue
 			if not unique_attackers_per_defender.has(def_id):
 				unique_attackers_per_defender[def_id] = []
 			var att_list: Array = unique_attackers_per_defender[def_id]
@@ -199,25 +216,36 @@ func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 			var attacks_for_att: Array = attacks_by_attacker[att_id]
 			for att in attacks_for_att:
 				var def_id: int = att.target_player_id
+				var is_betrayal: bool = false
+				var attacker_act: RoundActions = action_by_player.get(att_id)
 				if PactManager != null and PactManager.has_pact(att_id, def_id):
-					resolution_log.append({
-						"step": "combat_blocked_by_pact",
-						"attacker_id": att_id,
-						"target_player_id": def_id,
-						"lane": att.attacker_lane,
-					})
-					continue
+					if attacker_act != null and attacker_act.betrayal_target == def_id:
+						is_betrayal = true
+					else:
+						resolution_log.append({
+							"step": "combat_blocked_by_pact",
+							"attacker_id": att_id,
+							"target_player_id": def_id,
+							"lane": att.attacker_lane,
+						})
+						continue
 
 				var defender_kingdom: KingdomState = context.get_kingdom(def_id)
 				var key := "%d:%d" % [def_id, att_id]
 				var mult: float = multiplier_map.get(key, 1.0)
+				var bonus_atk: int = 0
+				if is_betrayal and betrayal_config != null:
+					bonus_atk = betrayal_config.bonus_attack_damage
+					if att.has_creature:
+						betrayed_targets_attacked["%d:%d" % [att_id, def_id]] = true
 
 				var combat_entry: Dictionary = CombatResolver.resolve_attack(
 					attacker_kingdom,
 					defender_kingdom,
 					att.attacker_lane,
 					att.target_lane,
-					mult
+					mult,
+					bonus_atk
 				)
 				resolution_log.append(combat_entry)
 
@@ -257,13 +285,29 @@ func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 			})
 
 	# 5. Betrayals
-	# ponytail: stub — betrayal resolution deferred to M4-05
 	for action in sorted_actions:
 		if action.betrayal_target >= 0:
+			var breaker_id: int = action.player_id
+			var victim_id: int = action.betrayal_target
+			if PactManager != null:
+				PactManager.break_pact(breaker_id, victim_id)
+			var key := "%d:%d" % [breaker_id, victim_id]
+			var attacked: bool = betrayed_targets_attacked.get(key, false)
+			var bonus_granted: bool = false
+			if attacked:
+				var breaker_kingdom: KingdomState = context.get_kingdom(breaker_id) if context != null else null
+				if breaker_kingdom != null:
+					var bonus_ess: int = betrayal_config.bonus_essence if betrayal_config != null else 2
+					breaker_kingdom.essence += bonus_ess
+					bonus_granted = true
+			if context != null and PactManager != null:
+				PactManager.sync_to_context(context)
 			resolution_log.append({
 				"step": "betrayal",
-				"player_id": action.player_id,
-				"target_player_id": action.betrayal_target,
+				"player_id": breaker_id,
+				"target_player_id": victim_id,
+				"attacked": attacked,
+				"bonus_granted": bonus_granted,
 			})
 
 	resolution_finished.emit(resolution_log)

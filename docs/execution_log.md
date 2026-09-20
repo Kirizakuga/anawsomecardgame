@@ -9,6 +9,7 @@
 - WaitingOverlay during simultaneous submission: centered, readable (M4-02)
 - Multiplayer combat animations and resolution log presentation in MatchBoard (M4-03)
 - PactProposalPopup.tscn: UI styling, layout in 4-6p MatchBoard, and button click feedback (M4-04)
+- Betrayal visual feedback and animation cues in MatchBoard (M4-05)
 - Playtest 2-player vs each bot archetype individually for balance and feel (M3-04)
 
 ## M1-04 — Combat resolution (creature-vs-creature, direct damage)
@@ -1032,3 +1033,69 @@ PactCheck: PASS
 
 **Pending human verification:**
 1. Visual inspection of `PactProposalPopup.tscn`: Confirm popup styling, alignment in 4-6 player MatchBoard context, button disabled/active visual states, and response feedback when proposing, accepting, or lending essence.
+
+## M4-05 — Betrayal action
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/data/betrayal_config_resource.gd` — NEW: Resource defining `bonus_essence: int = 2` and `bonus_attack_damage: int = 2` for tunable betrayal parameters.
+- `data/pact/default_betrayal_config.tres` — NEW: Default BetrayalConfigResource instance under data/pact/.
+- `scripts/core/combat_resolver.gd` — MODIFIED: Extended `resolve_attack()` with optional `bonus_attack: int = 0` param, reflected in effective attack calculation and combat log output.
+- `scripts/core/human_decision_source.gd` — MODIFIED: In `can_target_for_attack()`, permits targeting an ally if `pending_actions.betrayal_target == target_player_id`.
+- `scripts/autoload/resolution_engine.gd` — MODIFIED: In Stage 3b, allows betrayal attack to bypass pact block, adds `bonus_attack_damage`, and tracks attacked betrayal targets; in Stage 5, breaks pact, awards single `bonus_essence` burst if target was attacked, and logs `bonus_granted: true/false`.
+- `scenes/match/BetrayalCheck.tscn` — NEW: Headless checkup scene.
+- `scripts/ui/betrayal_check.gd` — NEW: Checkup runner verifying config loading, HumanDecisionSource betrayal targeting unlock, same-turn break+attack with damage and essence burst, break without attack (no bonus), multi-lane single bonus grant, and negative test.
+- `docs/data.md` — MODIFIED: Documented BetrayalConfigResource and default_betrayal_config.tres.
+- `docs/development.md` — MODIFIED: Registered BetrayalCheck.tscn in test scene list.
+- `docs/TASKS.md` — MODIFIED: M4-05 status -> Done, added §5 DECIDED BY PLANNER entry.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: Betrayal burst values defined in BetrayalConfigResource under data/pact/default_betrayal_config.tres (bonus_essence=2, bonus_attack_damage=2) per Standing Decision A.
+- DECIDED BY PLANNER: In HumanDecisionSource, declaring betrayal_target against an ally unlocks attack targeting against that ally.
+- DECIDED BY PLANNER: In ResolutionEngine, attacks against a declared betrayal target bypass pact blocking and receive bonus_attack_damage in Stage 3b.
+- DECIDED BY PLANNER: In Stage 5, pact between breaker and victim is broken; if breaker attacked victim that turn, breaker receives bonus_essence exactly once and resolution log records bonus_granted=true. If breaker broke pact without attacking victim that turn, pact is broken with zero bonus essence and bonus_granted=false.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: BetrayalConfig: default_betrayal_config.tres exists
+[CHECK] PASS: BetrayalConfig: loaded config successfully
+[CHECK] PASS: BetrayalConfig: default bonus_essence is 2
+[CHECK] PASS: BetrayalConfig: default bonus_attack_damage is 2
+[CHECK] PASS: Targeting: P0 and P1 have active pact
+[CHECK] PASS: Targeting: can_target_for_attack(1) returns false when no betrayal declared
+[CHECK] PASS: Targeting: queue_attack_target to ally returns false when no betrayal declared
+[CHECK] PASS: Targeting: attack_targets remains empty
+[CHECK] PASS: Targeting: can_target_for_attack(2) returns true for neutral opponent
+[CHECK] PASS: Targeting: betrayal_target set to 1 in pending_actions
+[CHECK] PASS: Targeting: can_target_for_attack(1) returns true after declaring betrayal against ally
+[CHECK] PASS: Targeting: queue_attack_target to ally returns true after declaring betrayal
+[CHECK] PASS: Targeting: ally attack successfully queued in attack_targets
+[CHECK] PASS: SameTurn: Pact formed between P0 and P1
+[CHECK] PASS: SameTurn: Attack penetrated pact and dealt damage with bonus (25 - 4 = 21, actual: 21)
+[CHECK] PASS: SameTurn: Combat entry between P0 and P1 found in log
+[CHECK] PASS: SameTurn: Combat entry recorded bonus_attack of 2
+[CHECK] PASS: SameTurn: Combat entry recorded total damage of 4
+[CHECK] PASS: SameTurn: Pact between P0 and P1 is broken
+[CHECK] PASS: SameTurn: Bilateral pact check confirms broken
+[CHECK] PASS: SameTurn: Betrayer P0 received essence bonus exactly once (3 + 2 = 5, actual: 5)
+[CHECK] PASS: SameTurn: Exactly one betrayal log entry recorded for P0
+[CHECK] PASS: SameTurn: Betrayal target_player_id is 1
+[CHECK] PASS: SameTurn: Betrayal entry has bonus_granted == true
+[CHECK] PASS: NoAttack: Pact formed between P0 and P1
+[CHECK] PASS: NoAttack: Pact between P0 and P1 is broken
+[CHECK] PASS: NoAttack: Former ally P1 life remains 25 (untouched)
+[CHECK] PASS: NoAttack: Breaker P0 receives 0 bonus essence (essence remains 3, actual: 3)
+[CHECK] PASS: NoAttack: Exactly one betrayal log entry recorded for P0
+[CHECK] PASS: NoAttack: Betrayal target_player_id is 1
+[CHECK] PASS: NoAttack: Betrayal entry has bonus_granted == false
+[CHECK] PASS: MultiLane: Both attacks dealt damage with bonus (25 - 6 = 19, actual: 19)
+[CHECK] PASS: MultiLane: Essence burst granted exactly once across multi-lane attack (4 + 2 = 6, actual: 6)
+[CHECK] MANUAL: Betrayal visual feedback and animation cues in MatchBoard
+[CHECK] SUMMARY: 33 passed, 0 failed, 1 manual
+BetrayalCheck: PASS
+```
+
+**Failure detection verified:** Executed `godot --headless --path . scenes/match/BetrayalCheck.tscn -- --negative-test`, producing `[CHECK] FAIL: Simulated intentional failure for negative testing verification`, exit code 1, `BetrayalCheck: FAIL`. Clean run exited with code 0.
+
+**Pending human verification:**
+1. Visual inspection of `MatchBoard.tscn`: Confirm visual feedback (e.g. broken pact animation, attack animation with betrayal bonus indicator, and essence gain VFX) when a player commits a betrayal move in 4-6 player match flow.

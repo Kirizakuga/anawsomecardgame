@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="BetrayalConfigResource" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/betrayal_config_resource.gd" id="1_bcfg"]
+
+[resource]
+script = ExtResource("1_bcfg")
+bonus_essence = 2
+bonus_attack_damage = 2
