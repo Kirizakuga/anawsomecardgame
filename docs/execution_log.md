@@ -759,8 +759,78 @@ MatchBoardCheck: PASS
 
 **Failure detection verified:** Executed `godot --headless --path "D:/Games/anawsomecardgame" scenes/match/MatchBoardCheck.tscn -- --negative-test`, producing `[CHECK] FAIL: Simulated intentional failure for negative testing verification`, exit code 1, `MatchBoardCheck: FAIL`. Clean run verified exiting with code 0.
 
+## M4-02 — Simultaneous action submission (all DecisionSources)
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/autoload/turn_manager.gd` — MODIFIED: Implemented simultaneous action collection tracking (`pending_player_ids`, `collected_actions`, `is_collecting_actions`), signals (`action_received`, `waiting_status_changed`, `all_actions_collected`), and methods (`start_action_collection`, `_on_source_actions_ready`, `get_collected_actions_list`, `cancel_action_collection`). Advances to BATTLE phase only when all actions collected.
+- `scripts/ui/match_board.gd` — MODIFIED: Connected to TurnManager action collection signals. Added `show_waiting_state()`, `hide_waiting_state()`, `is_waiting_visible()`. Displays waiting overlay when local human has submitted while other players remain pending; hides overlay upon all_actions_collected.
+- `scenes/match/MatchBoard.tscn` — MODIFIED: Added centered `WaitingOverlay` PanelContainer with Label ("Waiting for other players...").
+- `scripts/ui/simultaneous_submission_check.gd` — NEW: Headless checkup script testing start/cancel, Order 1 (bots first, human last), Order 2 (human first, bots delayed 1-by-1 with UI waiting check), Order 3 (shuffled arrival), negative test flag, and manual check.
+- `scenes/match/SimultaneousSubmissionCheck.tscn` — NEW: Headless checkup scene.
+- `docs/development.md` — MODIFIED: Registered SimultaneousSubmissionCheck.tscn under verification scene list.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: TurnManager coordinates simultaneous action collection via start_action_collection(context, sources). It requests actions across all active kingdoms in parallel, tracks pending player IDs, and emits action_received(player_id, actions), waiting_status_changed(is_waiting, pending_ids), and all_actions_collected(actions). MatchBoard displays centered WaitingOverlay with "Waiting for other players..." whenever the local human has submitted while other players are pending, hiding upon all_actions_collected. Resolution does not proceed until all N RoundActions arrive. Verified with SimultaneousSubmissionCheck.tscn.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: TurnManager is collecting actions after start
+[CHECK] PASS: TurnManager pending_player_ids has 5 players initially
+[CHECK] PASS: TurnManager remains in PLAY phase initially
+[CHECK] PASS: TurnManager is_collecting_actions false after cancel
+[CHECK] PASS: TurnManager pending_player_ids empty after cancel
+[CHECK] PASS: Order 1: Still collecting while human pending
+[CHECK] PASS: Order 1: Only human (0) remains in pending_player_ids
+[CHECK] PASS: Order 1: 4 bot actions collected so far
+[CHECK] PASS: Order 1: all_actions_collected has NOT emitted before human submits
+[CHECK] PASS: Order 1: TurnManager has NOT advanced to BATTLE before human submits
+[CHECK] PASS: Order 1: all_actions_collected emitted upon human submission
+[CHECK] PASS: Order 1: Collection finished
+[CHECK] PASS: Order 1: pending_player_ids empty
+[CHECK] PASS: Order 1: TurnManager advanced to BATTLE after all 5 actions
+[CHECK] PASS: Order 1: 5 RoundActions collected in all_actions_collected payload
+[CHECK] PASS: Order 2: Waiting overlay not visible before human submits
+[CHECK] PASS: Order 2: Resolution not triggered at start
+[CHECK] PASS: Order 2: Waiting overlay visible immediately after human submits while others pending
+[CHECK] PASS: Order 2: Resolution not triggered with 1/5 actions
+[CHECK] PASS: Order 2: Still in PLAY phase at 1/5 actions
+[CHECK] PASS: Order 2: 4 players still pending
+[CHECK] PASS: Order 2: Waiting overlay still visible at 2/5 actions
+[CHECK] PASS: Order 2: Resolution not triggered at 2/5 actions
+[CHECK] PASS: Order 2: Still in PLAY phase at 2/5 actions
+[CHECK] PASS: Order 2: Waiting overlay still visible at 3/5 actions
+[CHECK] PASS: Order 2: Resolution not triggered at 3/5 actions
+[CHECK] PASS: Order 2: Still in PLAY phase at 3/5 actions
+[CHECK] PASS: Order 2: Waiting overlay still visible at 4/5 actions
+[CHECK] PASS: Order 2: Resolution not triggered at 4/5 actions
+[CHECK] PASS: Order 2: Still in PLAY phase at 4/5 actions
+[CHECK] PASS: Order 2: all_actions_collected emitted only when 5th action arrives
+[CHECK] PASS: Order 2: Waiting overlay hidden when all actions collected
+[CHECK] PASS: Order 2: Advanced to BATTLE phase after 5/5 actions
+[CHECK] PASS: Order 2: pending_player_ids empty after 5/5 actions
+[CHECK] PASS: Order 3: Resolution not triggered after player 3 (step 1/5)
+[CHECK] PASS: Order 3: Resolution not triggered after player 0 (step 2/5)
+[CHECK] PASS: Order 3: Waiting overlay visible after player 0 submits mid-sequence
+[CHECK] PASS: Order 3: Resolution not triggered after player 1 (step 3/5)
+[CHECK] PASS: Order 3: Resolution not triggered after player 4 (step 4/5)
+[CHECK] PASS: Order 3: Resolution emitted on final player (2) in shuffled sequence
+[CHECK] PASS: Order 3: Waiting overlay hidden upon completion
+[CHECK] PASS: Order 3: Phase advanced to BATTLE on completion
+[CHECK] PASS: Cancellation: 2 actions collected before cancel
+[CHECK] PASS: Cancellation: is_collecting_actions false
+[CHECK] PASS: Cancellation: collected_actions cleared
+[CHECK] PASS: Cancellation: pending_player_ids cleared
+[CHECK] MANUAL: Visual inspection of waiting overlay animation and typography in MatchBoard during multiplayer play
+[CHECK] SUMMARY: 46 passed, 0 failed, 1 manual
+SimultaneousSubmissionCheck: PASS
+```
+
+**Failure detection verified:** Ran with `-- --negative-test`, produced `[CHECK] FAIL: Simulated intentional failure for negative testing verification`, exit code 1, `SimultaneousSubmissionCheck: FAIL`. Clean run exited with code 0.
+
 **Pending human verification:**
-1. Visual inspection of `MatchBoard.tscn`: Open scene in editor or run in play mode with 4, 5, and 6 kingdoms to confirm aesthetic spacing, symmetry, and readability of life totals and lane cards at 1152x648 target resolution.
+1. Visual inspection of `MatchBoard.tscn`: Confirm `WaitingOverlay` renders centered, visible, styled with legible typography and contrasting background during multiplayer wait state.
+
 
 
 

@@ -3,8 +3,18 @@ extends Control
 
 @export var layout_config: BoardLayoutConfigResource
 
+@onready var waiting_overlay: Control = $WaitingOverlay
+@onready var waiting_label: Label = $WaitingOverlay/Label
+
 var _kingdom_views: Dictionary = {}
 var _human_player_id: int = 0
+
+func _ready() -> void:
+	if TurnManager != null:
+		if not TurnManager.action_received.is_connected(_on_turn_manager_action_received):
+			TurnManager.action_received.connect(_on_turn_manager_action_received)
+		if not TurnManager.all_actions_collected.is_connected(_on_turn_manager_all_actions_collected):
+			TurnManager.all_actions_collected.connect(_on_turn_manager_all_actions_collected)
 
 func _get_config() -> BoardLayoutConfigResource:
 	if layout_config != null:
@@ -17,6 +27,7 @@ func _get_config() -> BoardLayoutConfigResource:
 
 func setup_board(kingdom_states: Array[KingdomState], human_player_id: int = 0) -> void:
 	clear_board()
+	hide_waiting_state()
 	_human_player_id = human_player_id
 
 	var cfg := _get_config()
@@ -97,6 +108,33 @@ func setup_board(kingdom_states: Array[KingdomState], human_player_id: int = 0) 
 			var c_x := center.x + cfg.radius_x * cos(rad)
 			var c_y := center.y + cfg.radius_y * sin(rad)
 			ov.position = Vector2(c_x - scaled_size.x * 0.5, c_y - scaled_size.y * 0.5)
+
+	# Ensure overlay stays on top of kingdom views
+	if waiting_overlay != null:
+		move_child(waiting_overlay, -1)
+
+func show_waiting_state(message: String = "Waiting for other players...") -> void:
+	if waiting_label != null:
+		waiting_label.text = message
+	if waiting_overlay != null:
+		waiting_overlay.visible = true
+
+func hide_waiting_state() -> void:
+	if waiting_overlay != null:
+		waiting_overlay.visible = false
+
+func is_waiting_visible() -> bool:
+	if waiting_overlay != null:
+		return waiting_overlay.visible
+	return false
+
+func _on_turn_manager_action_received(player_id: int, _actions: RoundActions) -> void:
+	if player_id == _human_player_id:
+		if TurnManager != null and not TurnManager.pending_player_ids.is_empty():
+			show_waiting_state()
+
+func _on_turn_manager_all_actions_collected(_actions: Array[RoundActions]) -> void:
+	hide_waiting_state()
 
 func get_kingdom_view(player_id: int) -> KingdomView:
 	return _kingdom_views.get(player_id, null)

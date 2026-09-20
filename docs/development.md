@@ -34,6 +34,7 @@ Available verification test scenes:
 - `scenes/match/BotAIScoringCheck.tscn` (M3-02: Bot AI candidate generation, weighted-sum scoring, and archetype differentiation)
 - `scenes/match/BotDecisionSourceCheck.tscn` (M3-03: BotDecisionSource DecisionSource interface conformance, 2p match swapping parity, and archetype compatibility)
 - `scenes/match/MatchBoardCheck.tscn` (M4-01: MatchBoard circular N-Kingdom layout for 4-6 players, scaling, bounds, and no-overlap verification)
+- `scenes/match/SimultaneousSubmissionCheck.tscn` (M4-02: Simultaneous action collection from all DecisionSources, TurnManager coordination, waiting UI overlay, and resolution gating)
 
 ## Before submitting changes
 
