@@ -34,8 +34,13 @@ func _ensure_comeback_config() -> void:
 		else:
 			comeback_config = ComebackConfigResource.new()
 
+func set_active_context(context: MatchContext) -> void:
+	_active_context = context
+
 func start_turn() -> void:
 	current_turn += 1
+	if _active_context != null:
+		_active_context.turn_number = current_turn
 	turn_started.emit(current_turn)
 	advance_phase(Phase.ESSENCE)
 

@@ -40,6 +40,7 @@ Available verification test scenes:
 - `scenes/match/PactCheck.tscn` (M4-04: PactManager propose/accept/break, bilateral ally attack blocking in UI and ResolutionEngine, 1 essence/turn lend, and PactProposalPopup)
 - `scenes/match/BetrayalCheck.tscn` (M4-05: Betrayal bonus upon same-turn pact break + attack, attack damage burst, essence burst, and HumanDecisionSource ally attack targeting unlock)
 - `scenes/match/ComebackCheck.tscn` (M4-06: Comeback Essence bonus for player in lowest Life, tie handling via ComebackConfigResource, signal emission, and dynamic multi-round adaptation)
+- `scenes/match/TurnLimitCheck.tscn` (M4-07: Turn limit win condition, highest Life evaluation, tie handling DRAW/MOST_ESSENCE, last-standing precedence, and TurnManager integration)
 
 ### Running checks headless
 

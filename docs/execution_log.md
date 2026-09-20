@@ -11,6 +11,7 @@
 - PactProposalPopup.tscn: UI styling, layout in 4-6p MatchBoard, and button click feedback (M4-04)
 - Betrayal visual feedback and animation cues in MatchBoard (M4-05)
 - Comeback Essence bonus visual banner/cue in MatchBoard HUD (M4-06)
+- End-of-match victory banner/screen displaying winner or draw at turn limit (M4-07)
 - Playtest 2-player vs each bot archetype individually for balance and feel (M3-04)
 
 ## M1-04 — Combat resolution (creature-vs-creature, direct damage)
@@ -1165,4 +1166,88 @@ ComebackCheck: PASS
 
 **Pending human verification:**
 1. Visual inspection of `MatchBoard.tscn`: Confirm visual banner or HUD notification appears during Phase.ESSENCE indicating when the comeback Essence bonus is awarded to the lowest-Life player(s).
+
+## M4-07 — Turn-limit win condition
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/data/win_condition_config_resource.gd` — NEW: Resource defining `turn_limit: int = 30` and `tie_rule: TieRule` enum (`DRAW`, `MOST_ESSENCE`) for configurable match duration and tie-breaking.
+- `data/match/default_win_condition_config.tres` — NEW: Default WinConditionConfigResource instance under data/match/.
+- `scripts/autoload/game_manager.gd` — MODIFIED: Added `win_condition_config: WinConditionConfigResource`, loaded via `_ensure_win_condition_config()`. In `setup_match()`, synchronizes context turn limit with config. In `check_win_condition()`, evaluates highest Life among active kingdoms at turn limit using `tie_rule` (`DRAW` returns -1; `MOST_ESSENCE` breaks ties by highest essence, falling back to -1 on equal essence), while preserving last-standing survivor precedence and eliminated player exclusion.
+- `scripts/autoload/turn_manager.gd` — MODIFIED: Added `set_active_context(context)` and synchronized `_active_context.turn_number = current_turn` in `start_turn()`.
+- `scenes/match/TurnLimitCheck.tscn` — NEW: Headless checkup scene.
+- `scripts/ui/turn_limit_check.gd` — NEW: Checkup runner verifying config loading, 2p turn limit, 4p FFA, 5p FFA tie draw, `MOST_ESSENCE` tie-breaking, survivor precedence, eliminated player exclusion, `TurnManager` turn-count sync, and negative test.
+- `docs/data.md` — MODIFIED: Documented WinConditionConfigResource and default_win_condition_config.tres.
+- `docs/development.md` — MODIFIED: Registered TurnLimitCheck.tscn in test scene list.
+- `docs/TASKS.md` — MODIFIED: M4-07 status -> Done, added §5 DECIDED BY PLANNER entry.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: WinConditionConfigResource stored under data/match/default_win_condition_config.tres (turn_limit=30, tie_rule=DRAW) per Standing Decision A. GameManager.check_win_condition() evaluates alive kingdoms: if 1 survivor remains, survivor wins immediately (last-standing precedence). When turn limit is reached, highest Life among active kingdoms wins. Ties for highest Life resolve via tie_rule: DRAW returns -1 (draw); MOST_ESSENCE compares essence totals among tied highest-Life players (single highest essence wins; equal essence returns -1). Eliminated players (life <= 0) excluded from highest-Life consideration. TurnManager.start_turn() syncs context.turn_number. Verified with TurnLimitCheck.tscn.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: Default config: default_win_condition_config.tres exists on disk
+[CHECK] PASS: Default config: loaded WinConditionConfigResource successfully
+[CHECK] PASS: Default config: turn_limit is 30
+[CHECK] PASS: Default config: tie_rule is DRAW
+[CHECK] PASS: GameManager: win_condition_config loaded
+[CHECK] PASS: GameManager: config turn_limit matches 30
+[CHECK] PASS: 2-Player turn limit: Player 1 wins with higher Life (22 > 18)
+[CHECK] PASS: 2-Player turn limit: match is marked over
+[CHECK] PASS: 2-Player turn limit: GameManager.winner is 1
+[CHECK] PASS: 2-Player turn limit: match_ended emitted exactly once
+[CHECK] PASS: 2-Player turn limit: match_ended emitted winner 1
+[CHECK] PASS: 4-Player FFA turn limit: Player 0 wins with highest Life (25)
+[CHECK] PASS: 4-Player FFA turn limit: match is marked over
+[CHECK] PASS: 4-Player FFA turn limit: GameManager.winner is 0
+[CHECK] PASS: 4-Player FFA turn limit: match_ended emitted exactly once
+[CHECK] PASS: 4-Player FFA turn limit: match_ended emitted winner 0
+[CHECK] PASS: 5-Player FFA tie under DRAW: resolves to draw (-1)
+[CHECK] PASS: 5-Player FFA tie: match is marked over
+[CHECK] PASS: 5-Player FFA tie: GameManager.winner is -1
+[CHECK] PASS: 5-Player FFA tie: match_ended emitted exactly once
+[CHECK] PASS: 5-Player FFA tie: match_ended emitted winner -1
+[CHECK] PASS: Tie MOST_ESSENCE: P1 wins with higher essence (5 > 2) despite P2 having 10 essence
+[CHECK] PASS: Tie MOST_ESSENCE: match is marked over
+[CHECK] PASS: Tie MOST_ESSENCE: GameManager.winner is 1
+[CHECK] PASS: Tie MOST_ESSENCE: match_ended emitted exactly once
+[CHECK] PASS: Tie MOST_ESSENCE: match_ended emitted winner 1
+[CHECK] PASS: Tie MOST_ESSENCE with equal essence: resolves to draw (-1)
+[CHECK] PASS: Tie MOST_ESSENCE with equal essence: match marked over
+[CHECK] PASS: Tie MOST_ESSENCE with equal essence: GameManager.winner is -1
+[CHECK] PASS: Tie MOST_ESSENCE with equal essence: match_ended emitted once
+[CHECK] PASS: Tie MOST_ESSENCE with equal essence: match_ended emitted -1
+[CHECK] PASS: Last-standing precedence at turn limit: sole survivor P1 wins immediately
+[CHECK] PASS: Last-standing: match marked over
+[CHECK] PASS: Last-standing: GameManager.winner is 1
+[CHECK] PASS: Last-standing: match_ended emitted once
+[CHECK] PASS: Last-standing before turn limit: sole survivor P0 wins immediately at turn 5
+[CHECK] PASS: Last-standing before turn limit: winner is 0
+[CHECK] PASS: Eliminated player excluded: P1 wins (15 > 12), eliminated P0 ignored
+[CHECK] PASS: Eliminated player excluded: P0 is_eliminated is true
+[CHECK] PASS: Eliminated player excluded: P1 is_eliminated is false
+[CHECK] PASS: Eliminated player excluded: P2 is_eliminated is false
+[CHECK] PASS: Eliminated player excluded: GameManager.winner is 1
+[CHECK] PASS: TurnManager integration: turn limit not reached initially (turn 0/3)
+[CHECK] PASS: TurnManager integration: Turn 1 started
+[CHECK] PASS: TurnManager integration: context.turn_number updated to 1
+[CHECK] PASS: TurnManager integration: no winner at turn 1
+[CHECK] PASS: TurnManager integration: Turn 2 started
+[CHECK] PASS: TurnManager integration: context.turn_number updated to 2
+[CHECK] PASS: TurnManager integration: Turn 3 started
+[CHECK] PASS: TurnManager integration: context.turn_number updated to 3
+[CHECK] PASS: TurnManager integration: is_turn_limit_reached() is true at turn 3/3
+[CHECK] PASS: TurnManager integration: check_win_condition triggers and declares P0 winner (25 > 20)
+[CHECK] PASS: TurnManager integration: match is marked over
+[CHECK] PASS: TurnManager integration: winner is 0
+[CHECK] MANUAL: End-of-match victory banner/screen displaying winner or draw at turn limit
+[CHECK] SUMMARY: 54 passed, 0 failed, 1 manual
+TurnLimitCheck: PASS
+```
+
+**Failure detection verified:** Executed `godot --headless --path . scenes/match/TurnLimitCheck.tscn -- --negative-test`, producing `[CHECK] FAIL: Simulated intentional failure for negative testing verification`, exit code 1, `TurnLimitCheck: FAIL`. Clean run exited with code 0.
+
+**Pending human verification:**
+1. Visual inspection of `MatchBoard.tscn`: Confirm victory/draw banner and result presentation displays clearly when the match ends due to turn limit or elimination.
+
 
