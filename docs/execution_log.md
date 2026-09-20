@@ -708,7 +708,7 @@ None (pure DecisionSource wrapper and match simulation; no visual UI elements in
 
 ## M4-01 — MatchBoard circular N-Kingdom layout
 **Date:** 2026-09-20
-**Model:** Executioner=sonnet
+**Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/data/board_layout_config.gd` — NEW: Resource defining tunable layout parameters (`radius_x`, `radius_y`, `center_offset`, `bot_scale`, `human_scale`, `target_viewport_size`, `arc_start_degrees`, `arc_end_degrees`, `human_bottom_margin`).
 - `data/board/default_board_layout.tres` — NEW: Default BoardLayoutConfigResource configuration calibrated for 1152x648 viewport.
@@ -844,9 +844,26 @@ SimultaneousSubmissionCheck: PASS
 **Pending human verification:**
 1. Visual inspection of `MatchBoard.tscn`: Confirm `WaitingOverlay` renders centered, visible, styled with legible typography and contrasting background during multiplayer wait state.
 
+## DOC-01 — Documentation reconciliation
+**Date:** 2026-09-20
+**Model:** Planner=opus
+**Files changed:**
+- `docs/README.md` — MODIFIED: Rewrite status to reflect M0–M3, M4-01, M4-02 complete; update not-yet-implemented list (bot AI, FFA scaffolding exist).
+- `docs/TDD.md` — MODIFIED: §3.4 to match `request_actions()`/`actions_ready`; §3.2 list actual exported fields for all Resource classes in `scripts/data/`; §2 include `data/floop_effects/` and `data/board/`; §1.2 untick overclaimed checkboxes; §3.2 HeroResource comment clarify Hero card type.
+- `docs/card_battler_schema.dbml` — MODIFIED: Align DBML tables with actual Resources (heroes decoupled from cards table, starting_life, affinity, floop_effects effect_type/value, board_layout_configs table).
+- `docs/TASKS.md` — MODIFIED: Fix M0-02 resolution dates to 2026-09-20; add DOC-01 task block; fix M1-05 typo; move stray M2-03 line; §0 rule 6 use §4 Status format.
+- `docs/development.md` — MODIFIED: Add TurnManagerCheck.tscn; add bash loop note; add warning that DeckSaveLoadCheck overwrites user://saved_deck.json.
+- `docs/AGENTS.md` — MODIFIED: Rule 18 on its own line; rule 8 clarify Planner updates status in orchestrated runs.
+- `docs/execution_log.md` — MODIFIED: Human verification queue summary at top; restore M3-02 heading; add M4-01 pending human verification entry; update M4-01 header; add DOC-01 log entry.
+- `workflow.txt` — NEW: Standing decisions (A, B, C) and orchestration loop rules.
 
+**Planner decisions applied:**
+- Reconcile documentation with codebase reality without changing gameplay code.
+- Unticked premature checkboxes in TDD.md §1.2.
+- Harmonized HeroResource description: Hero is a card type chosen at deck-build time with affinity, starting Life, and signature Ultimate, implemented extending Resource directly in commander slot.
 
+**Verification:**
+- Documentation verification: confirmed all 7 docs files match repository code reality (`git diff scripts/ scenes/ data/` empty).
 
-
-
-
+**Pending human verification:**
+None (documentation only).

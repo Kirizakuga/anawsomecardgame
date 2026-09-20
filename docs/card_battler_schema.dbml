@@ -54,7 +54,7 @@ Table landscapes {
   affected_affinity varchar [ref: > affinities.name]
 }
 
-// HeroResource extends Resource directly, not CardResource (heroes are commanders, not deck cards)
+// Hero card type (GDD §3) chosen at deck-build time; defines affinity, starting Life, and signature Ultimate; extends Resource directly (sits in kingdom commander slot, not shuffled into 30-card main deck)
 Table heroes {
   id varchar [pk]
   display_name varchar

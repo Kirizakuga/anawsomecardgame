@@ -220,6 +220,17 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Dependencies: M1-08, M4-01.
 - Status: Not Started
 
+**M4-08 — Playable match flow (integration)**
+- Spec: Build Main.tscn (mode select: 2/4/5/6 players, hero/deck from the saved deck or a
+  default, bot archetype per seat) that launches a match: create KingdomStates, wire one
+  HumanDecisionSource with a Submit/End Turn control and BotDecisionSources, drive
+  TurnManager rounds through resolution into ResolutionLog.tscn, and show a result screen on
+  match end. No new rules; reuse existing systems.
+- Checkup: Headless, an auto-started 2p and a 5p bots-only match run to completion with no
+  errors. Manual (log as pending human verification): a human plays 3 turns in 2p.
+- Dependencies: M4-07.
+- Status: Not Started
+
 ---
 
 ### M5 — Content & Polish
@@ -271,6 +282,16 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 
 ---
 
+### DOC — Documentation Passes
+
+**DOC-01 — Documentation reconciliation pass**
+- Spec: Reconcile documentation across README.md, TDD.md, card_battler_schema.dbml, TASKS.md, development.md, AGENTS.md, and execution_log.md against M0–M4 codebase reality without altering game code.
+- Checkup: All docs match actual Resources, scenes, scripts, and status without overclaiming roadmap items.
+- Dependencies: None.
+- Status: Done — agent, 2026-09-20
+
+---
+
 ## 3. Task Dependency Summary (quick reference)
 
 ```
@@ -304,8 +325,8 @@ M1-05, M4-04, M4-05 → M5-04
 
 ## 5. Open Questions Raised (append here as work proceeds)
 
-- [M0-02] — Resolved on 2026-09-18 (M2-01 / DOC-01): HeroResource implements portrait: Texture2D; card_battler_schema.dbml updated in DOC-01 with portrait_path to align with Godot Resource.
-- [M0-02] — Resolved on 2026-09-19 (M1-05 / DOC-01): FloopEffectResource fields confirmed and extended with effect_type and effect_value in scripts/data/floop_effect_resource.gd; card_battler_schema.dbml and TDD §3.2 updated in DOC-01.
+- [M0-02] — Resolved on 2026-09-20 (M2-01 / DOC-01): HeroResource implements portrait: Texture2D; card_battler_schema.dbml updated in DOC-01 with portrait_path to align with Godot Resource.
+- [M0-02] — Resolved on 2026-09-20 (M1-05 / DOC-01): FloopEffectResource fields confirmed and extended with effect_type and effect_value in scripts/data/floop_effect_resource.gd; card_battler_schema.dbml and TDD §3.2 updated in DOC-01.
 - [M0-03] — Resolved on 2026-09-17: implemented CardDatabase autoload (scripts/autoload/card_database.gd), registered in project.godot, verified with CardDatabaseCheck.tscn.
 - [M1-02] — Resolved on 2026-09-18: CardView drag-to-play with dim preview, NOTIFICATION_DRAG_END snapback restore, essence sufficiency check in LaneView, verified with CardViewCheck.tscn.
 - [M1-03] — Resolved on 2026-09-18: KingdomView lane reflection and Life display verified with KingdomCheck.tscn. Note: direct KingdomState mutation in KingdomView is temporary for M1-03 checkup; will route through HumanDecisionSource and RoundActions in M1-06.

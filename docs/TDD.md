@@ -15,14 +15,14 @@
 - Optional: a spreadsheet or small script for bulk card data entry, since you'll have 100+ cards eventually
 
 ### 1.2 Functional Requirements (MVP scope)
-- [x] Support 2-player local match (human vs 1 bot) — build and prove this first
+- [ ] Support 2-player local match (human vs 1 bot) — headless simulated; pending human verification
 - [ ] Support 4–6 player local match (human vs multiple bots), FFA with Pacts/Betrayal (board layout and simultaneous submission done; combat resolution/Pacts in progress)
 - [x] Deck builder screen (select Hero, build 30-card deck + landscape sub-deck)
 - [x] Full turn loop: Essence gain → Play/Floop → Battle → Cleanup
-- [x] Simultaneous action submission + resolution for 4–6p mode (action submission complete; multi-player resolution in progress)
+- [ ] Simultaneous action submission + resolution for 4–6p mode (action submission complete; multi-player resolution in progress)
 - [x] Bot decision-making for all 4 archetypes
 - [x] Card rarity/collection data model (even if progression/economy UI comes later)
-- [x] Win condition detection (last Kingdom standing / turn-limit highest Life) (basic life <= 0 done; turn limit in M4-07)
+- [ ] Win condition detection (last Kingdom standing / turn-limit highest Life) (basic life <= 0 done; turn limit in M4-07)
 
 ### 1.3 Non-Functional Requirements
 - Card data must be **designer-editable without touching code** (Resources/`.tres` files or an import pipeline from a spreadsheet/JSON)
@@ -140,7 +140,7 @@ extends CardResource
 
 ```gdscript
 # scripts/data/hero_resource.gd
-# Extends Resource directly (heroes are commanders, not playable cards in deck)
+# Hero card type (GDD §3) chosen at deck-build time; defines affinity, starting Life, and signature Ultimate; extends Resource directly (sits in kingdom commander slot, not shuffled into 30-card main deck)
 class_name HeroResource
 extends Resource
 
