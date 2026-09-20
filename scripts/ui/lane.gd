@@ -26,6 +26,8 @@ func set_occupant(card: CardResource) -> void:
 		current_card_view = cv_scene.instantiate()
 		current_card_view.card_data = card
 		card_slot.add_child(current_card_view)
+		if kingdom_view and kingdom_view.has_method("_connect_card_view_floop"):
+			kingdom_view._connect_card_view_floop(current_card_view)
 
 func is_occupied() -> bool:
 	return current_card_view != null

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BotArchetypeResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/bot_archetype_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "ba_aggressive"
+archetype_name = "Aggressive"
+description = "Attacks whoever is weakest; rarely proposes Pacts."
+aggression_weight = 3.0
+defense_weight = 0.5
+pact_loyalty_weight = 0.1
+betrayal_opportunism_weight = 1.5
+floop_preference_weight = 1.0

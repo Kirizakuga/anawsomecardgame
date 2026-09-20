@@ -5,3 +5,5 @@ extends Resource
 @export var description: String = ""
 @export var cost_type: String = "essence"
 @export var cost_amount: int = 0
+@export var effect_type: String = ""
+@export var effect_value: int = 0

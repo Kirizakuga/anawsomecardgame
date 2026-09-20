@@ -92,6 +92,8 @@ func _update_floop_state() -> void:
 	rotation_degrees = 90.0 if is_flooped else 0.0
 
 func _on_floop_pressed() -> void:
+	if not card_data or not card_data.floop_effect:
+		return
 	is_flooped = not is_flooped
 	floop_triggered.emit(self)
 

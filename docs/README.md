@@ -27,13 +27,20 @@ Read `GDD.md` and `TDD.md` before touching code; read `AGENTS.md` before touchin
 
 ## Status
 
-Foundation setup (`M0-01`) is done. All later implementation tasks remain not started; see `TASKS.md` §2 for current status.
+Modules M0 through M3 and initial M4 scaffolding are complete:
+- **M0 (Foundation):** Project structure, `CardResource` hierarchy, placeholder cards, `KingdomState` core model.
+- **M1 (Core 2-Player Loop):** `TurnManager`, `CardView`, `Kingdom.tscn`, `CombatResolver`, `FloopResolver`, `HumanDecisionSource`, `DummyAIDecisionSource`, and win condition detection.
+- **M2 (Deck Builder):** Hero selection UI, affinity filtering, 30-card main deck + 5–8 card landscape sub-deck assembly, and JSON disk save/load persistence.
+- **M3 (Bot Archetype AI):** `BotArchetypeResource` profiles (Aggressive, Opportunist, Loyalist, Turtle), `BotAI.decide()` weighted heuristic scoring, and `BotDecisionSource` interface conformance. (Human balance playtesting M3-04 deferred.)
+- **M4 (FFA Scaling — in progress):** `MatchBoard.tscn` circular N-Kingdom layout (4–6p, M4-01) and simultaneous action collection across all `DecisionSource`s with waiting overlay (M4-02) are complete.
+
+See `TASKS.md` §2 for per-task details and current progress.
 
 ## Intentionally not yet implemented
 
-Per `TDD.md`'s roadmap (Phases 1–6) and `TASKS.md` (M1–M6), these are deliberately deferred and should not be built ahead of their task/phase:
+Per `TDD.md` roadmap (Phases 1–6) and `TASKS.md` (M1–M6), these are deliberately deferred and should not be built ahead of their task/phase:
 
-- Real bot archetype AI — Phase 1 uses a dummy random-move AI only (M1-07); real scoring is Phase 3 / M3.
-- 4–6 player FFA, Pacts, Betrayal, comeback bonus — Phase 4 / M4.
-- Full card set, Hero passives/Ultimates, art, VFX polish, progression loop — Phase 5 / M5.
+- Remaining Phase 4 / M4 FFA gameplay mechanics: multi-player resolution + pile-on damage reduction (M4-03), `PactManager` (M4-04), Betrayal action (M4-05), Comeback Essence bonus (M4-06), turn-limit win condition (M4-07).
+- Human balance playtesting pass (M3-04) — pending human verification.
+- Full card set, Hero passives/Ultimates, card art pass, VFX polish, progression loop — Phase 5 / M5.
 - Any networking (`NetworkDecisionSource`, friend-code unlocks) — out of scope until M6, and only with explicit go-ahead (`TASKS.md` §0, rule 9).

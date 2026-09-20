@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="WinConditionConfigResource" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/win_condition_config_resource.gd" id="1_wcc"]
+
+[resource]
+script = ExtResource("1_wcc")
+turn_limit = 30
+tie_rule = 0

@@ -1,0 +1,193 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/deck_builder.gd" id="1_db"]
+
+[node name="DeckBuilder" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_db")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.1, 0.12, 1)
+
+[node name="MainLayout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 16.0
+offset_right = -20.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="TopBar" type="HBoxContainer" parent="MainLayout"]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HeroSelector" type="VBoxContainer" parent="MainLayout/TopBar"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="SelectLabel" type="Label" parent="MainLayout/TopBar/HeroSelector"]
+layout_mode = 2
+text = "Active Hero:"
+
+[node name="HeroOptionButton" type="OptionButton" parent="MainLayout/TopBar/HeroSelector"]
+layout_mode = 2
+
+[node name="HeroInfo" type="VBoxContainer" parent="MainLayout/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="HeroNameLabel" type="Label" parent="MainLayout/TopBar/HeroInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Hero Name"
+
+[node name="HeroAffinityLabel" type="Label" parent="MainLayout/TopBar/HeroInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+text = "Affinity: Fire | Life: 25"
+
+[node name="HeroTraitLabel" type="Label" parent="MainLayout/TopBar/HeroInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "Passive Trait Description"
+
+[node name="DeckStatus" type="VBoxContainer" parent="MainLayout/TopBar"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="ValidationLabel" type="Label" parent="MainLayout/TopBar/DeckStatus"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "[ INVALID DECK ]"
+horizontal_alignment = 2
+
+[node name="DoneButton" type="Button" parent="MainLayout/TopBar/DeckStatus"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "Done / Save Deck"
+
+[node name="BodyLayout" type="HBoxContainer" parent="MainLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="LeftPanel" type="VBoxContainer" parent="MainLayout/BodyLayout"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.8
+theme_override_constants/separation = 8
+
+[node name="Header" type="HBoxContainer" parent="MainLayout/BodyLayout/LeftPanel"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MainLayout/BodyLayout/LeftPanel/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "Eligible Card Pool"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainLayout/BodyLayout/LeftPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="CardGrid" type="GridContainer" parent="MainLayout/BodyLayout/LeftPanel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 3
+
+[node name="RightPanel" type="VBoxContainer" parent="MainLayout/BodyLayout"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+size_flags_stretch_ratio = 1.2
+theme_override_constants/separation = 10
+
+[node name="MainDeckSection" type="VBoxContainer" parent="MainLayout/BodyLayout/RightPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.4
+
+[node name="Header" type="HBoxContainer" parent="MainLayout/BodyLayout/RightPanel/MainDeckSection"]
+layout_mode = 2
+
+[node name="MainDeckCountLabel" type="Label" parent="MainLayout/BodyLayout/RightPanel/MainDeckSection/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "Main Deck: 0 / 30"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainLayout/BodyLayout/RightPanel/MainDeckSection"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="MainDeckList" type="VBoxContainer" parent="MainLayout/BodyLayout/RightPanel/MainDeckSection/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="LandscapeSection" type="VBoxContainer" parent="MainLayout/BodyLayout/RightPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.0
+
+[node name="Header" type="HBoxContainer" parent="MainLayout/BodyLayout/RightPanel/LandscapeSection"]
+layout_mode = 2
+
+[node name="LandscapeCountLabel" type="Label" parent="MainLayout/BodyLayout/RightPanel/LandscapeSection/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "Landscape Deck: 0 / 8 (min 5)"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainLayout/BodyLayout/RightPanel/LandscapeSection"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="LandscapeList" type="VBoxContainer" parent="MainLayout/BodyLayout/RightPanel/LandscapeSection/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="BottomControls" type="HBoxContainer" parent="MainLayout/BodyLayout/RightPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="LoadButton" type="Button" parent="MainLayout/BodyLayout/RightPanel/BottomControls"]
+layout_mode = 2
+text = "Load Deck"
+
+[node name="SaveButton" type="Button" parent="MainLayout/BodyLayout/RightPanel/BottomControls"]
+layout_mode = 2
+text = "Save Deck"
+
+[node name="ClearButton" type="Button" parent="MainLayout/BodyLayout/RightPanel/BottomControls"]
+layout_mode = 2
+text = "Clear Deck"

@@ -1,0 +1,28 @@
+# Workflow & Orchestration Guide — Card Battler
+
+## Standing Decisions
+A. Design Gaps: If a task needs a rule or value that GDD/TDD don't define, Planner picks the simplest reasonable default and records it in TASKS.md §5 as `[ID] — DECIDED BY PLANNER (review later): <decision + reason>`. Keep tunable numbers in data (.tres), never in scripts. Do not add new systems beyond the gap.
+B. Verification: No human pause. Executioner runs each Checkup headless and Planner verifies output against Checkup criteria. Headless checks exit 0 on success, exit 1 on failure / `--negative-test`. Visual/tactile items (drag/drop feel, layout, animation) logged as `[CHECK] MANUAL`, verified scriptable parts, task marked Done, and "PENDING HUMAN CHECK: scene, steps, expected result" logged in execution_log.md. Never claim a manual check passed.
+C. M1-04 Combat Math: Defense is damage reduction, net = max(0, ATK - DEF). Blocked lane: blocker destroyed if net > 0, no retaliation, no overflow to Life. Unblocked lane: Kingdom Life -= ATK.
+
+## Loop Rules (Per-Task)
+Step 0: Set task Status in docs/TASKS.md to `In Progress — agent, started <YYYY-MM-DD>`.
+Step 1 Delegate: Send Executioner subagent (Agent tool, subagent_type "executioner"):
+  - Task ID, Spec, Checkup, Dependencies verbatim.
+  - Relevant standing decisions and earlier DECIDED BY PLANNER entries.
+  - Requirements: follow AGENTS.md (rule 3 no Node in scripts/core/, rule 4 no bot/human branching, rule 5 .tres data, rule 10 stay in scope, rule 15 no addons/frameworks).
+  - Build Checkup as `scenes/<area>/<Name>Check.tscn` supporting `-- --negative-test` exiting code 1.
+  - Report files changed and why; update companion docs and development.md.
+Step 2 Review: Read actual git diff and headless run output. Check layer boundaries (core/ vs ui/), no hardcoded data, no bot/human branching, scope, Checkup criteria. Planner never writes task code directly. Up to 3 review rounds if issues.
+Step 3 Document & Commit:
+  - Update docs/TASKS.md Status to `Done — agent, <YYYY-MM-DD>`.
+  - Append any new open questions / DECIDED BY PLANNER items to docs/TASKS.md §5.
+  - Add docs/execution_log.md entry (Task ID, Date, Model Planner=opus/Executioner=sonnet, Files changed, Decisions, trimmed check output, PENDING HUMAN CHECK).
+  - Commit: stage only task files + docs, commit `feat(<TaskID>): <brief description>`.
+  - Co-author attribution trailer on all commits.
+
+## Scope & Stopping Condition
+- Tasks run sequentially M1-04 through M4-07.
+- Skip M3-04 (human playtesting, leave Not Started, listed in pending human queue).
+- Stop after M4-07 is verified and committed. Do not start M5 or M6.
+- Final summary: Planner decisions to review, pending human checks, blocked or skipped tasks.

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ComebackConfigResource" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/comeback_config_resource.gd" id="1_cbcfg"]
+
+[resource]
+script = ExtResource("1_cbcfg")
+bonus_essence = 1
+tie_mode = 0

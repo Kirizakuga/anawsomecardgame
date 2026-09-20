@@ -11,6 +11,7 @@ signal card_play_requested(card: CardResource, lane_index: int)
 
 var lane_views: Array[LaneView] = []
 var kingdom_state: KingdomState = null
+var decision_source: HumanDecisionSource = null
 
 func _ready() -> void:
 	_init_lanes()
@@ -49,23 +50,41 @@ func update_view() -> void:
 		hand_view.visible = is_human
 		if is_human:
 			hand_view.set_hand(kingdom_state.hand)
+			for child in hand_view.get_children():
+				if child is CardView:
+					_connect_card_view_floop(child)
 
 	# Ensure lane views match state.lanes (3 lanes, each containing 0 or 1 creature)
 	for i in range(mini(lane_views.size(), kingdom_state.lanes.size())):
 		var lane_occupants: Array = kingdom_state.lanes[i]
 		if not lane_occupants.is_empty():
 			lane_views[i].set_occupant(lane_occupants[0])
+			if lane_views[i].current_card_view:
+				_connect_card_view_floop(lane_views[i].current_card_view)
 		else:
 			lane_views[i].set_occupant(null)
 
+func _connect_card_view_floop(card_view: CardView) -> void:
+	if not card_view:
+		return
+	if not card_view.floop_triggered.is_connected(_on_card_floop_triggered):
+		card_view.floop_triggered.connect(_on_card_floop_triggered)
+
+func _on_card_floop_triggered(card_view: CardView) -> void:
+	if decision_source != null and card_view and card_view.card_data:
+		decision_source.queue_floop(card_view.card_data)
+
 func _on_card_dropped_in_lane(card_view: CardView, lane_index: int) -> void:
 	if kingdom_state and card_view and card_view.card_data:
-		# ponytail: direct state mutation for M1-03 checkup; route through HumanDecisionSource and RoundActions in M1-06
 		var card: CardResource = card_view.card_data
+		if decision_source != null:
+			decision_source.queue_card_play(card, lane_index)
+		# ponytail: direct state mutation for M1-03 checkup; route through HumanDecisionSource and RoundActions in M1-06
 		kingdom_state.essence = maxi(0, kingdom_state.essence - card.essence_cost)
 		kingdom_state.hand.erase(card)
 		if kingdom_state.lanes[lane_index].is_empty():
 			kingdom_state.lanes[lane_index].append(card)
 		else:
 			kingdom_state.lanes[lane_index][0] = card
+		_connect_card_view_floop(card_view)
 		card_play_requested.emit(card, lane_index)

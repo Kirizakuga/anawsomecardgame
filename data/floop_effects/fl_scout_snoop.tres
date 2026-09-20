@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FloopEffectResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/floop_effect_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "fl_scout_snoop"
+description = "Draw 1 card"
+cost_type = "essence"
+cost_amount = 1
+effect_type = "draw_card"
+effect_value = 1

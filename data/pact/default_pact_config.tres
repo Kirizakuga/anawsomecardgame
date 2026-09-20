@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="PactConfigResource" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/pact_config_resource.gd" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+max_essence_lend_per_turn = 1
+allow_creature_lend = false

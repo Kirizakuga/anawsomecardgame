@@ -7,7 +7,7 @@
 // — it is not something to implement literally in Godot.
 //
 // Sources: TDD.md §3.2 (CardResource + subclasses), TDD.md §3.5 (BotArchetype),
-// GDD.md §7 (deck building), data.md (id uniqueness, save format TBD).
+// GDD.md §7 (deck building), data.md (id uniqueness, save format in M2-03).
 
 Enum rarity {
   COMMON
@@ -20,7 +20,6 @@ Enum card_type {
   CREATURE
   SPELL
   LANDSCAPE
-  HERO
 }
 
 // Base fields shared by every card, per TDD.md §3.2 CardResource.
@@ -45,19 +44,25 @@ Table creatures {
 
 Table spells {
   card_id varchar [pk, ref: - cards.id]
-  effect_ref varchar [note: 'effect script reference or effect-enum+params — exact representation still open, TDD.md §6']
+  effect_ref varchar [note: 'effect script reference or effect-enum+params']
+  affinity varchar [ref: > affinities.name, note: 'ties to Hero class/affinity, M2-01']
 }
 
 Table landscapes {
   card_id varchar [pk, ref: - cards.id]
-  buff_restriction_rules text [note: 'placement limits/replacement rules still open — GDD.md §11']
+  buff_restriction_rules text [note: 'placement limits/replacement rules — GDD.md §11']
   affected_affinity varchar [ref: > affinities.name]
 }
 
+// Hero card type (GDD §3) chosen at deck-build time; defines affinity, starting Life, and signature Ultimate; extends Resource directly (sits in kingdom commander slot, not shuffled into 30-card main deck)
 Table heroes {
-  card_id varchar [pk, ref: - cards.id]
+  id varchar [pk]
+  display_name varchar
+  affinity varchar [ref: > affinities.name, note: 'Hero class/affinity, GDD.md §7']
+  portrait_path varchar [note: 'Texture2D reference']
   passive_trait text
-  ultimate_card_id varchar [ref: > cards.id, note: 'Hero resource directly references its unique Ultimate CardResource']
+  starting_life int [default: 25]
+  ultimate_card_id varchar [ref: > cards.id, null, note: 'Hero resource directly references its unique Ultimate CardResource']
   friend_name varchar [note: 'roster is friend-group-personal, GDD.md §1']
   flavor_text text
 }
@@ -65,36 +70,57 @@ Table heroes {
 Table floop_effects {
   id varchar [pk]
   description text
-  cost_type varchar [note: 'Essence or tempo, GDD.md §3']
+  cost_type varchar [note: 'default: essence, GDD.md §3']
   cost_amount int
+  effect_type varchar [note: 'draw_card, heal_life, direct_damage, buff_attack, etc.']
+  effect_value int
 }
 
 Table affinities {
   name varchar [pk, note: 'determined by Hero class at deck-build time, GDD.md §7']
 }
 
-// TDD.md §3.5 — weight table per archetype, no ML, just weighted scoring.
+// TDD.md §3.5 & scripts/data/bot_archetype_resource.gd — weight table per archetype
 Table bot_archetypes {
   id varchar [pk]
-  name varchar [note: 'Aggressive, Opportunist, Loyalist, Turtle — GDD.md §10']
+  archetype_name varchar [note: 'Aggressive, Opportunist, Loyalist, Turtle — GDD.md §10']
+  description text
   aggression_weight float
+  defense_weight float
   pact_loyalty_weight float
   betrayal_opportunism_weight float
-  // additional weighted features per GDD.md §10 scoring model, TBD as bots are tuned
+  floop_preference_weight float
 }
 
-// Deck persistence — format (ResourceSaver vs JSON) explicitly unresolved,
-// see TDD.md §6 and data.md ("don't pick one mid-task without checking M2-03").
+// scripts/data/board_layout_config.gd — circular N-Kingdom layout parameters
+Table board_layout_configs {
+  id varchar [pk]
+  radius_x float [default: 420.0]
+  radius_y float [default: 195.0]
+  center_offset_x float [default: 0.0]
+  center_offset_y float [default: -45.0]
+  bot_scale_x float [default: 0.55]
+  bot_scale_y float [default: 0.55]
+  human_scale_x float [default: 0.72]
+  human_scale_y float [default: 0.72]
+  target_viewport_width float [default: 1152.0]
+  target_viewport_height float [default: 648.0]
+  arc_start_degrees float [default: 165.0]
+  arc_end_degrees float [default: 15.0]
+  human_bottom_margin float [default: 8.0]
+}
+
+// Deck persistence — JSON schema saved to user://saved_deck.json (M2-03)
 Table decks {
   id varchar [pk]
-  owner varchar [note: 'player/profile identity — not yet modeled elsewhere in the docs']
-  hero_card_id varchar [ref: > cards.id]
+  owner varchar [note: 'player/profile identity — default local profile']
+  hero_id varchar [ref: > heroes.id]
 }
 
 Table deck_cards {
   deck_id varchar [ref: > decks.id]
   card_id varchar [ref: > cards.id]
-  copies int [note: 'max copies per card, default 3, GDD.md §7']
+  copies int [note: 'max copies per card, default 3, GDD.md §7; exactly 30 total main deck']
 
   indexes {
     (deck_id, card_id) [pk]
@@ -104,7 +130,7 @@ Table deck_cards {
 Table deck_landscapes {
   deck_id varchar [ref: > decks.id]
   card_id varchar [ref: > cards.id]
-  note_field varchar [note: 'separate ~5-8 card sub-deck, GDD.md §7']
+  note_field varchar [note: 'separate 5-8 card landscape sub-deck, GDD.md §7']
 
   indexes {
     (deck_id, card_id) [pk]

@@ -21,3 +21,12 @@ func get_active_kingdoms() -> Array[KingdomState]:
 
 func is_turn_limit_reached() -> bool:
 	return turn_number >= turn_limit
+
+func get_default_opponent_id(for_player_id: int) -> int:
+	for k in kingdoms:
+		if k.player_id != for_player_id and not k.is_eliminated:
+			return k.player_id
+	for k in kingdoms:
+		if k.player_id != for_player_id:
+			return k.player_id
+	return -1

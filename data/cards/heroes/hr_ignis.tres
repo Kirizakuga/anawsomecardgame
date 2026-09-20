@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HeroResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "hr_ignis"
+display_name = "Ignis"
+affinity = "fire"
+passive_trait = "Pyromancy: Fire cards deal +1 damage."
+starting_life = 25
+friend_name = "Blaze"
+flavor_text = "Never plays with matches when an inferno will do."

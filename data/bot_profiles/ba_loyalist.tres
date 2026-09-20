@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BotArchetypeResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/bot_archetype_resource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "ba_loyalist"
+archetype_name = "Loyalist"
+description = "Keeps Pacts unless attacked first; reliable ally."
+aggression_weight = 1.0
+defense_weight = 1.5
+pact_loyalty_weight = 3.0
+betrayal_opportunism_weight = 0.1
+floop_preference_weight = 1.0

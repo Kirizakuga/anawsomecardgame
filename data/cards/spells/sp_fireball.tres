@@ -9,3 +9,4 @@ display_name = "Fireball"
 essence_cost = 3
 rarity = 0
 effect_ref = "damage_3"
+affinity = "fire"
