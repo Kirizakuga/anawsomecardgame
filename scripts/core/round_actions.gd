@@ -3,7 +3,7 @@ extends RefCounted
 
 var player_id: int = -1
 var cards_to_play: Array[Dictionary] = []
-var cards_to_floop: Array[CardResource] = []
+var cards_to_floop: Array = []
 var landscapes_to_play: Array[LandscapeResource] = []
 var attack_targets: Array[Dictionary] = []
 var pact_proposals: Array[Dictionary] = []

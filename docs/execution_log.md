@@ -7,6 +7,7 @@
 - DeckBuilder.tscn: Save/Load buttons, save then relaunch then load persistence (M2-03)
 - MatchBoard.tscn with 4, 5 and 6 players: legibility, scaling, and spacing at 1152x648 (M4-01)
 - WaitingOverlay during simultaneous submission: centered, readable (M4-02)
+- Multiplayer combat animations and resolution log presentation in MatchBoard (M4-03)
 - Playtest 2-player vs each bot archetype individually for balance and feel (M3-04)
 
 ## M1-04 — Combat resolution (creature-vs-creature, direct damage)
@@ -867,3 +868,65 @@ SimultaneousSubmissionCheck: PASS
 
 **Pending human verification:**
 None (documentation only).
+
+## M4-03 — ResolutionEngine deterministic multi-player resolution + pile-on reduction
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/data/pile_on_config_resource.gd` — NEW: Resource defining `threshold` (default 3) and `attacker_multipliers` ([1.0, 0.75, 0.5, 0.25]) for anti-pile-on diminishing returns.
+- `data/combat/default_pile_on_config.tres` — NEW: Default PileOnConfigResource instance under data/combat/.
+- `scripts/autoload/resolution_engine.gd` — MODIFIED: Implemented deterministic 5-stage simultaneous resolution (Landscapes → Spells & Floops → Creatures [deploy + combat] → Pact changes → Betrayals), deterministic sorting by `player_id` ascending, explicit floop target routing, and anti-pile-on diminishing returns for 3+ simultaneous attackers.
+- `scripts/core/combat_resolver.gd` — MODIFIED: Added `resolve_attack(attacker, defender, attacker_lane, target_lane, multiplier)` applying `effective_attack = maxi(0, int(round(atk * multiplier)))`.
+- `scripts/core/round_actions.gd` — MODIFIED: Changed `cards_to_floop` to untyped `Array` to support `{"card": ..., "target_player_id": ...}` explicit target entries alongside `CardResource`.
+- `scripts/core/human_decision_source.gd` — MODIFIED: `queue_floop` takes optional `target_player_id = -1`.
+- `scripts/core/match_context.gd` — MODIFIED: Added `get_default_opponent_id(for_player_id)` helper.
+- `scripts/autoload/floop_check.gd` — MODIFIED: Added Case 8 verifying multi-player explicit floop target routing.
+- `scripts/ui/resolution_engine_check.gd` — NEW: Checkup script verifying 5-stage order, floop routing, 3-attacker pile-on reduction, 2-attacker threshold check, 2p backward compatibility, and negative test.
+- `scenes/match/ResolutionEngineCheck.tscn` — NEW: Headless checkup scene.
+- `docs/data.md` — MODIFIED: Documented PileOnConfigResource and default_pile_on_config.tres.
+- `docs/development.md` — MODIFIED: Registered ResolutionEngineCheck.tscn.
+- `docs/TDD.md` — MODIFIED: Checked off ResolutionEngine deterministic resolution order + pile-on damage reduction.
+- `docs/TASKS.md` — MODIFIED: M4-03 status -> Done, resolved §5 floop discrepancy, audited two-player assumptions, recorded DECIDED BY PLANNER decisions.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: 5-stage resolution order per TDD §3.6 (Landscapes -> Spells/Floops -> Creatures [deploy + combat] -> Pacts -> Betrayals).
+- DECIDED BY PLANNER: Anti-pile-on reduction triggers when unique attackers on same defender Kingdom >= threshold (3). Attacker index 0 deals 100%, index 1 deals 75%, index 2 deals 50%, index 3+ deals 25%. Effective attack rounded with `maxi(0, int(round(atk * multiplier)))`. Tunable in `data/combat/default_pile_on_config.tres`.
+- Resolved floop targeting discrepancy: explicit `target_player_id` in `RoundActions.cards_to_floop` routes to target, defaulting to single opponent in 2p or first active opponent in N-player.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: PileOnConfig: default_pile_on_config.tres loaded successfully
+[CHECK] PASS: PileOnConfig: default threshold is 3
+[CHECK] PASS: PileOnConfig: has 4 multiplier tiers
+[CHECK] PASS: PileOnConfig: 1st attacker multiplier is 1.0
+[CHECK] PASS: PileOnConfig: 2nd attacker multiplier is 0.75
+[CHECK] PASS: PileOnConfig: 3rd attacker multiplier is 0.50
+[CHECK] PASS: PileOnConfig: 4th attacker multiplier is 0.25
+[CHECK] PASS: PileOnConfig: clamped 5th+ attacker multiplier is 0.25
+[CHECK] PASS: Order 1: Landscape added to kingdom landscapes in Step 1
+[CHECK] PASS: Order 2: Scout floop executed in Step 2, drawn card in hand
+[CHECK] PASS: Order 3a: Golem deployed to lane 0 in Step 3a
+[CHECK] PASS: Order 3b: Golem attacked in Step 3b, damaging P1 Life (25 -> 23)
+[CHECK] PASS: Order: Chronological sequence verifies Landscapes -> Floop -> Deploy -> Combat -> Pact -> Betrayal
+[CHECK] PASS: Floop Routing: Explicit target P3 took 2 direct damage (25 -> 23)
+[CHECK] PASS: Floop Routing: Default opponent P1 took NO damage (25)
+[CHECK] PASS: Floop Routing: Bystander P2 took NO damage (25)
+[CHECK] PASS: Floop Routing: Attacker P0 paid 2 essence
+[CHECK] PASS: Pile-On 3-attackers: Attacker 1 deals 100% (mult 1.0)
+[CHECK] PASS: Pile-On 3-attackers: Attacker 1 deals 4 damage
+[CHECK] PASS: Pile-On 3-attackers: Attacker 2 deals 75% (mult 0.75)
+[CHECK] PASS: Pile-On 3-attackers: Attacker 2 deals 3 damage (round(4 * 0.75))
+[CHECK] PASS: Pile-On 3-attackers: Attacker 3 deals 50% (mult 0.50)
+[CHECK] PASS: Pile-On 3-attackers: Attacker 3 deals 2 damage (round(4 * 0.50))
+[CHECK] PASS: Pile-On 3-attackers: Defender P0 final Life is exactly 21 (30 - 9 = 21, not 18)
+[CHECK] PASS: No Pile-On for 2 attackers: Defender P0 Life is 22 (30 - 8 = 22, both dealt 100%)
+[CHECK] PASS: 2-Player Compatibility: Sequential both-attack resolves correctly (P0:23, P1:22, log size 6)
+[CHECK] MANUAL: Multiplayer combat animations and resolution log presentation in MatchBoard
+[CHECK] SUMMARY: 26 passed, 0 failed, 1 manual
+ResolutionEngineCheck: PASS
+```
+
+**Failure detection verified:** Executed `godot --headless --path . scenes/match/ResolutionEngineCheck.tscn -- --negative-test`, producing `[CHECK] FAIL: Simulated intentional failure for negative testing verification`, exit code 1, `ResolutionEngineCheck: FAIL`. Clean run exited with code 0.
+
+**Pending human verification:**
+1. Visual inspection of `MatchBoard.tscn`: Confirm multiplayer combat animations and resolution log entries in `ResolutionLog.tscn` clearly indicate individual attacker contributions, applied pile-on reduction multipliers, and target Kingdoms in 4-6 player match flow.

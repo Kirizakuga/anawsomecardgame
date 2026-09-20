@@ -19,7 +19,7 @@
 - [ ] Support 4–6 player local match (human vs multiple bots), FFA with Pacts/Betrayal (board layout and simultaneous submission done; combat resolution/Pacts in progress)
 - [x] Deck builder screen (select Hero, build 30-card deck + landscape sub-deck)
 - [x] Full turn loop: Essence gain → Play/Floop → Battle → Cleanup
-- [ ] Simultaneous action submission + resolution for 4–6p mode (action submission complete; multi-player resolution in progress)
+- [x] Simultaneous action submission + resolution for 4–6p mode
 - [x] Bot decision-making for all 4 archetypes
 - [x] Card rarity/collection data model (even if progression/economy UI comes later)
 - [ ] Win condition detection (last Kingdom standing / turn-limit highest Life) (basic life <= 0 done; turn limit in M4-07)
@@ -283,7 +283,7 @@ Each `BotArchetype` Resource stores its own weight table (e.g. `aggression_weigh
 ### Phase 4 — Scale to 4–6 Players (FFA)
 - [x] `MatchBoard.tscn` supporting N Kingdoms in a circular layout
 - [x] Simultaneous action submission across all `DecisionSource`s
-- [ ] `ResolutionEngine` deterministic resolution order + pile-on damage reduction
+- [x] `ResolutionEngine` deterministic resolution order + pile-on damage reduction
 - [ ] `PactManager`: propose/accept Pact UI + logic
 - [ ] Betrayal action (attack ally same-turn as breaking Pact) + bonus effect
 - [ ] Comeback Essence bonus for last place

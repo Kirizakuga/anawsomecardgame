@@ -19,6 +19,7 @@ func _ready() -> void:
 	_test_case_5_no_floop_effect()
 	_test_case_6_card_view_ui()
 	_test_case_7_card_database_floop_effects()
+	_test_case_8_multiplayer_floop_explicit_targeting()
 
 	print("[CHECK] SUMMARY: %d passed, %d failed, 0 manual" % [_passed, _failed])
 	if _failed > 0:
@@ -184,3 +185,44 @@ func _test_case_7_card_database_floop_effects() -> void:
 		and drake.floop_effect.cost_amount == 2
 	)
 	_check(pass_c7, "Case 7: CardDatabase loads 3 cards with floop effects intact")
+
+func _test_case_8_multiplayer_floop_explicit_targeting() -> void:
+	var p0 := KingdomState.new(0)
+	var p1 := KingdomState.new(1)
+	var p2 := KingdomState.new(2)
+	p0.life = 25
+	p1.life = 25
+	p2.life = 25
+	p0.essence = 2
+
+	var context := MatchContext.new()
+	context.kingdoms = [p0, p1, p2]
+
+	var default_opp: int = context.get_default_opponent_id(0)
+	_check(default_opp == 1, "Case 8: Default opponent for P0 in [P0, P1, P2] is P1")
+
+	var drake: CardResource = load("res://data/cards/creatures/cr_flame_drake.tres")
+
+	# P0 queues floop with explicit target P2 (bypassing default P1)
+	var p0_source := HumanDecisionSource.new()
+	p0_source.request_actions(p0, context)
+	p0_source.queue_floop(drake, 2)
+
+	var received: Array[RoundActions] = []
+	p0_source.actions_ready.connect(func(acts: RoundActions) -> void:
+		received.append(acts)
+	, CONNECT_ONE_SHOT)
+	p0_source.submit()
+
+	_check(not received.is_empty(), "Case 8: HumanDecisionSource submitted action with explicit floop target")
+	var p0_actions: RoundActions = received[0]
+
+	ResolutionEngine.resolve([p0_actions], context)
+
+	var pass_c8: bool = (
+		p2.life == 23
+		and p1.life == 25
+		and p0.essence == 0
+	)
+	_check(pass_c8, "Case 8: Floop with explicit target_player_id=2 damages P2 (25->23), leaves P1 unharmed (25)")
+

@@ -11,9 +11,12 @@ func queue_card_play(card: CardResource, lane_index: int) -> void:
 	_ensure_pending_actions()
 	pending_actions.cards_to_play.append({"card": card, "lane": lane_index})
 
-func queue_floop(card: CardResource) -> void:
+func queue_floop(card: CardResource, target_player_id: int = -1) -> void:
 	_ensure_pending_actions()
-	pending_actions.cards_to_floop.append(card)
+	if target_player_id >= 0:
+		pending_actions.cards_to_floop.append({"card": card, "target_player_id": target_player_id})
+	else:
+		pending_actions.cards_to_floop.append(card)
 
 func queue_landscape(landscape: LandscapeResource) -> void:
 	_ensure_pending_actions()
