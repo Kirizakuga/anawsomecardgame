@@ -8,6 +8,7 @@
 - MatchBoard.tscn with 4, 5 and 6 players: legibility, scaling, and spacing at 1152x648 (M4-01)
 - WaitingOverlay during simultaneous submission: centered, readable (M4-02)
 - Multiplayer combat animations and resolution log presentation in MatchBoard (M4-03)
+- PactProposalPopup.tscn: UI styling, layout in 4-6p MatchBoard, and button click feedback (M4-04)
 - Playtest 2-player vs each bot archetype individually for balance and feel (M3-04)
 
 ## M1-04 — Combat resolution (creature-vs-creature, direct damage)
@@ -930,3 +931,104 @@ ResolutionEngineCheck: PASS
 
 **Pending human verification:**
 1. Visual inspection of `MatchBoard.tscn`: Confirm multiplayer combat animations and resolution log entries in `ResolutionLog.tscn` clearly indicate individual attacker contributions, applied pile-on reduction multipliers, and target Kingdoms in 4-6 player match flow.
+
+## M4-04 — PactManager (propose/accept)
+**Date:** 2026-09-20
+**Model:** Planner=opus, Executioner=sonnet
+**Files changed:**
+- `scripts/data/pact_config_resource.gd` — NEW: Resource defining `max_essence_lend_per_turn` (default 1) and `allow_creature_lend` (default true) for tunable pact parameters.
+- `data/pact/default_pact_config.tres` — NEW: Default PactConfigResource instance.
+- `scripts/autoload/pact_manager.gd` — MODIFIED: Replaced stub with full bilateral tracking (`_active_pacts` with canonical keys, `_proposals`, `_essence_lent_this_turn`), signals (`pact_formed`, `pact_broken`, `pact_proposed`, `essence_lent`), attack blocking query `can_attack()`, and essence lending `lend_essence()` with turn limit.
+- `scenes/ui/PactProposalPopup.tscn` — NEW: 4–6 player popup scene with player list, status indicators, and Propose / Accept / Lend buttons.
+- `scripts/ui/pact_proposal_popup.gd` — NEW: Script for popup handling local player binding, proposal tracking, PactManager delegation, and UI signals.
+- `scripts/autoload/resolution_engine.gd` — MODIFIED: Blocked combat targeting between active pact allies in Step 3b (anti-pile-on counting and damage execution, logging `combat_blocked_by_pact`). Resolved queued pact proposals, accepts, and essence transfers in Step 4.
+- `scripts/core/human_decision_source.gd` — MODIFIED: Added `target_validator: Callable` and `can_target_for_attack(target_player_id)` to keep `scripts/core/` pure RefCounted with zero Node references. Blocks queueing attacks against allies.
+- `scripts/autoload/turn_manager.gd` — MODIFIED: Binds `PactManager.can_attack` to `HumanDecisionSource.target_validator` during `start_action_collection()`.
+- `scripts/ui/match_board.gd` — MODIFIED: Added `can_target_for_attack(attacker_id, defender_id)` and `open_pacts(context)`.
+- `scenes/match/PactCheck.tscn` — NEW: Headless verification scene.
+- `scripts/ui/pact_check.gd` — NEW: Checkup runner verifying bilateral pact proposal/acceptance, attack blocking in UI and ResolutionEngine, 1-per-turn essence lending, popup UI interaction, and negative test.
+- `docs/data.md` — MODIFIED: Documented PactConfigResource and default_pact_config.tres.
+- `docs/development.md` — MODIFIED: Registered PactCheck.tscn in test scene list.
+- `docs/TASKS.md` — MODIFIED: M4-04 status -> Done, added §5 DECIDED BY PLANNER entry.
+
+**Planner decisions applied:**
+- DECIDED BY PLANNER: PactConfigResource stored under data/pact/default_pact_config.tres (max_essence_lend_per_turn=1, allow_creature_lend=true) per Standing Decision A.
+- DECIDED BY PLANNER: PactManager implements bilateral pact tracking with canonical keys min:max, auto-mutual acceptance when reciprocal proposals exist, and per-turn essence lending tracking reset on TurnManager.turn_started.
+- DECIDED BY PLANNER: HumanDecisionSource in scripts/core/ stays pure RefCounted with zero Node references by using injectable target_validator: Callable (injected by TurnManager during action collection), blocking ally targeting at queue time.
+- DECIDED BY PLANNER: ResolutionEngine ignores pact ally attacks from anti-pile-on calculation and blocks combat damage with combat_blocked_by_pact log entry.
+- DECIDED BY PLANNER: PactProposalPopup (scenes/ui/PactProposalPopup.tscn) provides 4-6 player UI for proposing, accepting, and lending essence.
+
+**Verification (headless check output, exit code 0):**
+```
+[CHECK] PASS: Initial: No pact between 0 and 1
+[CHECK] PASS: Initial: No pact between 1 and 0 (bilateral)
+[CHECK] PASS: Propose: P0 proposing to P1 returns true
+[CHECK] PASS: Propose: is_pact_proposed(0, 1) is true
+[CHECK] PASS: Propose: is_pact_proposed(1, 0) is false (directed)
+[CHECK] PASS: Propose: pact_proposed signal emitted with [0, 1]
+[CHECK] PASS: Propose: Pact is not active until accepted
+[CHECK] PASS: Accept: P1 accepting P0 returns true
+[CHECK] PASS: Accept: pact_formed signal emitted
+[CHECK] PASS: Accept: has_pact(0, 1) is true
+[CHECK] PASS: Accept: has_pact(1, 0) is true (bilateral)
+[CHECK] PASS: Accept: pending proposal cleared after formation
+[CHECK] PASS: Allies: P0 allies list contains P1
+[CHECK] PASS: Allies: P1 allies list contains P0
+[CHECK] PASS: Mutual: P2 proposed to P3
+[CHECK] PASS: Mutual: P3 counter-proposing to P2 automatically forms pact
+[CHECK] PASS: Mutual: bilateral check for P3 and P2
+[CHECK] PASS: Break: P0 breaking pact with P1 returns true
+[CHECK] PASS: Break: pact_broken signal emitted with breaker and victim
+[CHECK] PASS: Break: has_pact(0, 1) is false
+[CHECK] PASS: Break: has_pact(1, 0) is false
+[CHECK] PASS: Attack Check: PactManager blocks P0 attacking allied P1
+[CHECK] PASS: Attack Check: PactManager blocks P1 attacking allied P0
+[CHECK] PASS: Attack Check: PactManager permits P0 attacking neutral P2
+[CHECK] PASS: MatchBoard: can_target_for_attack(0, 1) is false for pact allies
+[CHECK] PASS: MatchBoard: can_target_for_attack(0, 2) is true for neutral opponents
+[CHECK] PASS: HumanDecisionSource: can_target_for_attack(1) returns false for ally
+[CHECK] PASS: HumanDecisionSource: can_target_for_attack(2) returns true for neutral
+[CHECK] PASS: HumanDecisionSource: queue_attack_target to ally returns false
+[CHECK] PASS: HumanDecisionSource: ally attack not added to attack_targets
+[CHECK] PASS: HumanDecisionSource: queue_attack_target to neutral returns true
+[CHECK] PASS: HumanDecisionSource: neutral attack added to attack_targets
+[CHECK] PASS: ResolutionEngine: Allied P1 took NO damage from P0 attack (life remains 25)
+[CHECK] PASS: ResolutionEngine: combat_blocked_by_pact recorded in resolution log
+[CHECK] PASS: ResolutionEngine: After pact broken, attack damages P1 (25 -> 23)
+[CHECK] PASS: Lend: Lending without active pact returns false
+[CHECK] PASS: Lend: Essences unchanged when lending without pact
+[CHECK] PASS: Lend: Lending 1 essence with active pact returns true
+[CHECK] PASS: Lend: Donor P0 essence decreased by 1 (3 -> 2)
+[CHECK] PASS: Lend: Receiver P1 essence increased by 1 (1 -> 2)
+[CHECK] PASS: Lend: essence_lent signal emitted with [0, 1, 1]
+[CHECK] PASS: Lend Limit: Second lend in same turn is blocked (returns false)
+[CHECK] PASS: Lend Limit: Essences unchanged on blocked 2nd lend
+[CHECK] PASS: Lend Reset: can_lend_essence returns true after reset_turn_limits
+[CHECK] PASS: Lend Reset: Lending succeeds in next turn
+[CHECK] PASS: Lend Reset: Essences updated correctly (P0: 1, P1: 3)
+[CHECK] PASS: Lend Essence: Lending with 0 donor essence returns false
+[CHECK] PASS: PactProposalPopup: Scene loaded successfully
+[CHECK] PASS: Popup: Row created for Player 1
+[CHECK] PASS: Popup: Row created for Player 2
+[CHECK] PASS: Popup: Row created for Player 3
+[CHECK] PASS: Popup: No row created for local Player 0
+[CHECK] PASS: Popup: proposal_sent signal emitted with target 1
+[CHECK] PASS: Popup: PactManager recorded proposal to Player 1
+[CHECK] PASS: Popup: Accept button is visible for incoming proposal from Player 2
+[CHECK] PASS: Popup: pact_accepted signal emitted with target 2
+[CHECK] PASS: Popup: PactManager formed pact with Player 2
+[CHECK] PASS: Popup: Lend button is visible for allied Player 2
+[CHECK] PASS: Popup: essence_lend_requested signal emitted for Player 2
+[CHECK] PASS: Popup: P0 essence reduced by 1 via popup lend
+[CHECK] PASS: Popup: P2 essence increased by 1 via popup lend
+[CHECK] PASS: Popup: closed signal emitted on close button press
+[CHECK] PASS: Popup: popup hidden after close
+[CHECK] MANUAL: PactProposalPopup UI styling, layout in 4-6p MatchBoard, and button click feedback
+[CHECK] SUMMARY: 63 passed, 0 failed, 1 manual
+PactCheck: PASS
+```
+
+**Failure detection verified:** Executed `godot --headless --path . scenes/match/PactCheck.tscn -- --negative-test`, producing `[CHECK] FAIL: Simulated intentional failure for negative testing verification`, exit code 1, `PactCheck: FAIL`. Clean run exited with code 0.
+
+**Pending human verification:**
+1. Visual inspection of `PactProposalPopup.tscn`: Confirm popup styling, alignment in 4-6 player MatchBoard context, button disabled/active visual states, and response feedback when proposing, accepting, or lending essence.

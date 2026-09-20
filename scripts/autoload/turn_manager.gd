@@ -57,6 +57,9 @@ func start_action_collection(context: MatchContext, sources: Dictionary) -> void
 		var pid := k.player_id
 		var source: DecisionSource = sources.get(pid, null)
 		if source != null:
+			if source is HumanDecisionSource and PactManager != null:
+				source.target_validator = func(from_id: int, to_id: int) -> bool:
+					return PactManager.can_attack(from_id, to_id)
 			_connected_sources[pid] = source
 			var cb := func(actions: RoundActions) -> void:
 				_on_source_actions_ready(actions)

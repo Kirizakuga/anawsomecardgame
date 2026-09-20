@@ -157,3 +157,22 @@ func get_kingdom_rect(player_id: int) -> Rect2:
 		return Rect2()
 	var kv: KingdomView = _kingdom_views[player_id]
 	return Rect2(kv.position, kv.size * kv.scale)
+
+func can_target_for_attack(attacker_id: int, defender_id: int) -> bool:
+	if attacker_id == defender_id:
+		return false
+	if PactManager != null and PactManager.has_pact(attacker_id, defender_id):
+		return false
+	return true
+
+func open_pacts(context: MatchContext = null) -> Control:
+	var popup: Control = get_node_or_null("PactProposalPopup")
+	if popup == null:
+		var scene: PackedScene = load("res://scenes/ui/PactProposalPopup.tscn")
+		if scene != null:
+			popup = scene.instantiate()
+			add_child(popup)
+	if popup != null and popup.has_method("setup"):
+		popup.setup(_human_player_id, context)
+		popup.visible = true
+	return popup

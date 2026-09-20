@@ -159,6 +159,8 @@ func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 			var def_id: int = att.target_player_id
 			if def_id < 0:
 				continue
+			if PactManager != null and PactManager.has_pact(att.attacker_id, def_id):
+				continue
 			if not unique_attackers_per_defender.has(def_id):
 				unique_attackers_per_defender[def_id] = []
 			var att_list: Array = unique_attackers_per_defender[def_id]
@@ -197,6 +199,15 @@ func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 			var attacks_for_att: Array = attacks_by_attacker[att_id]
 			for att in attacks_for_att:
 				var def_id: int = att.target_player_id
+				if PactManager != null and PactManager.has_pact(att_id, def_id):
+					resolution_log.append({
+						"step": "combat_blocked_by_pact",
+						"attacker_id": att_id,
+						"target_player_id": def_id,
+						"lane": att.attacker_lane,
+					})
+					continue
+
 				var defender_kingdom: KingdomState = context.get_kingdom(def_id)
 				var key := "%d:%d" % [def_id, att_id]
 				var mult: float = multiplier_map.get(key, 1.0)
@@ -223,9 +234,22 @@ func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 		return resolution_log
 
 	# 4. Pact changes
-	# ponytail: stub — pact resolution deferred to M4-04
 	for action in sorted_actions:
 		if not action.pact_proposals.is_empty():
+			for prop in action.pact_proposals:
+				var target_id: int = prop.get("target_player_id", -1)
+				var pact_act: String = prop.get("action", "propose")
+				if target_id >= 0 and PactManager != null:
+					match pact_act:
+						"accept":
+							PactManager.accept_pact(action.player_id, target_id)
+						"propose":
+							PactManager.propose_pact(action.player_id, target_id)
+						"lend_essence":
+							var amt: int = prop.get("amount", 1)
+							PactManager.lend_essence(action.player_id, target_id, context, amt)
+			if context != null and PactManager != null:
+				PactManager.sync_to_context(context)
 			resolution_log.append({
 				"step": "pact_proposal",
 				"player_id": action.player_id,
