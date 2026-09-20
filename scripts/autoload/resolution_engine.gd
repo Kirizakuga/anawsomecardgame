@@ -96,8 +96,8 @@ func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 				if GameManager.is_match_over:
 					break
 
-		if GameManager and GameManager.is_match_over:
-			break
+		if GameManager:
+			GameManager.check_win_condition(context)
 
 	if GameManager and GameManager.is_match_over:
 		resolution_finished.emit(resolution_log)
@@ -249,10 +249,8 @@ func resolve(all_actions: Array[RoundActions], context: MatchContext) -> Array:
 				)
 				resolution_log.append(combat_entry)
 
-				if GameManager and defender_kingdom and (defender_kingdom.life <= 0 or defender_kingdom.is_eliminated):
-					GameManager.check_win_condition(context)
-					if GameManager.is_match_over:
-						break
+				# Defer win condition check until after all attacks processed
+				pass
 
 			if GameManager and GameManager.is_match_over:
 				break

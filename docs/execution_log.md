@@ -3,31 +3,31 @@
 
 ## Human verification queue (open in Godot, F6)
 - HeroSelect.tscn: card layout, trait text wrapping, selection feedback (M2-01)
-- DeckBuilder.tscn: grid columns, scrolling, disabled buttons at limits, hero switching (M2-02)
-- DeckBuilder.tscn: Save/Load buttons, save then relaunch then load persistence (M2-03)
-- MatchBoard.tscn with 4, 5 and 6 players: legibility, scaling, and spacing at 1152x648 (M4-01)
-- WaitingOverlay during simultaneous submission: centered, readable (M4-02)
-- Multiplayer combat animations and resolution log presentation in MatchBoard (M4-03)
-- PactProposalPopup.tscn: UI styling, layout in 4-6p MatchBoard, and button click feedback (M4-04)
-- Betrayal visual feedback and animation cues in MatchBoard (M4-05)
-- Comeback Essence bonus visual banner/cue in MatchBoard HUD (M4-06)
-- End-of-match victory banner/screen displaying winner or draw at turn limit (M4-07)
-- Playtest 2-player vs each bot archetype individually for balance and feel (M3-04)
+  - DeckBuilder.tscn: grid columns, scrolling, disabled buttons at limits, hero switching (M2-02)
+  - DeckBuilder.tscn: Save/Load buttons, save then relaunch then load persistence (M2-03)
+  - MatchBoard.tscn with 4, 5 and 6 players: legibility, scaling, and spacing at 1152x648 (M4-01)
+  - WaitingOverlay during simultaneous submission: centered, readable (M4-02)
+  - Multiplayer combat animations and resolution log presentation in MatchBoard (M4-03)
+  - PactProposalPopup.tscn: UI styling, layout in 4-6p MatchBoard, and button click feedback (M4-04)
+  - Betrayal visual feedback and animation cues in MatchBoard (M4-05)
+  - Comeback Essence bonus visual banner/cue in MatchBoard HUD (M4-06)
+  - End-of-match victory banner/screen displaying winner or draw at turn limit (M4-07)
+  - Playtest 2-player vs each bot archetype individually for balance and feel (M3-04)
 
 ## M1-04 — Combat resolution (creature-vs-creature, direct damage)
 **Date:** 2026-09-19
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/core/combat_resolver.gd` — NEW: Pure RefCounted combat math (damage reduction, blocker destruction, unblocked life damage)
-- `scripts/autoload/combat_check.gd` — NEW: Headless check script with `_check()` helper, summary, exit(1) on failure (moved from scripts/core/ during review)
-- `scenes/match/CombatCheck.tscn` — NEW: Check scene wiring combat_check.gd
-- `scripts/autoload/resolution_engine.gd` — MODIFIED: Wired CombatResolver into creature step of resolution order, kept stubs for other categories
-- `docs/development.md` — MODIFIED: Added CombatCheck.tscn to verification scene list
-- `docs/TASKS.md` — MODIFIED: M1-04 status → Done, added §5 resolution entry + DECIDED BY PLANNER entry
+  - `scripts/autoload/combat_check.gd` — NEW: Headless check script with `_check()` helper, summary, exit(1) on failure (moved from scripts/core/ during review)
+  - `scenes/match/CombatCheck.tscn` — NEW: Check scene wiring combat_check.gd
+  - `scripts/autoload/resolution_engine.gd` — MODIFIED: Wired CombatResolver into creature step of resolution order, kept stubs for other categories
+  - `docs/development.md` — MODIFIED: Added CombatCheck.tscn to verification scene list
+  - `docs/TASKS.md` — MODIFIED: M1-04 status → Done, added §5 resolution entry + DECIDED BY PLANNER entry
 
 **Planner decisions applied:**
 - Decision C: Defense = damage reduction (net = max(0, ATK - DEF)). Blocker destroyed if net > 0, no retaliation, no overflow to Life. Unblocked = ATK → Kingdom Life.
-- DECIDED BY PLANNER: 2-player sequential both-attack (p0 then p1). TurnManager has no active-player concept. First-mover advantage acknowledged, acceptable for 2p MVP, revisit at M4.
+  - DECIDED BY PLANNER: 2-player sequential both-attack (p0 then p1). TurnManager has no active-player concept. First-mover advantage acknowledged, acceptable for 2p MVP, revisit at M4.
 
 **Verification (headless check output, exit code 0):**
 ```
@@ -51,27 +51,27 @@ CombatCheck: PASS
 
 **Review fixes applied (2026-09-19):**
 1. Recorded sequential both-attack as DECIDED BY PLANNER in TASKS.md §5 and resolution_engine.gd
-2. Moved combat_check.gd from scripts/core/ to scripts/autoload/ (AGENTS rule 3)
-3. Replaced assert() with _check() helper, added [CHECK] SUMMARY + quit(1) on failure
-4. Confirmed .gd.uid files committed, proved failure detection with exit code 1
+   2. Moved combat_check.gd from scripts/core/ to scripts/autoload/ (AGENTS rule 3)
+   3. Replaced assert() with _check() helper, added [CHECK] SUMMARY + quit(1) on failure
+   4. Confirmed .gd.uid files committed, proved failure detection with exit code 1
 
 ## M1-05 — Floop interaction logic
 **Date:** 2026-09-19
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/data/floop_effect_resource.gd` — MODIFIED: Added effect_type and effect_value exported fields
-- `data/floop_effects/fl_scout_snoop.tres` — NEW: Floop effect for goblin scout (draw_card, value 1, cost 1 essence)
-- `data/floop_effects/fl_golem_fortify.tres` — NEW: Floop effect for stone golem (heal_life, value 2, cost 1 essence)
-- `data/floop_effects/fl_drake_breath.tres` — NEW: Floop effect for flame drake (direct_damage, value 2, cost 2 essence)
-- `data/cards/creatures/cr_goblin_scout.tres` — MODIFIED: Wired fl_scout_snoop.tres
-- `data/cards/creatures/cr_stone_golem.tres` — MODIFIED: Wired fl_golem_fortify.tres
-- `data/cards/creatures/cr_flame_drake.tres` — MODIFIED: Wired fl_drake_breath.tres
-- `scripts/core/floop_resolver.gd` — NEW: Pure RefCounted FloopResolver implementing can_floop and resolve_floop
-- `scripts/ui/card_view.gd` — MODIFIED: Added card_data and floop_effect guards to _on_floop_pressed
-- `scenes/match/FloopCheck.tscn` — NEW: Headless check scene
-- `scripts/autoload/floop_check.gd` — NEW: Headless test runner with Cases 1–7 and summary output
-- `docs/development.md` — MODIFIED: Added FloopCheck.tscn to verification scenes list
-- `docs/TASKS.md` — MODIFIED: M1-05 status → Done, added §5 DECIDED BY PLANNER entry
+  - `data/floop_effects/fl_scout_snoop.tres` — NEW: Floop effect for goblin scout (draw_card, value 1, cost 1 essence)
+  - `data/floop_effects/fl_golem_fortify.tres` — NEW: Floop effect for stone golem (heal_life, value 2, cost 1 essence)
+  - `data/floop_effects/fl_drake_breath.tres` — NEW: Floop effect for flame drake (direct_damage, value 2, cost 2 essence)
+  - `data/cards/creatures/cr_goblin_scout.tres` — MODIFIED: Wired fl_scout_snoop.tres
+  - `data/cards/creatures/cr_stone_golem.tres` — MODIFIED: Wired fl_golem_fortify.tres
+  - `data/cards/creatures/cr_flame_drake.tres` — MODIFIED: Wired fl_drake_breath.tres
+  - `scripts/core/floop_resolver.gd` — NEW: Pure RefCounted FloopResolver implementing can_floop and resolve_floop
+  - `scripts/ui/card_view.gd` — MODIFIED: Added card_data and floop_effect guards to _on_floop_pressed
+  - `scenes/match/FloopCheck.tscn` — NEW: Headless check scene
+  - `scripts/autoload/floop_check.gd` — NEW: Headless test runner with Cases 1–7 and summary output
+  - `docs/development.md` — MODIFIED: Added FloopCheck.tscn to verification scenes list
+  - `docs/TASKS.md` — MODIFIED: M1-05 status → Done, added §5 DECIDED BY PLANNER entry
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: FloopEffectResource extended with effect_type ("draw_card", "heal_life", "direct_damage", "buff_attack") and effect_value. Initial floop effects given to 3 placeholder cards: cr_goblin_scout (draw 1, cost 1), cr_stone_golem (heal 2, cost 1), cr_flame_drake (damage 2, cost 2). Recorded in TASKS.md §5.
@@ -105,16 +105,16 @@ FloopCheck: PASS
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/core/human_decision_source.gd` — MODIFIED: Implemented action queueing methods (queue_card_play, queue_floop, queue_landscape, queue_attack_target, queue_pact_proposal, queue_betrayal), clear_actions, and submit signal emission. Pure RefCounted, zero Node dependencies.
-- `scripts/ui/kingdom_view.gd` — MODIFIED: Added decision_source hook, wired lane card drop to queue_card_play, wired card floop_triggered to queue_floop.
-- `scripts/ui/lane.gd` — MODIFIED: Wired current_card_view floop listener to KingdomView on occupant set.
-- `scenes/match/HumanDecisionCheck.tscn` — NEW: Headless check scene.
-- `scripts/ui/human_decision_check.gd` — NEW: Headless check script covering action initialization, queues, clearing, submit, and UI drop/floop integration.
-- `docs/development.md` — MODIFIED: Added HumanDecisionCheck.tscn to verification scene list.
-- `docs/TASKS.md` — MODIFIED: M1-06 status → Done, §5 entry added.
+  - `scripts/ui/kingdom_view.gd` — MODIFIED: Added decision_source hook, wired lane card drop to queue_card_play, wired card floop_triggered to queue_floop.
+  - `scripts/ui/lane.gd` — MODIFIED: Wired current_card_view floop listener to KingdomView on occupant set.
+  - `scenes/match/HumanDecisionCheck.tscn` — NEW: Headless check scene.
+  - `scripts/ui/human_decision_check.gd` — NEW: Headless check script covering action initialization, queues, clearing, submit, and UI drop/floop integration.
+  - `docs/development.md` — MODIFIED: Added HumanDecisionCheck.tscn to verification scene list.
+  - `docs/TASKS.md` — MODIFIED: M1-06 status → Done, §5 entry added.
 
 **Planner decisions applied:**
 - Standardized RoundActions dictionary schemas for cards_to_play (`{"card": CardResource, "lane": int}`) and attack_targets (`{"attacker_lane": int, "target_player_id": int, "target_lane": int}`).
-- M1-03 carry-forward resolved: KingdomView routes actions through HumanDecisionSource.decision_source while keeping local view updates for standalone test compatibility.
+  - M1-03 carry-forward resolved: KingdomView routes actions through HumanDecisionSource.decision_source while keeping local view updates for standalone test compatibility.
 
 **Verification (headless check output, exit code 0):**
 ```
@@ -157,11 +157,11 @@ HumanDecisionCheck: PASS
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/ai/dummy_ai_decision_source.gd` — NEW: DummyAIDecisionSource extending DecisionSource, picks random affordable creature plays into empty lanes and affordable floops. Pure RefCounted, zero Node dependencies.
-- `scripts/autoload/resolution_engine.gd` — MODIFIED: Applies submitted cards_to_play and cards_to_floop from RoundActions before creature combat.
-- `scenes/match/DummyAICheck.tscn` — NEW: Headless check scene.
-- `scripts/autoload/dummy_ai_check.gd` — NEW: Headless test runner testing move legality, 0-essence, full-lane limits, and 3 full matches to completion.
-- `docs/development.md` — MODIFIED: Added DummyAICheck.tscn to verification scene list.
-- `docs/TASKS.md` — MODIFIED: M1-07 status → Done, §5 DECIDED BY PLANNER entry added.
+  - `scripts/autoload/resolution_engine.gd` — MODIFIED: Applies submitted cards_to_play and cards_to_floop from RoundActions before creature combat.
+  - `scenes/match/DummyAICheck.tscn` — NEW: Headless check scene.
+  - `scripts/autoload/dummy_ai_check.gd` — NEW: Headless test runner testing move legality, 0-essence, full-lane limits, and 3 full matches to completion.
+  - `docs/development.md` — MODIFIED: Added DummyAICheck.tscn to verification scene list.
+  - `docs/TASKS.md` — MODIFIED: M1-07 status → Done, §5 DECIDED BY PLANNER entry added.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: DummyAIDecisionSource in scripts/ai/dummy_ai_decision_source.gd randomly plays affordable creature cards into empty lanes and queues affordable floops. ResolutionEngine.resolve() applies submitted cards_to_play and cards_to_floop before creature combat pass. Recorded in TASKS.md §5.
@@ -197,11 +197,11 @@ DummyAICheck: PASS
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/autoload/game_manager.gd` — MODIFIED: Added match_ended signal, is_match_over, winner, reset_match, end_match, and updated check_win_condition to handle Life <= 0 elimination, turn limit resolution by highest life, tie handling, and double-emission guard.
-- `scripts/autoload/resolution_engine.gd` — MODIFIED: Checks win conditions after floop and combat steps, stops further combat when match ends.
-- `scenes/match/WinConditionCheck.tscn` — NEW: Headless check scene.
-- `scripts/autoload/win_condition_check.gd` — NEW: Headless test runner testing combat lethal damage, floop lethal damage, turn-limit highest-life/tie, no double-trigger on subsequent calls/damage, active non-terminal state, and direct elimination.
-- `docs/development.md` — MODIFIED: Added WinConditionCheck.tscn to verification scene list.
-- `docs/TASKS.md` — MODIFIED: M1-08 status → Done, §5 DECIDED BY PLANNER entry added.
+  - `scripts/autoload/resolution_engine.gd` — MODIFIED: Checks win conditions after floop and combat steps, stops further combat when match ends.
+  - `scenes/match/WinConditionCheck.tscn` — NEW: Headless check scene.
+  - `scripts/autoload/win_condition_check.gd` — NEW: Headless test runner testing combat lethal damage, floop lethal damage, turn-limit highest-life/tie, no double-trigger on subsequent calls/damage, active non-terminal state, and direct elimination.
+  - `docs/development.md` — MODIFIED: Added WinConditionCheck.tscn to verification scene list.
+  - `docs/TASKS.md` — MODIFIED: M1-08 status → Done, §5 DECIDED BY PLANNER entry added.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: GameManager handles match-end lifecycle via signal match_ended(winner_id), is_match_over, and winner. check_win_condition() eliminates kingdoms with life <= 0, declares single survivor as winner, resolves turn limit by unique highest life total (or -1 on tie/simultaneous elimination), and guards against double emissions. ResolutionEngine checks win condition after lethal floop damage and creature attacks. Recorded in TASKS.md §5.
@@ -263,21 +263,21 @@ WinConditionCheck: PASS
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `data/cards/heroes/hr_ignis.tres` — NEW: Fire placeholder hero (starting_life 25, affinity fire, passive trait Pyromancy)
-- `data/cards/heroes/hr_terras.tres` — NEW: Earth placeholder hero (starting_life 25, affinity earth, passive trait Granite Stance / Stone Skin)
-- `data/cards/heroes/hr_aquos.tres` — NEW: Water placeholder hero (starting_life 25, affinity water, passive trait Tidal Flow)
-- `scripts/data/spell_resource.gd` — MODIFIED: Added exported `affinity: String = ""` to support affinity-aligned spells per GDD.md §7
-- `data/cards/spells/sp_fireball.tres` — MODIFIED: Assigned affinity "fire"
-- `data/cards/spells/sp_healing_rain.tres` — MODIFIED: Assigned affinity "water"
-- `scripts/autoload/card_database.gd` — MODIFIED: Added `heroes` dictionary, scan logic for `HeroResource`, hero lookup methods (`get_hero`, `has_hero`, `get_all_heroes`), and affinity card filtering (`get_cards_by_affinity`, `get_eligible_cards_for_hero`, `is_card_eligible_for_affinity`)
-- `scripts/ui/hero_select.gd` — NEW: HeroSelect UI script handling hero cards creation, portrait/name/affinity/trait rendering, selection buttons, and `hero_selected` signal emission with eligible cards
-- `scripts/ui/hero_select.gd.uid` — NEW: Godot UID for hero_select.gd
-- `scenes/deckbuilder/HeroSelect.tscn` — NEW: UI scene containing title, hero card container, and details panel
-- `scripts/ui/hero_select_check.gd` — NEW: Headless check runner verifying hero loading, affinity card filtering, UI structure, button selection, and signal emission
-- `scripts/ui/hero_select_check.gd.uid` — NEW: Godot UID for hero_select_check.gd
-- `scenes/deckbuilder/HeroSelectCheck.tscn` — NEW: Headless verification scene
-- `docs/development.md` — MODIFIED: Added HeroSelectCheck.tscn to verification scene list
-- `docs/data.md` — MODIFIED: Documented HeroResource in CardDatabase and SpellResource affinity export
-- `docs/TASKS.md` — MODIFIED: Added M2-01 DECIDED BY PLANNER entry in §5
+  - `data/cards/heroes/hr_terras.tres` — NEW: Earth placeholder hero (starting_life 25, affinity earth, passive trait Granite Stance / Stone Skin)
+  - `data/cards/heroes/hr_aquos.tres` — NEW: Water placeholder hero (starting_life 25, affinity water, passive trait Tidal Flow)
+  - `scripts/data/spell_resource.gd` — MODIFIED: Added exported `affinity: String = ""` to support affinity-aligned spells per GDD.md §7
+  - `data/cards/spells/sp_fireball.tres` — MODIFIED: Assigned affinity "fire"
+  - `data/cards/spells/sp_healing_rain.tres` — MODIFIED: Assigned affinity "water"
+  - `scripts/autoload/card_database.gd` — MODIFIED: Added `heroes` dictionary, scan logic for `HeroResource`, hero lookup methods (`get_hero`, `has_hero`, `get_all_heroes`), and affinity card filtering (`get_cards_by_affinity`, `get_eligible_cards_for_hero`, `is_card_eligible_for_affinity`)
+  - `scripts/ui/hero_select.gd` — NEW: HeroSelect UI script handling hero cards creation, portrait/name/affinity/trait rendering, selection buttons, and `hero_selected` signal emission with eligible cards
+  - `scripts/ui/hero_select.gd.uid` — NEW: Godot UID for hero_select.gd
+  - `scenes/deckbuilder/HeroSelect.tscn` — NEW: UI scene containing title, hero card container, and details panel
+  - `scripts/ui/hero_select_check.gd` — NEW: Headless check runner verifying hero loading, affinity card filtering, UI structure, button selection, and signal emission
+  - `scripts/ui/hero_select_check.gd.uid` — NEW: Godot UID for hero_select_check.gd
+  - `scenes/deckbuilder/HeroSelectCheck.tscn` — NEW: Headless verification scene
+  - `docs/development.md` — MODIFIED: Added HeroSelectCheck.tscn to verification scene list
+  - `docs/data.md` — MODIFIED: Documented HeroResource in CardDatabase and SpellResource affinity export
+  - `docs/TASKS.md` — MODIFIED: Added M2-01 DECIDED BY PLANNER entry in §5
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: Placeholder heroes created under data/cards/heroes/ (hr_ignis, hr_terras, hr_aquos) with starting_life=25 and elemental affinities. CardDatabase loads heroes into separate heroes dictionary to preserve get_all_cards() card count. SpellResource extended with affinity export; CardDatabase.get_eligible_cards_for_hero() filters cards matching the hero's affinity or with neutral/empty affinity across creatures, spells, and landscapes. HeroSelect UI populates hero entries, binds select buttons, and emits hero_selected(hero, eligible_cards). Recorded in TASKS.md §5.
@@ -359,22 +359,22 @@ HeroSelectCheck: PASS
 
 **Pending human verification:**
 1. Visual inspection of `HeroSelect.tscn`: Open scene in Godot editor, run scene (`F6`), verify hero cards align horizontally with adequate spacing on 16:9 window.
-2. Verify portrait placeholder / text wrapping: Confirm passive trait labels wrap neatly inside cards without clipping or overflow.
-3. Verify button highlight / selection feedback: Confirm clicking select button on each card updates details panel text smoothly.
+   2. Verify portrait placeholder / text wrapping: Confirm passive trait labels wrap neatly inside cards without clipping or overflow.
+   3. Verify button highlight / selection feedback: Confirm clicking select button on each card updates details panel text smoothly.
 
 ## M2-02 — Deck assembly UI
 **Date:** 2026-09-20
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/core/deck_build_state.gd` — NEW: Pure RefCounted deck state model with zero Node dependencies; tracks hero, main deck (max 30 cards, max 3 copies per card ID), and separate landscape sub-deck (5–8 cards); handles affinity restrictions, addition/removal, and validation.
-- `scripts/core/deck_build_state.gd.uid` — NEW: Godot UID for deck_build_state.gd.
-- `scripts/ui/deck_builder.gd` — NEW: DeckBuilder UI controller managing hero display/selection, eligible card grid generation with count tracking and add buttons, main deck list with copy counts and +/- controls, landscape deck list with +/- controls, clear deck action, and validation display.
-- `scripts/ui/deck_builder.gd.uid` — NEW: Godot UID for deck_builder.gd.
-- `scenes/deckbuilder/DeckBuilder.tscn` — NEW: Deck builder UI scene containing hero top bar with dropdown, eligible card scrollable grid, main deck and landscape sub-deck panels, and deck action controls.
-- `scripts/ui/deck_builder_check.gd` — NEW: Verification runner verifying main deck limits, copy limits, separate landscape sub-deck limits, addition/removal, validation logic, and UI bindings.
-- `scripts/ui/deck_builder_check.gd.uid` — NEW: Godot UID for deck_builder_check.gd.
-- `scenes/deckbuilder/DeckBuilderCheck.tscn` — NEW: Headless checkup scene.
-- `docs/development.md` — MODIFIED: Added DeckBuilderCheck.tscn to verification scene list.
+  - `scripts/core/deck_build_state.gd.uid` — NEW: Godot UID for deck_build_state.gd.
+  - `scripts/ui/deck_builder.gd` — NEW: DeckBuilder UI controller managing hero display/selection, eligible card grid generation with count tracking and add buttons, main deck list with copy counts and +/- controls, landscape deck list with +/- controls, clear deck action, and validation display.
+  - `scripts/ui/deck_builder.gd.uid` — NEW: Godot UID for deck_builder.gd.
+  - `scenes/deckbuilder/DeckBuilder.tscn` — NEW: Deck builder UI scene containing hero top bar with dropdown, eligible card scrollable grid, main deck and landscape sub-deck panels, and deck action controls.
+  - `scripts/ui/deck_builder_check.gd` — NEW: Verification runner verifying main deck limits, copy limits, separate landscape sub-deck limits, addition/removal, validation logic, and UI bindings.
+  - `scripts/ui/deck_builder_check.gd.uid` — NEW: Godot UID for deck_builder_check.gd.
+  - `scenes/deckbuilder/DeckBuilderCheck.tscn` — NEW: Headless checkup scene.
+  - `docs/development.md` — MODIFIED: Added DeckBuilderCheck.tscn to verification scene list.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: Pure RefCounted DeckBuildState in scripts/core/deck_build_state.gd (zero Node dependencies). Main deck size max 30, copy limit max 3 per card ID. Landscape sub-deck separate (5-8 cards). Landscape additions route exclusively to landscape deck. Affinity-matching enforced per hero affinity or neutral. Validation requires exactly 30 main cards, 5-8 landscapes, and no copy/affinity violations.
@@ -477,21 +477,21 @@ DeckBuilderCheck: PASS
 
 **Pending human verification:**
 1. Visual inspection of `DeckBuilder.tscn`: Open in editor, run scene (`F6`), verify responsive 3-column eligible card grid and right-side deck lists layout on 16:9 window.
-2. Interaction feel: Click `+` on cards in pool to add to main deck and landscape deck, click `-` and `+` on deck list rows to adjust counts, check disabled buttons when limits are reached.
-3. Hero switching: Change hero in top dropdown, verify grid updates to hero's eligible card pool.
+   2. Interaction feel: Click `+` on cards in pool to add to main deck and landscape deck, click `-` and `+` on deck list rows to adjust counts, check disabled buttons when limits are reached.
+   3. Hero switching: Change hero in top dropdown, verify grid updates to hero's eligible card pool.
 
 ## M2-03 — Deck save/load
 **Date:** 2026-09-20
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/core/deck_build_state.gd` — MODIFIED: Added serialization methods `to_dict()`, `to_json()`, `load_from_dict()`, and `load_from_json()` to serialize/deserialize Hero and Card IDs with CardDatabase resolution, handling missing/corrupted data cleanly without Node dependencies.
-- `scripts/core/deck_save_manager.gd` — NEW: Static helper class extending RefCounted for saving/loading DeckBuildState to/from JSON files (`user://saved_deck.json` default) via FileAccess.
-- `scripts/core/deck_save_manager.gd.uid` — NEW: Godot UID for deck_save_manager.gd.
-- `scenes/deckbuilder/DeckBuilder.tscn` — MODIFIED: Added Save Deck and Load Deck buttons into bottom controls bar.
-- `scripts/ui/deck_builder.gd` — MODIFIED: Added `save_deck()` and `load_deck()` API methods wired to Save and Load buttons, emitting `deck_saved` and `deck_loaded` signals and refreshing UI.
-- `scenes/deckbuilder/DeckSaveLoadCheck.tscn` — NEW: Headless checkup scene.
-- `scripts/ui/deck_save_load_check.gd` — NEW: Verification runner testing serialization schema, disk I/O, corrupted JSON, missing files, unknown card/hero IDs, and DeckBuilder UI integration.
-- `docs/development.md` — MODIFIED: Registered DeckSaveLoadCheck.tscn under verification scene list.
+  - `scripts/core/deck_save_manager.gd` — NEW: Static helper class extending RefCounted for saving/loading DeckBuildState to/from JSON files (`user://saved_deck.json` default) via FileAccess.
+  - `scripts/core/deck_save_manager.gd.uid` — NEW: Godot UID for deck_save_manager.gd.
+  - `scenes/deckbuilder/DeckBuilder.tscn` — MODIFIED: Added Save Deck and Load Deck buttons into bottom controls bar.
+  - `scripts/ui/deck_builder.gd` — MODIFIED: Added `save_deck()` and `load_deck()` API methods wired to Save and Load buttons, emitting `deck_saved` and `deck_loaded` signals and refreshing UI.
+  - `scenes/deckbuilder/DeckSaveLoadCheck.tscn` — NEW: Headless checkup scene.
+  - `scripts/ui/deck_save_load_check.gd` — NEW: Verification runner testing serialization schema, disk I/O, corrupted JSON, missing files, unknown card/hero IDs, and DeckBuilder UI integration.
+  - `docs/development.md` — MODIFIED: Registered DeckSaveLoadCheck.tscn under verification scene list.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: Single local profile uses user://saved_deck.json. Schema persists version, hero_id, main_deck (array of card IDs), and landscape_deck (array of card IDs) as JSON. Cards and Hero are resolved dynamically through CardDatabase on load; missing/unknown IDs are skipped gracefully and reported. DeckSaveManager provides static file I/O using FileAccess. DeckBuilder UI wires Save and Load buttons to user profile storage with automatic UI re-binding.
@@ -569,20 +569,20 @@ DeckSaveLoadCheck: PASS
 
 **Pending human verification:**
 1. Visual inspection of `DeckBuilder.tscn`: Confirm Save Deck and Load Deck buttons are visually distinct, properly styled, and positioned logically in the bottom controls row.
-2. Persistence check: Save a deck, close the Godot editor, relaunch, open `DeckBuilder.tscn`, click Load Deck, confirm the full deck, hero, and counts reload accurately.
+   2. Persistence check: Save a deck, close the Godot editor, relaunch, open `DeckBuilder.tscn`, click Load Deck, confirm the full deck, hero, and counts reload accurately.
 
 ## M3-01 — BotArchetype Resource + weight tables
 **Date:** 2026-09-20
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/data/bot_archetype_resource.gd` — MODIFIED: Extended BotArchetypeResource with `id: String` and `description: String` alongside existing archetype name and weight fields (`aggression_weight`, `defense_weight`, `pact_loyalty_weight`, `betrayal_opportunism_weight`, `floop_preference_weight`).
-- `data/bot_profiles/ba_aggressive.tres` — NEW: Aggressive archetype resource (aggression: 3.0, defense: 0.5, pact loyalty: 0.1, betrayal: 1.5, floop: 1.0).
-- `data/bot_profiles/ba_opportunist.tres` — NEW: Opportunist archetype resource (aggression: 1.8, defense: 1.0, pact loyalty: 0.5, betrayal: 3.0, floop: 1.5).
-- `data/bot_profiles/ba_loyalist.tres` — NEW: Loyalist archetype resource (aggression: 1.0, defense: 1.5, pact loyalty: 3.0, betrayal: 0.1, floop: 1.0).
-- `data/bot_profiles/ba_turtle.tres` — NEW: Turtle archetype resource (aggression: 0.4, defense: 3.0, pact loyalty: 1.2, betrayal: 0.3, floop: 2.0).
-- `scenes/match/BotArchetypeCheck.tscn` — NEW: Headless checkup scene.
-- `scripts/ui/bot_archetype_check.gd` — NEW: Automated verification script testing profile loading, valid metadata, non-negative weights, and archetype differentiations.
-- `docs/development.md` — MODIFIED: Registered BotArchetypeCheck.tscn under verification scene list.
+  - `data/bot_profiles/ba_aggressive.tres` — NEW: Aggressive archetype resource (aggression: 3.0, defense: 0.5, pact loyalty: 0.1, betrayal: 1.5, floop: 1.0).
+  - `data/bot_profiles/ba_opportunist.tres` — NEW: Opportunist archetype resource (aggression: 1.8, defense: 1.0, pact loyalty: 0.5, betrayal: 3.0, floop: 1.5).
+  - `data/bot_profiles/ba_loyalist.tres` — NEW: Loyalist archetype resource (aggression: 1.0, defense: 1.5, pact loyalty: 3.0, betrayal: 0.1, floop: 1.0).
+  - `data/bot_profiles/ba_turtle.tres` — NEW: Turtle archetype resource (aggression: 0.4, defense: 3.0, pact loyalty: 1.2, betrayal: 0.3, floop: 2.0).
+  - `scenes/match/BotArchetypeCheck.tscn` — NEW: Headless checkup scene.
+  - `scripts/ui/bot_archetype_check.gd` — NEW: Automated verification script testing profile loading, valid metadata, non-negative weights, and archetype differentiations.
+  - `docs/development.md` — MODIFIED: Registered BotArchetypeCheck.tscn under verification scene list.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: BotArchetypeResource configured with id, archetype_name, description, and weight fields (aggression_weight, defense_weight, pact_loyalty_weight, betrayal_opportunism_weight, floop_preference_weight). 4 archetypes created under data/bot_profiles/ reflecting GDD §10: ba_aggressive (aggression 3.0, defense 0.5, pact 0.1, betrayal 1.5, floop 1.0), ba_opportunist (aggression 1.8, defense 1.0, pact 0.5, betrayal 3.0, floop 1.5), ba_loyalist (aggression 1.0, defense 1.5, pact 3.0, betrayal 0.1, floop 1.0), and ba_turtle (aggression 0.4, defense 3.0, pact 1.2, betrayal 0.3, floop 2.0). Verified with BotArchetypeCheck.tscn.
@@ -623,9 +623,9 @@ None (pure data resource and weight table verification; no visual UI elements in
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/ai/bot_ai.gd` — MODIFIED: Implemented candidate action evaluation and weighted-sum scoring per TDD §3.5 (`score_card_placement`, `score_floop`, `decide`). Evaluates ATK and DEF against archetype weights, threat context (unblocked opposing lane vs blocked opposing lane), floop preferences, and essence budget constraints with controllable noise variance.
-- `scenes/match/BotAIScoringCheck.tscn` — NEW: Headless checkup scene.
-- `scripts/ui/bot_ai_scoring_check.gd` — NEW: Automated verification runner testing creature selection, lane choice differentiation, floop evaluation, essence/lane occupancy constraints, null archetype fallback, and noise perturbation.
-- `docs/development.md` — MODIFIED: Registered BotAIScoringCheck.tscn under verification scene list.
+  - `scenes/match/BotAIScoringCheck.tscn` — NEW: Headless checkup scene.
+  - `scripts/ui/bot_ai_scoring_check.gd` — NEW: Automated verification runner testing creature selection, lane choice differentiation, floop evaluation, essence/lane occupancy constraints, null archetype fallback, and noise perturbation.
+  - `docs/development.md` — MODIFIED: Registered BotAIScoringCheck.tscn under verification scene list.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: BotAI.decide() scores creature placements and floop activations using TDD §3.5 weighted sum formula: ATK weighted by aggression_weight, DEF weighted by defense_weight, threat context (unblocked lane adds ATK * aggression_weight; blocked lane adds DEF * defense_weight), and floops scaled by floop_preference_weight and effect type. A small noise variance (default 0.05) adds unpredictability while keeping decisions deterministic with noise=0.0. Actions iteratively chosen greedily within kingdom.essence budget. Verified with BotAIScoringCheck.tscn.
@@ -662,9 +662,9 @@ None (pure AI heuristic scoring logic and decision resolution; no visual UI elem
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/ai/bot_decision_source.gd` — MODIFIED: Extended DecisionSource, wrapping BotAI.decide() to synchronously emit actions_ready(actions) upon request_actions(kingdom, context).
-- `scenes/match/BotDecisionSourceCheck.tscn` — NEW: Headless checkup scene.
-- `scripts/ui/bot_decision_source_check.gd` — NEW: Automated verification script testing interface parity, seamless substitution for DummyAIDecisionSource with zero changes to ResolutionEngine/TurnManager, legal action execution across all 4 archetypes, and full match progression to clean termination.
-- `docs/development.md` — MODIFIED: Registered BotDecisionSourceCheck.tscn under verification scene list.
+  - `scenes/match/BotDecisionSourceCheck.tscn` — NEW: Headless checkup scene.
+  - `scripts/ui/bot_decision_source_check.gd` — NEW: Automated verification script testing interface parity, seamless substitution for DummyAIDecisionSource with zero changes to ResolutionEngine/TurnManager, legal action execution across all 4 archetypes, and full match progression to clean termination.
+  - `docs/development.md` — MODIFIED: Registered BotDecisionSourceCheck.tscn under verification scene list.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: BotDecisionSource wraps BotAI in scripts/ai/bot_decision_source.gd, conforming strictly to DecisionSource. Emits actions_ready synchronously upon request_actions(kingdom, context). Drop-in replacement for DummyAIDecisionSource in 2-player match requires zero changes to ResolutionEngine or TurnManager (AGENTS rule 4). Verified with BotDecisionSourceCheck.tscn across all 4 archetypes with full match termination.
@@ -716,19 +716,19 @@ None (pure DecisionSource wrapper and match simulation; no visual UI elements in
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/data/board_layout_config.gd` — NEW: Resource defining tunable layout parameters (`radius_x`, `radius_y`, `center_offset`, `bot_scale`, `human_scale`, `target_viewport_size`, `arc_start_degrees`, `arc_end_degrees`, `human_bottom_margin`).
-- `data/board/default_board_layout.tres` — NEW: Default BoardLayoutConfigResource configuration calibrated for 1152x648 viewport.
-- `scripts/ui/match_board.gd` — NEW: MatchBoard Control script implementing circular/elliptical N-kingdom layout for 4, 5, and 6 players with human at bottom center and opponents distributed along the top arc. Provides helper methods: `setup_board`, `get_kingdom_view`, `get_all_kingdom_views`, `clear_board`, and `get_kingdom_rect`.
-- `scenes/match/MatchBoard.tscn` — NEW: MatchBoard UI scene root Control node at 1152x648 resolution with default layout configuration bound.
-- `scripts/ui/match_board_check.gd` — NEW: Automated headless check script verifying config loading, bounds containment, non-overlapping bounding boxes for 4, 5, and 6 players, hand visibility, helper methods, custom human ID seating, and negative test argument.
-- `scenes/match/MatchBoardCheck.tscn` — NEW: Headless checkup scene.
-- `docs/development.md` — MODIFIED: Registered MatchBoardCheck.tscn under verification test scene list.
-- `docs/execution_log.md` — MODIFIED: Logged M4-01 implementation, verification output, and manual check instructions.
+  - `data/board/default_board_layout.tres` — NEW: Default BoardLayoutConfigResource configuration calibrated for 1152x648 viewport.
+  - `scripts/ui/match_board.gd` — NEW: MatchBoard Control script implementing circular/elliptical N-kingdom layout for 4, 5, and 6 players with human at bottom center and opponents distributed along the top arc. Provides helper methods: `setup_board`, `get_kingdom_view`, `get_all_kingdom_views`, `clear_board`, and `get_kingdom_rect`.
+  - `scenes/match/MatchBoard.tscn` — NEW: MatchBoard UI scene root Control node at 1152x648 resolution with default layout configuration bound.
+  - `scripts/ui/match_board_check.gd` — NEW: Automated headless check script verifying config loading, bounds containment, non-overlapping bounding boxes for 4, 5, and 6 players, hand visibility, helper methods, custom human ID seating, and negative test argument.
+  - `scenes/match/MatchBoardCheck.tscn` — NEW: Headless checkup scene.
+  - `docs/development.md` — MODIFIED: Registered MatchBoardCheck.tscn under verification test scene list.
+  - `docs/execution_log.md` — MODIFIED: Logged M4-01 implementation, verification output, and manual check instructions.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: Store tunable layout parameters in `BoardLayoutConfigResource` under `scripts/data/board_layout_config.gd` and create default resource `data/board/default_board_layout.tres`. Include radius_x, radius_y, center_offset, bot_scale, human_scale, target_viewport_size.
-- `MatchBoard` in `scripts/ui/match_board.gd` and `scenes/match/MatchBoard.tscn` extends `Control`, instantiating `scenes/match/Kingdom.tscn` for each player.
-- Player `human_player_id` (default 0) placed at bottom center with human_scale (and hand visible via `bind_state(state, true)`), while opponent kingdoms are placed along the circular/elliptical arc with bot_scale (and hand hidden via `bind_state(state, false)`).
-- Helper methods provided: `setup_board`, `get_kingdom_view`, `get_all_kingdom_views`, `clear_board`, `get_kingdom_rect`.
+  - `MatchBoard` in `scripts/ui/match_board.gd` and `scenes/match/MatchBoard.tscn` extends `Control`, instantiating `scenes/match/Kingdom.tscn` for each player.
+  - Player `human_player_id` (default 0) placed at bottom center with human_scale (and hand visible via `bind_state(state, true)`), while opponent kingdoms are placed along the circular/elliptical arc with bot_scale (and hand hidden via `bind_state(state, false)`).
+  - Helper methods provided: `setup_board`, `get_kingdom_view`, `get_all_kingdom_views`, `clear_board`, `get_kingdom_rect`.
 
 **Verification (headless check output, exit code 0):**
 ```
@@ -782,11 +782,11 @@ MatchBoardCheck: PASS
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/autoload/turn_manager.gd` — MODIFIED: Implemented simultaneous action collection tracking (`pending_player_ids`, `collected_actions`, `is_collecting_actions`), signals (`action_received`, `waiting_status_changed`, `all_actions_collected`), and methods (`start_action_collection`, `_on_source_actions_ready`, `get_collected_actions_list`, `cancel_action_collection`). Advances to BATTLE phase only when all actions collected.
-- `scripts/ui/match_board.gd` — MODIFIED: Connected to TurnManager action collection signals. Added `show_waiting_state()`, `hide_waiting_state()`, `is_waiting_visible()`. Displays waiting overlay when local human has submitted while other players remain pending; hides overlay upon all_actions_collected.
-- `scenes/match/MatchBoard.tscn` — MODIFIED: Added centered `WaitingOverlay` PanelContainer with Label ("Waiting for other players...").
-- `scripts/ui/simultaneous_submission_check.gd` — NEW: Headless checkup script testing start/cancel, Order 1 (bots first, human last), Order 2 (human first, bots delayed 1-by-1 with UI waiting check), Order 3 (shuffled arrival), negative test flag, and manual check.
-- `scenes/match/SimultaneousSubmissionCheck.tscn` — NEW: Headless checkup scene.
-- `docs/development.md` — MODIFIED: Registered SimultaneousSubmissionCheck.tscn under verification scene list.
+  - `scripts/ui/match_board.gd` — MODIFIED: Connected to TurnManager action collection signals. Added `show_waiting_state()`, `hide_waiting_state()`, `is_waiting_visible()`. Displays waiting overlay when local human has submitted while other players remain pending; hides overlay upon all_actions_collected.
+  - `scenes/match/MatchBoard.tscn` — MODIFIED: Added centered `WaitingOverlay` PanelContainer with Label ("Waiting for other players...").
+  - `scripts/ui/simultaneous_submission_check.gd` — NEW: Headless checkup script testing start/cancel, Order 1 (bots first, human last), Order 2 (human first, bots delayed 1-by-1 with UI waiting check), Order 3 (shuffled arrival), negative test flag, and manual check.
+  - `scenes/match/SimultaneousSubmissionCheck.tscn` — NEW: Headless checkup scene.
+  - `docs/development.md` — MODIFIED: Registered SimultaneousSubmissionCheck.tscn under verification scene list.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: TurnManager coordinates simultaneous action collection via start_action_collection(context, sources). It requests actions across all active kingdoms in parallel, tracks pending player IDs, and emits action_received(player_id, actions), waiting_status_changed(is_waiting, pending_ids), and all_actions_collected(actions). MatchBoard displays centered WaitingOverlay with "Waiting for other players..." whenever the local human has submitted while other players are pending, hiding upon all_actions_collected. Resolution does not proceed until all N RoundActions arrive. Verified with SimultaneousSubmissionCheck.tscn.
@@ -854,18 +854,18 @@ SimultaneousSubmissionCheck: PASS
 **Model:** Planner=opus
 **Files changed:**
 - `docs/README.md` — MODIFIED: Rewrite status to reflect M0–M3, M4-01, M4-02 complete; update not-yet-implemented list (bot AI, FFA scaffolding exist).
-- `docs/TDD.md` — MODIFIED: §3.4 to match `request_actions()`/`actions_ready`; §3.2 list actual exported fields for all Resource classes in `scripts/data/`; §2 include `data/floop_effects/` and `data/board/`; §1.2 untick overclaimed checkboxes; §3.2 HeroResource comment clarify Hero card type.
-- `docs/card_battler_schema.dbml` — MODIFIED: Align DBML tables with actual Resources (heroes decoupled from cards table, starting_life, affinity, floop_effects effect_type/value, board_layout_configs table).
-- `docs/TASKS.md` — MODIFIED: Fix M0-02 resolution dates to 2026-09-20; add DOC-01 task block; fix M1-05 typo; move stray M2-03 line; §0 rule 6 use §4 Status format.
-- `docs/development.md` — MODIFIED: Add TurnManagerCheck.tscn; add bash loop note; add warning that DeckSaveLoadCheck overwrites user://saved_deck.json.
-- `docs/AGENTS.md` — MODIFIED: Rule 18 on its own line; rule 8 clarify Planner updates status in orchestrated runs.
-- `docs/execution_log.md` — MODIFIED: Human verification queue summary at top; restore M3-02 heading; add M4-01 pending human verification entry; update M4-01 header; add DOC-01 log entry.
-- `workflow.txt` — NEW: Standing decisions (A, B, C) and orchestration loop rules.
+  - `docs/TDD.md` — MODIFIED: §3.4 to match `request_actions()`/`actions_ready`; §3.2 list actual exported fields for all Resource classes in `scripts/data/`; §2 include `data/floop_effects/` and `data/board/`; §1.2 untick overclaimed checkboxes; §3.2 HeroResource comment clarify Hero card type.
+  - `docs/card_battler_schema.dbml` — MODIFIED: Align DBML tables with actual Resources (heroes decoupled from cards table, starting_life, affinity, floop_effects effect_type/value, board_layout_configs table).
+  - `docs/TASKS.md` — MODIFIED: Fix M0-02 resolution dates to 2026-09-20; add DOC-01 task block; fix M1-05 typo; move stray M2-03 line; §0 rule 6 use §4 Status format.
+  - `docs/development.md` — MODIFIED: Add TurnManagerCheck.tscn; add bash loop note; add warning that DeckSaveLoadCheck overwrites user://saved_deck.json.
+  - `docs/AGENTS.md` — MODIFIED: Rule 18 on its own line; rule 8 clarify Planner updates status in orchestrated runs.
+  - `docs/execution_log.md` — MODIFIED: Human verification queue summary at top; restore M3-02 heading; add M4-01 pending human verification entry; update M4-01 header; add DOC-01 log entry.
+  - `workflow.txt` — NEW: Standing decisions (A, B, C) and orchestration loop rules.
 
 **Planner decisions applied:**
 - Reconcile documentation with codebase reality without changing gameplay code.
-- Unticked premature checkboxes in TDD.md §1.2.
-- Harmonized HeroResource description: Hero is a card type chosen at deck-build time with affinity, starting Life, and signature Ultimate, implemented extending Resource directly in commander slot.
+  - Unticked premature checkboxes in TDD.md §1.2.
+  - Harmonized HeroResource description: Hero is a card type chosen at deck-build time with affinity, starting Life, and signature Ultimate, implemented extending Resource directly in commander slot.
 
 **Verification:**
 - Documentation verification: confirmed all 7 docs files match repository code reality (`git diff scripts/ scenes/ data/` empty).
@@ -878,24 +878,24 @@ None (documentation only).
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/data/pile_on_config_resource.gd` — NEW: Resource defining `threshold` (default 3) and `attacker_multipliers` ([1.0, 0.75, 0.5, 0.25]) for anti-pile-on diminishing returns.
-- `data/combat/default_pile_on_config.tres` — NEW: Default PileOnConfigResource instance under data/combat/.
-- `scripts/autoload/resolution_engine.gd` — MODIFIED: Implemented deterministic 5-stage simultaneous resolution (Landscapes → Spells & Floops → Creatures [deploy + combat] → Pact changes → Betrayals), deterministic sorting by `player_id` ascending, explicit floop target routing, and anti-pile-on diminishing returns for 3+ simultaneous attackers.
-- `scripts/core/combat_resolver.gd` — MODIFIED: Added `resolve_attack(attacker, defender, attacker_lane, target_lane, multiplier)` applying `effective_attack = maxi(0, int(round(atk * multiplier)))`.
-- `scripts/core/round_actions.gd` — MODIFIED: Changed `cards_to_floop` to untyped `Array` to support `{"card": ..., "target_player_id": ...}` explicit target entries alongside `CardResource`.
-- `scripts/core/human_decision_source.gd` — MODIFIED: `queue_floop` takes optional `target_player_id = -1`.
-- `scripts/core/match_context.gd` — MODIFIED: Added `get_default_opponent_id(for_player_id)` helper.
-- `scripts/autoload/floop_check.gd` — MODIFIED: Added Case 8 verifying multi-player explicit floop target routing.
-- `scripts/ui/resolution_engine_check.gd` — NEW: Checkup script verifying 5-stage order, floop routing, 3-attacker pile-on reduction, 2-attacker threshold check, 2p backward compatibility, and negative test.
-- `scenes/match/ResolutionEngineCheck.tscn` — NEW: Headless checkup scene.
-- `docs/data.md` — MODIFIED: Documented PileOnConfigResource and default_pile_on_config.tres.
-- `docs/development.md` — MODIFIED: Registered ResolutionEngineCheck.tscn.
-- `docs/TDD.md` — MODIFIED: Checked off ResolutionEngine deterministic resolution order + pile-on damage reduction.
-- `docs/TASKS.md` — MODIFIED: M4-03 status -> Done, resolved §5 floop discrepancy, audited two-player assumptions, recorded DECIDED BY PLANNER decisions.
+  - `data/combat/default_pile_on_config.tres` — NEW: Default PileOnConfigResource instance under data/combat/.
+  - `scripts/autoload/resolution_engine.gd` — MODIFIED: Implemented deterministic 5-stage simultaneous resolution (Landscapes → Spells & Floops → Creatures [deploy + combat] → Pact changes → Betrayals), deterministic sorting by `player_id` ascending, explicit floop target routing, and anti-pile-on diminishing returns for 3+ simultaneous attackers.
+  - `scripts/core/combat_resolver.gd` — MODIFIED: Added `resolve_attack(attacker, defender, attacker_lane, target_lane, multiplier)` applying `effective_attack = maxi(0, int(round(atk * multiplier)))`.
+  - `scripts/core/round_actions.gd` — MODIFIED: Changed `cards_to_floop` to untyped `Array` to support `{"card": ..., "target_player_id": ...}` explicit target entries alongside `CardResource`.
+  - `scripts/core/human_decision_source.gd` — MODIFIED: `queue_floop` takes optional `target_player_id = -1`.
+  - `scripts/core/match_context.gd` — MODIFIED: Added `get_default_opponent_id(for_player_id)` helper.
+  - `scripts/autoload/floop_check.gd` — MODIFIED: Added Case 8 verifying multi-player explicit floop target routing.
+  - `scripts/ui/resolution_engine_check.gd` — NEW: Checkup script verifying 5-stage order, floop routing, 3-attacker pile-on reduction, 2-attacker threshold check, 2p backward compatibility, and negative test.
+  - `scenes/match/ResolutionEngineCheck.tscn` — NEW: Headless checkup scene.
+  - `docs/data.md` — MODIFIED: Documented PileOnConfigResource and default_pile_on_config.tres.
+  - `docs/development.md` — MODIFIED: Registered ResolutionEngineCheck.tscn.
+  - `docs/TDD.md` — MODIFIED: Checked off ResolutionEngine deterministic resolution order + pile-on damage reduction.
+  - `docs/TASKS.md` — MODIFIED: M4-03 status -> Done, resolved §5 floop discrepancy, audited two-player assumptions, recorded DECIDED BY PLANNER decisions.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: 5-stage resolution order per TDD §3.6 (Landscapes -> Spells/Floops -> Creatures [deploy + combat] -> Pacts -> Betrayals).
-- DECIDED BY PLANNER: Anti-pile-on reduction triggers when unique attackers on same defender Kingdom >= threshold (3). Attacker index 0 deals 100%, index 1 deals 75%, index 2 deals 50%, index 3+ deals 25%. Effective attack rounded with `maxi(0, int(round(atk * multiplier)))`. Tunable in `data/combat/default_pile_on_config.tres`.
-- Resolved floop targeting discrepancy: explicit `target_player_id` in `RoundActions.cards_to_floop` routes to target, defaulting to single opponent in 2p or first active opponent in N-player.
+  - DECIDED BY PLANNER: Anti-pile-on reduction triggers when unique attackers on same defender Kingdom >= threshold (3). Attacker index 0 deals 100%, index 1 deals 75%, index 2 deals 50%, index 3+ deals 25%. Effective attack rounded with `maxi(0, int(round(atk * multiplier)))`. Tunable in `data/combat/default_pile_on_config.tres`.
+  - Resolved floop targeting discrepancy: explicit `target_player_id` in `RoundActions.cards_to_floop` routes to target, defaulting to single opponent in 2p or first active opponent in N-player.
 
 **Verification (headless check output, exit code 0):**
 ```
@@ -940,26 +940,26 @@ ResolutionEngineCheck: PASS
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/data/pact_config_resource.gd` — NEW: Resource defining `max_essence_lend_per_turn` (default 1) and `allow_creature_lend` (default true) for tunable pact parameters.
-- `data/pact/default_pact_config.tres` — NEW: Default PactConfigResource instance.
-- `scripts/autoload/pact_manager.gd` — MODIFIED: Replaced stub with full bilateral tracking (`_active_pacts` with canonical keys, `_proposals`, `_essence_lent_this_turn`), signals (`pact_formed`, `pact_broken`, `pact_proposed`, `essence_lent`), attack blocking query `can_attack()`, and essence lending `lend_essence()` with turn limit.
-- `scenes/ui/PactProposalPopup.tscn` — NEW: 4–6 player popup scene with player list, status indicators, and Propose / Accept / Lend buttons.
-- `scripts/ui/pact_proposal_popup.gd` — NEW: Script for popup handling local player binding, proposal tracking, PactManager delegation, and UI signals.
-- `scripts/autoload/resolution_engine.gd` — MODIFIED: Blocked combat targeting between active pact allies in Step 3b (anti-pile-on counting and damage execution, logging `combat_blocked_by_pact`). Resolved queued pact proposals, accepts, and essence transfers in Step 4.
-- `scripts/core/human_decision_source.gd` — MODIFIED: Added `target_validator: Callable` and `can_target_for_attack(target_player_id)` to keep `scripts/core/` pure RefCounted with zero Node references. Blocks queueing attacks against allies.
-- `scripts/autoload/turn_manager.gd` — MODIFIED: Binds `PactManager.can_attack` to `HumanDecisionSource.target_validator` during `start_action_collection()`.
-- `scripts/ui/match_board.gd` — MODIFIED: Added `can_target_for_attack(attacker_id, defender_id)` and `open_pacts(context)`.
-- `scenes/match/PactCheck.tscn` — NEW: Headless verification scene.
-- `scripts/ui/pact_check.gd` — NEW: Checkup runner verifying bilateral pact proposal/acceptance, attack blocking in UI and ResolutionEngine, 1-per-turn essence lending, popup UI interaction, and negative test.
-- `docs/data.md` — MODIFIED: Documented PactConfigResource and default_pact_config.tres.
-- `docs/development.md` — MODIFIED: Registered PactCheck.tscn in test scene list.
-- `docs/TASKS.md` — MODIFIED: M4-04 status -> Done, added §5 DECIDED BY PLANNER entry.
+  - `data/pact/default_pact_config.tres` — NEW: Default PactConfigResource instance.
+  - `scripts/autoload/pact_manager.gd` — MODIFIED: Replaced stub with full bilateral tracking (`_active_pacts` with canonical keys, `_proposals`, `_essence_lent_this_turn`), signals (`pact_formed`, `pact_broken`, `pact_proposed`, `essence_lent`), attack blocking query `can_attack()`, and essence lending `lend_essence()` with turn limit.
+  - `scenes/ui/PactProposalPopup.tscn` — NEW: 4–6 player popup scene with player list, status indicators, and Propose / Accept / Lend buttons.
+  - `scripts/ui/pact_proposal_popup.gd` — NEW: Script for popup handling local player binding, proposal tracking, PactManager delegation, and UI signals.
+  - `scripts/autoload/resolution_engine.gd` — MODIFIED: Blocked combat targeting between active pact allies in Step 3b (anti-pile-on counting and damage execution, logging `combat_blocked_by_pact`). Resolved queued pact proposals, accepts, and essence transfers in Step 4.
+  - `scripts/core/human_decision_source.gd` — MODIFIED: Added `target_validator: Callable` and `can_target_for_attack(target_player_id)` to keep `scripts/core/` pure RefCounted with zero Node references. Blocks queueing attacks against allies.
+  - `scripts/autoload/turn_manager.gd` — MODIFIED: Binds `PactManager.can_attack` to `HumanDecisionSource.target_validator` during `start_action_collection()`.
+  - `scripts/ui/match_board.gd` — MODIFIED: Added `can_target_for_attack(attacker_id, defender_id)` and `open_pacts(context)`.
+  - `scenes/match/PactCheck.tscn` — NEW: Headless verification scene.
+  - `scripts/ui/pact_check.gd` — NEW: Checkup runner verifying bilateral pact proposal/acceptance, attack blocking in UI and ResolutionEngine, 1-per-turn essence lending, popup UI interaction, and negative test.
+  - `docs/data.md` — MODIFIED: Documented PactConfigResource and default_pact_config.tres.
+  - `docs/development.md` — MODIFIED: Registered PactCheck.tscn in test scene list.
+  - `docs/TASKS.md` — MODIFIED: M4-04 status -> Done, added §5 DECIDED BY PLANNER entry.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: PactConfigResource stored under data/pact/default_pact_config.tres (max_essence_lend_per_turn=1, allow_creature_lend=true) per Standing Decision A.
-- DECIDED BY PLANNER: PactManager implements bilateral pact tracking with canonical keys min:max, auto-mutual acceptance when reciprocal proposals exist, and per-turn essence lending tracking reset on TurnManager.turn_started.
-- DECIDED BY PLANNER: HumanDecisionSource in scripts/core/ stays pure RefCounted with zero Node references by using injectable target_validator: Callable (injected by TurnManager during action collection), blocking ally targeting at queue time.
-- DECIDED BY PLANNER: ResolutionEngine ignores pact ally attacks from anti-pile-on calculation and blocks combat damage with combat_blocked_by_pact log entry.
-- DECIDED BY PLANNER: PactProposalPopup (scenes/ui/PactProposalPopup.tscn) provides 4-6 player UI for proposing, accepting, and lending essence.
+  - DECIDED BY PLANNER: PactManager implements bilateral pact tracking with canonical keys min:max, auto-mutual acceptance when reciprocal proposals exist, and per-turn essence lending tracking reset on TurnManager.turn_started.
+  - DECIDED BY PLANNER: HumanDecisionSource in scripts/core/ stays pure RefCounted with zero Node references by using injectable target_validator: Callable (injected by TurnManager during action collection), blocking ally targeting at queue time.
+  - DECIDED BY PLANNER: ResolutionEngine ignores pact ally attacks from anti-pile-on calculation and blocks combat damage with combat_blocked_by_pact log entry.
+  - DECIDED BY PLANNER: PactProposalPopup (scenes/ui/PactProposalPopup.tscn) provides 4-6 player UI for proposing, accepting, and lending essence.
 
 **Verification (headless check output, exit code 0):**
 ```
@@ -1041,21 +1041,21 @@ PactCheck: PASS
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/data/betrayal_config_resource.gd` — NEW: Resource defining `bonus_essence: int = 2` and `bonus_attack_damage: int = 2` for tunable betrayal parameters.
-- `data/pact/default_betrayal_config.tres` — NEW: Default BetrayalConfigResource instance under data/pact/.
-- `scripts/core/combat_resolver.gd` — MODIFIED: Extended `resolve_attack()` with optional `bonus_attack: int = 0` param, reflected in effective attack calculation and combat log output.
-- `scripts/core/human_decision_source.gd` — MODIFIED: In `can_target_for_attack()`, permits targeting an ally if `pending_actions.betrayal_target == target_player_id`.
-- `scripts/autoload/resolution_engine.gd` — MODIFIED: In Stage 3b, allows betrayal attack to bypass pact block, adds `bonus_attack_damage`, and tracks attacked betrayal targets; in Stage 5, breaks pact, awards single `bonus_essence` burst if target was attacked, and logs `bonus_granted: true/false`.
-- `scenes/match/BetrayalCheck.tscn` — NEW: Headless checkup scene.
-- `scripts/ui/betrayal_check.gd` — NEW: Checkup runner verifying config loading, HumanDecisionSource betrayal targeting unlock, same-turn break+attack with damage and essence burst, break without attack (no bonus), multi-lane single bonus grant, and negative test.
-- `docs/data.md` — MODIFIED: Documented BetrayalConfigResource and default_betrayal_config.tres.
-- `docs/development.md` — MODIFIED: Registered BetrayalCheck.tscn in test scene list.
-- `docs/TASKS.md` — MODIFIED: M4-05 status -> Done, added §5 DECIDED BY PLANNER entry.
+  - `data/pact/default_betrayal_config.tres` — NEW: Default BetrayalConfigResource instance under data/pact/.
+  - `scripts/core/combat_resolver.gd` — MODIFIED: Extended `resolve_attack()` with optional `bonus_attack: int = 0` param, reflected in effective attack calculation and combat log output.
+  - `scripts/core/human_decision_source.gd` — MODIFIED: In `can_target_for_attack()`, permits targeting an ally if `pending_actions.betrayal_target == target_player_id`.
+  - `scripts/autoload/resolution_engine.gd` — MODIFIED: In Stage 3b, allows betrayal attack to bypass pact block, adds `bonus_attack_damage`, and tracks attacked betrayal targets; in Stage 5, breaks pact, awards single `bonus_essence` burst if target was attacked, and logs `bonus_granted: true/false`.
+  - `scenes/match/BetrayalCheck.tscn` — NEW: Headless checkup scene.
+  - `scripts/ui/betrayal_check.gd` — NEW: Checkup runner verifying config loading, HumanDecisionSource betrayal targeting unlock, same-turn break+attack with damage and essence burst, break without attack (no bonus), multi-lane single bonus grant, and negative test.
+  - `docs/data.md` — MODIFIED: Documented BetrayalConfigResource and default_betrayal_config.tres.
+  - `docs/development.md` — MODIFIED: Registered BetrayalCheck.tscn in test scene list.
+  - `docs/TASKS.md` — MODIFIED: M4-05 status -> Done, added §5 DECIDED BY PLANNER entry.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: Betrayal burst values defined in BetrayalConfigResource under data/pact/default_betrayal_config.tres (bonus_essence=2, bonus_attack_damage=2) per Standing Decision A.
-- DECIDED BY PLANNER: In HumanDecisionSource, declaring betrayal_target against an ally unlocks attack targeting against that ally.
-- DECIDED BY PLANNER: In ResolutionEngine, attacks against a declared betrayal target bypass pact blocking and receive bonus_attack_damage in Stage 3b.
-- DECIDED BY PLANNER: In Stage 5, pact between breaker and victim is broken; if breaker attacked victim that turn, breaker receives bonus_essence exactly once and resolution log records bonus_granted=true. If breaker broke pact without attacking victim that turn, pact is broken with zero bonus essence and bonus_granted=false.
+  - DECIDED BY PLANNER: In HumanDecisionSource, declaring betrayal_target against an ally unlocks attack targeting against that ally.
+  - DECIDED BY PLANNER: In ResolutionEngine, attacks against a declared betrayal target bypass pact blocking and receive bonus_attack_damage in Stage 3b.
+  - DECIDED BY PLANNER: In Stage 5, pact between breaker and victim is broken; if breaker attacked victim that turn, breaker receives bonus_essence exactly once and resolution log records bonus_granted=true. If breaker broke pact without attacking victim that turn, pact is broken with zero bonus essence and bonus_granted=false.
 
 **Verification (headless check output, exit code 0):**
 ```
@@ -1107,13 +1107,13 @@ BetrayalCheck: PASS
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/data/comeback_config_resource.gd` — NEW: Resource defining `bonus_essence: int = 1` and `tie_mode: TieMode = TieMode.ALL_TIED` for tunable comeback mechanics.
-- `data/combat/default_comeback_config.tres` — NEW: Default ComebackConfigResource instance under data/combat/.
-- `scripts/autoload/turn_manager.gd` — MODIFIED: Implemented `apply_comeback_bonus(context)` evaluating lowest Life among active kingdoms during Phase.ESSENCE, awarding bonus Essence, and emitting `comeback_bonus_awarded`. If all active players share identical Life, zero bonus is awarded; on tie under `ALL_TIED`, each tied player receives +1 essence without duplicate bonuses.
-- `scenes/match/ComebackCheck.tscn` — NEW: Headless checkup scene.
-- `scripts/ui/comeback_check.gd` — NEW: Checkup runner verifying config loading, uneven Life totals, ties under all tie modes, equal Life totals, eliminated player exclusion, dynamic round adaptation, and negative test.
-- `docs/data.md` — MODIFIED: Documented ComebackConfigResource and default_comeback_config.tres.
-- `docs/development.md` — MODIFIED: Registered ComebackCheck.tscn in test scene list.
-- `docs/TASKS.md` — MODIFIED: M4-06 status -> Done, added §5 DECIDED BY PLANNER entry.
+  - `data/combat/default_comeback_config.tres` — NEW: Default ComebackConfigResource instance under data/combat/.
+  - `scripts/autoload/turn_manager.gd` — MODIFIED: Implemented `apply_comeback_bonus(context)` evaluating lowest Life among active kingdoms during Phase.ESSENCE, awarding bonus Essence, and emitting `comeback_bonus_awarded`. If all active players share identical Life, zero bonus is awarded; on tie under `ALL_TIED`, each tied player receives +1 essence without duplicate bonuses.
+  - `scenes/match/ComebackCheck.tscn` — NEW: Headless checkup scene.
+  - `scripts/ui/comeback_check.gd` — NEW: Checkup runner verifying config loading, uneven Life totals, ties under all tie modes, equal Life totals, eliminated player exclusion, dynamic round adaptation, and negative test.
+  - `docs/data.md` — MODIFIED: Documented ComebackConfigResource and default_comeback_config.tres.
+  - `docs/development.md` — MODIFIED: Registered ComebackCheck.tscn in test scene list.
+  - `docs/TASKS.md` — MODIFIED: M4-06 status -> Done, added §5 DECIDED BY PLANNER entry.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: ComebackConfigResource stored under data/combat/default_comeback_config.tres (bonus_essence=1, tie_mode=ALL_TIED) per Standing Decision A. TurnManager.apply_comeback_bonus(context) evaluates lowest Life among active kingdoms; if all players share identical Life (e.g. game start 25-25-25-25), zero bonus is awarded; on tie under ALL_TIED, each tied player receives +1 essence without duplicate bonuses. Verified with ComebackCheck.tscn.
@@ -1172,14 +1172,14 @@ ComebackCheck: PASS
 **Model:** Planner=opus, Executioner=sonnet
 **Files changed:**
 - `scripts/data/win_condition_config_resource.gd` — NEW: Resource defining `turn_limit: int = 30` and `tie_rule: TieRule` enum (`DRAW`, `MOST_ESSENCE`) for configurable match duration and tie-breaking.
-- `data/match/default_win_condition_config.tres` — NEW: Default WinConditionConfigResource instance under data/match/.
-- `scripts/autoload/game_manager.gd` — MODIFIED: Added `win_condition_config: WinConditionConfigResource`, loaded via `_ensure_win_condition_config()`. In `setup_match()`, synchronizes context turn limit with config. In `check_win_condition()`, evaluates highest Life among active kingdoms at turn limit using `tie_rule` (`DRAW` returns -1; `MOST_ESSENCE` breaks ties by highest essence, falling back to -1 on equal essence), while preserving last-standing survivor precedence and eliminated player exclusion.
-- `scripts/autoload/turn_manager.gd` — MODIFIED: Added `set_active_context(context)` and synchronized `_active_context.turn_number = current_turn` in `start_turn()`.
-- `scenes/match/TurnLimitCheck.tscn` — NEW: Headless checkup scene.
-- `scripts/ui/turn_limit_check.gd` — NEW: Checkup runner verifying config loading, 2p turn limit, 4p FFA, 5p FFA tie draw, `MOST_ESSENCE` tie-breaking, survivor precedence, eliminated player exclusion, `TurnManager` turn-count sync, and negative test.
-- `docs/data.md` — MODIFIED: Documented WinConditionConfigResource and default_win_condition_config.tres.
-- `docs/development.md` — MODIFIED: Registered TurnLimitCheck.tscn in test scene list.
-- `docs/TASKS.md` — MODIFIED: M4-07 status -> Done, added §5 DECIDED BY PLANNER entry.
+  - `data/match/default_win_condition_config.tres` — NEW: Default WinConditionConfigResource instance under data/match/.
+  - `scripts/autoload/game_manager.gd` — MODIFIED: Added `win_condition_config: WinConditionConfigResource`, loaded via `_ensure_win_condition_config()`. In `setup_match()`, synchronizes context turn limit with config. In `check_win_condition()`, evaluates highest Life among active kingdoms at turn limit using `tie_rule` (`DRAW` returns -1; `MOST_ESSENCE` breaks ties by highest essence, falling back to -1 on equal essence), while preserving last-standing survivor precedence and eliminated player exclusion.
+  - `scripts/autoload/turn_manager.gd` — MODIFIED: Added `set_active_context(context)` and synchronized `_active_context.turn_number = current_turn` in `start_turn()`.
+  - `scenes/match/TurnLimitCheck.tscn` — NEW: Headless checkup scene.
+  - `scripts/ui/turn_limit_check.gd` — NEW: Checkup runner verifying config loading, 2p turn limit, 4p FFA, 5p FFA tie draw, `MOST_ESSENCE` tie-breaking, survivor precedence, eliminated player exclusion, `TurnManager` turn-count sync, and negative test.
+  - `docs/data.md` — MODIFIED: Documented WinConditionConfigResource and default_win_condition_config.tres.
+  - `docs/development.md` — MODIFIED: Registered TurnLimitCheck.tscn in test scene list.
+  - `docs/TASKS.md` — MODIFIED: M4-07 status -> Done, added §5 DECIDED BY PLANNER entry.
 
 **Planner decisions applied:**
 - DECIDED BY PLANNER: WinConditionConfigResource stored under data/match/default_win_condition_config.tres (turn_limit=30, tie_rule=DRAW) per Standing Decision A. GameManager.check_win_condition() evaluates alive kingdoms: if 1 survivor remains, survivor wins immediately (last-standing precedence). When turn limit is reached, highest Life among active kingdoms wins. Ties for highest Life resolve via tie_rule: DRAW returns -1 (draw); MOST_ESSENCE compares essence totals among tied highest-Life players (single highest essence wins; equal essence returns -1). Eliminated players (life <= 0) excluded from highest-Life consideration. TurnManager.start_turn() syncs context.turn_number. Verified with TurnLimitCheck.tscn.

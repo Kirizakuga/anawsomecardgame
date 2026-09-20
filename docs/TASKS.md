@@ -220,15 +220,26 @@ Format: `M{module}-{task number}`, e.g. `M2-04`.
 - Dependencies: M1-08, M4-01.
 - Status: Done — agent, 2026-09-20
 
-**M4-08 — Playable match flow (integration)**
-- Spec: Build Main.tscn (mode select: 2/4/5/6 players, hero/deck from the saved deck or a
-  default, bot archetype per seat) that launches a match: create KingdomStates, wire one
-  HumanDecisionSource with a Submit/End Turn control and BotDecisionSources, drive
-  TurnManager rounds through resolution into ResolutionLog.tscn, and show a result screen on
-  match end. No new rules; reuse existing systems.
-- Checkup: Headless, an auto-started 2p and a 5p bots-only match run to completion with no
-  errors. Manual (log as pending human verification): a human plays 3 turns in 2p.
-- Dependencies: M4-07.
+**M4-R — Review fixes (no new features)**
+- Spec:
+  1. Prove order-independence: check the same round with sources submitting in shuffled order and permuted player IDs gives identical logs and end states, plus a mutual-lethal case (both eliminated in the same round). If damage applies sequentially, compute all attacks against a start-of-stage snapshot, then apply. Order pile-on attackers by highest effective attack, then player_id; record it in §5 and close TDD §6.
+  2. Betrayal: apply the damage bonus once per betrayal (not per lane) and make the burst damage OR essence, not both. Record the choice; list options for the card-driven requirement instead of inventing a card.
+  3. Creature-lend: implement it, or set allow_creature_lend=false and note it in §5.
+  4. Comeback: apply only with 3+ active players; update ComebackCheck.
+- Checkup: Headless checkup scenes verify order-independence, single-lane betrayal bonus + damage-or-essence burst, allow_creature_lend=false or creature lending, and comeback bonus restricted to 3+ active players.
+- Dependencies: M4-03, M4-04, M4-05, M4-06, M4-07.
+- Status: In Progress — agent, started 2026-09-20
+
+**M4-08 — Bot FFA behavior**
+- Spec: Per-archetype attack-target choice, Pact proposal/acceptance (`pact_loyalty_weight`), and betrayal decisions (`betrayal_opportunism_weight`).
+- Checkup: 200 seeded all-bot matches each for 4, 5 and 6 players terminate with one winner or a draw, no errors, and the same seed gives the same log.
+- Dependencies: M3-03, M4-R.
+- Status: Not Started
+
+**M4-09 — Playable match flow (integration)**
+- Spec: Build `Main.tscn` (mode select: 2/4/5/6 players, hero/deck from the saved deck or a default, bot archetype per seat) that launches a match: create KingdomStates, wire one HumanDecisionSource with a Submit/End Turn control and BotDecisionSources, drive TurnManager rounds through resolution into `ResolutionLog.tscn`, and show a result screen on match end. No new rules; reuse existing systems.
+- Checkup: Headless, an auto-started 2p and a 5p bots-only match run to completion with no errors. Manual (log as pending human verification): a human plays 3 turns in 2p.
+- Dependencies: M4-08.
 - Status: Not Started
 
 ---
@@ -308,6 +319,8 @@ M1-03 → M4-01 → M4-02 → M4-03 → M4-05
                        → M4-04 → M4-05
 M4-01 → M4-06
 M1-08, M4-01 → M4-07
+M4-03, M4-04, M4-05, M4-06, M4-07 → M4-R
+M3-03, M4-R → M4-08 → M4-09
 M2-01, M0-02 → M5-01 → M5-02, M5-03, M5-05
 M1-05, M4-04, M4-05 → M5-04
 (all M1–M4 stable) → M6-01 → M6-02
